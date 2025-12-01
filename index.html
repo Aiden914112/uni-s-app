@@ -274,22 +274,42 @@
 
     let allShops = {}; let currentShop = null; let cart = {}; let userProfile = null; let orderCache = [];
 
-    async function main() {
+async function main() {
       try {
         await liff.init({ liffId: MY_LIFF_ID });
         if (!liff.isLoggedIn()) { liff.login(); return; }
+        
         userProfile = await liff.getProfile();
-        updateUI();
+        updateUI(); // 更新大廳與會員頁的頭像名字
 
         const res = await fetch(API_URL);
         allShops = await res.json();
         document.getElementById('loading').classList.add('hidden');
 
-        const shopId = new URLSearchParams(window.location.search).get('id');
-        if (shopId && allShops[shopId]) openShop(shopId);
-        else { renderLobby(allShops); switchTab('lobby'); }
+        // 🔥 解析網址參數
+        const urlParams = new URLSearchParams(window.location.search);
+        const shopId = urlParams.get('id');
+        const targetTab = urlParams.get('tab'); // 抓取 tab 參數
+
+        if (shopId && allShops[shopId]) {
+          // 情況 A: 有指定店家 ID -> 進點餐頁
+          openShop(shopId);
+        } else if (targetTab === 'member') {
+          // 情況 B: 指定要去會員頁 -> 進會員中心
+          renderLobby(allShops);
+          switchTab('member');
+        } else if (targetTab === 'coupons') {
+          // 情況 C: 指定要去領券中心
+          renderLobby(allShops);
+          switchTab('coupons');
+        } else {
+          // 情況 D: 預設 -> 進大廳
+          renderLobby(allShops);
+          switchTab('lobby');
+        }
         
-        fetchMemberData(); 
+        // 預先加載數據
+        fetchMemberData();
 
       } catch (err) { showError(err.message); }
     }
@@ -484,4 +504,5 @@
   </script>
 </body>
 </html>
+
 
