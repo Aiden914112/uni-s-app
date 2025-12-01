@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Uni-S 生活圈</title>
+  <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <style>
+    /* CSS 設定 (與之前相同，新增了歷史訂單樣式) */
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding: 0; margin: 0; background-color: #f2f3f5; touch-action: manipulation; -webkit-user-select: none; user-select: none; padding-bottom: 90px; }
+    .hidden { display: none !important; }
+    
+    #loading, #error-box { text-align: center; padding: 50px; color: #999; }
+    
+    #tab-bar { position: fixed; bottom: 0; left: 0; right: 0; background: white; height: 60px; display: flex; border-top: 1px solid #eee; z-index: 200; padding-bottom: env(safe-area-inset-bottom); }
+    .tab-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #999; font-size: 10px; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+    .tab-item.active { color: #06C755; }
+    .tab-icon { font-size: 24px; margin-bottom: 2px; }
+
+    /* 大廳 */
+    #lobby-view { padding: 20px; }
+    .shop-card { background: white; border-radius: 16px; overflow: hidden; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); transition: transform 0.1s; }
+    .shop-card:active { transform: scale(0.98); }
+    .card-banner { height: 140px; background-size: cover; background-position: center; position: relative; }
+    .card-info { padding: 15px; }
+    .card-name { font-size: 18px; font-weight: bold; margin-bottom: 5px; }
+    .card-tag { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.6); color: white; padding: 4px 10px; border-radius: 20px; font-size: 12px; backdrop-filter: blur(4px); }
+
+    /* 會員中心 */
+    #member-view { padding: 20px; }
+    .member-card { background: linear-gradient(135deg, #06C755, #04a545); border-radius: 20px; padding: 25px; color: white; margin-bottom: 25px; box-shadow: 0 10px 20px rgba(6, 199, 85, 0.3); }
+    .member-header { display: flex; align-items: center; margin-bottom: 20px; }
+    .avatar { width: 60px; height: 60px; border-radius: 50%; border: 3px solid rgba(255,255,255,0.5); margin-right: 15px; background: #eee; }
+    .member-name { font-size: 20px; font-weight: bold; }
+    .points-value { font-size: 36px; font-weight: 800; }
+    .points-unit { font-size: 14px; font-weight: normal; }
+
+    /* 🔥 歷史訂單列表樣式 */
+    .history-title { font-size: 18px; font-weight: bold; color: #333; margin-bottom: 15px; display: flex; align-items: center; }
+    .history-list { display: flex; flex-direction: column; gap: 15px; }
+    .history-item { background: white; border-radius: 12px; padding: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+    .h-header { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px; color: #888; }
+    .h-shop { font-size: 16px; font-weight: bold; color: #333; margin-bottom: 5px; }
+    .h-content { font-size: 14px; color: #666; white-space: pre-wrap; margin-bottom: 10px; background: #f9f9f9; padding: 8px; border-radius: 6px; }
+    .h-footer { display: flex; justify-content: space-between; align-items: center; }
+    .status-badge { padding: 4px 10px; border-radius: 15px; font-size: 12px; font-weight: bold; }
+    .status-wait { background: #fff3cd; color: #856404; } /* 待確認 */
+    .status-ok { background: #d4edda; color: #155724; }   /* 已接單 */
+    .status-no { background: #f8d7da; color: #721c24; }   /* 已婉拒 */
+
+    /* 點餐 */
+    #shop-view { background: #f8f9fa; }
+    #banner { width: 100%; height: 200px; background-size: cover; background-position: center; position: relative; background-color: #ddd; }
+    #shop-info { position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(transparent, rgba(0,0,0,0.8)); padding: 20px; color: white; }
+    #shop-name { font-size: 24px; font-weight: bold; margin: 0; }
+    #back-btn { position: absolute; top: 15px; left: 15px; background: rgba(0,0,0,0.5); color: white; border: none; width: 40px; height: 40px; border-radius: 50%; font-size: 20px; cursor: pointer; z-index: 10; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
+    .container { padding: 15px; }
+    .menu-item { background: white; padding: 15px; border-radius: 12px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+    .stepper { display: flex; align-items: center; background: #f0f0f0; border-radius: 20px; padding: 2px; }
+    .stepper button { width: 32px; height: 32px; border-radius: 50%; border: none; font-size: 18px; cursor: pointer; }
+    .btn-plus { background: #06C755; color: white; }
+    #cart-bar { position: fixed; bottom: 0; left: 0; right: 0; background: white; padding: 15px 20px; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; z-index: 100; padding-bottom: max(15px, env(safe-area-inset-bottom)); }
+    #checkout-btn { background: #06C755; color: white; border: none; padding: 12px 25px; border-radius: 30px; font-weight: bold; cursor: pointer; opacity: 0.5; pointer-events: none; }
+    #checkout-btn.active { opacity: 1; pointer-events: auto; }
+  </style>
+</head>
+<body>
+
+  <div id="loading">載入中...</div>
+  <div id="error-box" class="hidden"></div>
+
+  <div id="lobby-view" class="hidden">
+    <div id="lobby-title">Uni-S <span>生活圈</span></div>
+    <div style="font-size:14px; color:#666; margin-bottom:15px;">你好，<span id="lobby-user"></span>！今天要探索哪家好店？</div>
+    <div id="shop-list"></div>
+  </div>
+
+  <div id="member-view" class="hidden">
+    <div class="member-card">
+      <div class="member-header">
+        <img id="m-avatar" src="" class="avatar">
+        <div>
+          <div id="m-name" class="member-name">...</div>
+          <div style="font-size:12px; opacity:0.9;">Uni-S 會員</div>
+        </div>
+      </div>
+      <div style="font-size:12px; opacity:0.8;">目前累積點數</div>
+      <div class="points-value"><span id="m-points">0</span> <span class="points-unit">P</span></div>
+    </div>
+
+    <div class="history-title">📜 最近訂單紀錄</div>
+    <div id="history-loading" style="text-align:center; color:#999; font-size:12px;">正在查詢...</div>
+    <div id="history-list" class="history-list"></div>
+  </div>
+
+  <div id="shop-view" class="hidden">
+    <button id="back-btn" onclick="goLobby()">‹</button>
+    <div id="banner"><div id="shop-info"><h1 id="shop-name">載入中...</h1></div></div>
+    <div class="container"><div id="menu-list"></div></div>
+    <div id="cart-bar">
+      <div>總計 $<span id="total-display">0</span></div>
+      <button id="checkout-btn" onclick="sendOrder()">送出訂單 (0)</button>
+    </div>
+  </div>
+
+  <div id="tab-bar">
+    <div class="tab-item active" onclick="switchTab('lobby')">
+      <div class="tab-icon">🏠</div><div>首頁</div>
+    </div>
+    <div class="tab-item" onclick="switchTab('member')">
+      <div class="tab-icon">👤</div><div>會員</div>
+    </div>
+  </div>
+
+  <script>
+    // ⚠️⚠️⚠️ 記得填入 ID 和 URL
+    const MY_LIFF_ID = "2008590518-p2AoVQO2"; 
+    const API_URL = "https://script.google.com/macros/s/AKfycbzxUYXVSMjF8Zt7KqBo9qGvottN4zoxkM1qCu97ZqugJ7Nf6czxu0DzBY9DN1nVRtdn/exec";
+
+    let allShops = {}; let currentShop = null; let cart = {}; let userProfile = null;
+
+    async function main() {
+      try {
+        await liff.init({ liffId: MY_LIFF_ID });
+        if (!liff.isLoggedIn()) { liff.login(); return; }
+        userProfile = await liff.getProfile();
+        document.getElementById('lobby-user').innerText = userProfile.displayName;
+
+        const res = await fetch(API_URL);
+        allShops = await res.json();
+        document.getElementById('loading').classList.add('hidden');
+
+        const shopId = new URLSearchParams(window.location.search).get('id');
+        if (shopId && allShops[shopId]) openShop(shopId);
+        else { renderLobby(); switchTab('lobby'); }
+      } catch (err) { showError(err.message); }
+    }
+
+    function switchTab(tab) {
+      document.getElementById('lobby-view').classList.add('hidden');
+      document.getElementById('member-view').classList.add('hidden');
+      document.getElementById('shop-view').classList.add('hidden');
+      document.getElementById('tab-bar').classList.remove('hidden');
+      document.querySelectorAll('.tab-item').forEach(el => el.classList.remove('active'));
+      
+      if (tab === 'lobby') {
+        document.getElementById('lobby-view').classList.remove('hidden');
+        document.querySelectorAll('.tab-item')[0].classList.add('active');
+      } else if (tab === 'member') {
+        document.getElementById('member-view').classList.remove('hidden');
+        document.querySelectorAll('.tab-item')[1].classList.add('active');
+        fetchMemberData();
+        loadOrderHistory(); // 🔥 切換到會員頁時，載入歷史訂單
+      }
+    }
+
+// 🕵️ 偵錯版：檢查到底是誰不見了
+    async function fetchMemberData() {
+      try {
+        // 1. 檢查 userProfile
+        if (!userProfile) throw new Error("userProfile 是空的！(可能尚未登入成功)");
+        
+        // 2. 檢查 HTML 元素是否存在
+        const elName = document.getElementById('m-name');
+        const elAvatar = document.getElementById('m-avatar');
+        const elPoints = document.getElementById('m-points');
+        const elLevel = document.getElementById('m-level');
+
+        if (!elName) throw new Error("找不到 id='m-name' 的元素 (HTML不完整)");
+        if (!elAvatar) throw new Error("找不到 id='m-avatar' 的元素 (HTML不完整)");
+        if (!elPoints) throw new Error("找不到 id='m-points' 的元素 (HTML不完整)");
+
+        // 3. 更新 UI
+        elName.innerText = userProfile.displayName;
+        elAvatar.src = userProfile.pictureUrl;
+        elPoints.innerText = "...";
+        
+        // 4. 呼叫後端
+        const url = `${API_URL}?action=getMember&userId=${userProfile.userId}`;
+        const res = await fetch(url);
+        const data = await res.json();
+        
+        if (!data) throw new Error("後端回傳空的資料");
+
+        elPoints.innerText = data.points;
+        if (elLevel) elLevel.innerText = data.level;
+        
+      } catch(e) { 
+        console.error(e);
+        // 跳出更詳細的錯誤視窗
+        alert("抓到錯誤了！\n原因：" + e.message);
+      }
+    }
+
+    // 🔥 載入歷史訂單函數
+    async function loadOrderHistory() {
+      const listDiv = document.getElementById('history-list');
+      const loadingDiv = document.getElementById('history-loading');
+      listDiv.innerHTML = '';
+      loadingDiv.style.display = 'block';
+
+      try {
+        // 使用 fetch 送出 post 請求查詢歷史
+        // 注意：如果你沒有設定 CORS，這裡可能會讀不到回傳值
+        // 但我們可以用 JSONP 或簡單的 POST 嘗試
+        // 這裡為了演示，假設你已經解決跨域或使用 no-cors (但 no-cors 讀不到資料)
+        // ✨ 技巧：用 GET + URL參數 來避開部分 CORS 問題，或是 Apps Script 必須正確回傳 header
+        
+        // 為了確保你能看到效果，我們嘗試用 GET (前提是後端 doPost 也要支援 doGet 查詢，或是我們改用 POST)
+        // 這裡示範標準 POST fetch，如果你的 Apps Script 有正確設定回傳 header 就能讀到
+        
+        const response = await fetch(API_URL, {
+          method: 'POST',
+          // ⚠️ 關鍵：如果你想要讀取回傳值，不能用 'no-cors'，必須用 'cors'
+          // 但 Apps Script 需要特殊處理。如果這裡失敗，我們先顯示假資料
+          body: JSON.stringify({ action: "getHistory", userId: userProfile.userId })
+        });
+        
+        // 如果 Apps Script 沒有設 CORS header，這裡會報錯，我們就 catch 住
+        const history = await response.json();
+        
+        loadingDiv.style.display = 'none';
+        
+        if (history.length === 0) {
+          listDiv.innerHTML = '<div style="text-align:center;color:#999;font-size:12px;">尚無訂單紀錄</div>';
+          return;
+        }
+
+        let html = '';
+        history.forEach(order => {
+          let badgeClass = 'status-wait';
+          if (order.status.includes('已接單')) badgeClass = 'status-ok';
+          if (order.status.includes('已婉拒')) badgeClass = 'status-no';
+
+          html += `
+            <div class="history-item">
+              <div class="h-header">
+                <span>${order.time}</span>
+                <span>#${order.orderId}</span>
+              </div>
+              <div class="h-shop">${order.shopName}</div>
+              <div class="h-content">${order.content}</div>
+              <div class="h-footer">
+                <span class="status-badge ${badgeClass}">${order.status}</span>
+              </div>
+            </div>
+          `;
+        });
+        listDiv.innerHTML = html;
+
+      } catch (e) {
+        console.error(e);
+        loadingDiv.style.display = 'none';
+        listDiv.innerHTML = '<div style="text-align:center;color:#999;font-size:12px;">無法讀取紀錄 (跨域限制)</div>';
+      }
+    }
+
+    // ... (以下 renderLobby, renderShopUI, updateCart, sendOrder, goLobby 保持不變) ...
+    // 為節省篇幅，請保留你原本的這些函數，它們不需要改動
+    // 只要確保 sendOrder 裡面的 orderData 有包含 userId 即可
+
+    function renderLobby() {
+      const list = document.getElementById('shop-list');
+      let html = '';
+      Object.keys(allShops).forEach(id => {
+        const s = allShops[id];
+        html += `<div class="shop-card" onclick="openShop('${id}', true)"><div class="card-banner" style="background-image:url(${s.bannerUrl})"><div class="card-tag">營業中</div></div><div class="card-info"><div class="card-name">${s.name}</div><div class="card-desc">點擊進入預約點餐...</div></div></div>`;
+      });
+      list.innerHTML = html;
+    }
+
+    function openShop(id, pushHistory=false) {
+      currentShop = allShops[id]; currentShop.id = id; cart = {};
+      if(pushHistory) { const url = new URL(window.location); url.searchParams.set('id', id); window.history.pushState({}, '', url); }
+      document.getElementById('tab-bar').classList.add('hidden'); document.getElementById('lobby-view').classList.add('hidden'); document.getElementById('member-view').classList.add('hidden'); document.getElementById('shop-view').classList.remove('hidden');
+      renderShopUI(currentShop);
+    }
+    
+    function renderShopUI(data) {
+      document.getElementById('shop-name').innerText = data.name; document.getElementById('banner').style.backgroundImage = `url(${data.bannerUrl})`; document.getElementById('total-display').innerText = '0';
+      const btn = document.getElementById('checkout-btn'); btn.innerText = '送出訂單 (0)'; btn.classList.remove('active'); btn.style.backgroundColor = '#ccc';
+      let html = '';
+      data.menu.forEach((item, index) => {
+        html += `<div class="menu-item"><div style="flex:1;"><span class="item-name">${item.name}</span><span class="item-price">$${item.price}</span></div><div class="stepper"><button class="btn-minus" onclick="updateCart('${item.name}', ${item.price}, -1)">−</button><span class="count" id="count-${index}">0</span><button class="btn-plus" style="background:${data.themeColor}" onclick="updateCart('${item.name}', ${item.price}, 1)">+</button></div></div>`;
+      });
+      document.getElementById('menu-list').innerHTML = html;
+    }
+
+    function updateCart(name, price, change) {
+      if (!cart[name]) cart[name] = 0; cart[name] += change; if (cart[name] < 0) cart[name] = 0;
+      const items = currentShop.menu; let total = 0; let count = 0;
+      items.forEach((item, index) => {
+        if (item.name === name) document.getElementById(`count-${index}`).innerText = cart[name];
+        if (cart[item.name]) { total += cart[item.name] * item.price; count += cart[item.name]; }
+      });
+      document.getElementById('total-display').innerText = total;
+      const btn = document.getElementById('checkout-btn'); btn.innerText = `送出訂單 (${count})`;
+      if (count > 0) { btn.classList.add('active'); btn.style.backgroundColor = currentShop.themeColor; } else { btn.classList.remove('active'); btn.style.backgroundColor = '#ccc'; }
+    }
+
+    async function sendOrder() {
+      if (!liff.isInClient()) { alert('請在 LINE App 中使用'); return; }
+      let orderDetail = ""; let total = 0;
+      for (let [name, qty] of Object.entries(cart)) { if (qty > 0) { let item = currentShop.menu.find(i => i.name === name); let subtotal = item.price * qty; orderDetail += `${name} x ${qty} ($${subtotal})\n`; total += subtotal; } }
+      if (total === 0) return;
+      orderDetail += `----------------\n總金額：$${total} 元`;
+      const btn = document.getElementById('checkout-btn'); btn.innerText = "處理中...";
+      try {
+        await liff.sendMessages([{ type: "text", text: `【Uni-S】\n我向 ${currentShop.name} 下單了：\n\n${orderDetail}` }]);
+        const orderData = { shopId: currentShop.id, userName: userProfile.displayName, userId: userProfile.userId, order: orderDetail };
+        await fetch(API_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(orderData) });
+        alert("✅ 訂單已送出！"); goLobby();
+      } catch (err) { alert("發送失敗：" + err.message); btn.innerText = "重試"; }
+    }
+    
+    function goLobby() { const url = new URL(window.location); url.searchParams.delete('id'); window.history.pushState({}, '', url); switchTab('lobby'); }
+    function showError(msg) { document.getElementById('loading').classList.add('hidden'); document.getElementById('error-box').classList.remove('hidden'); document.getElementById('error-box').innerText = msg; }
+
+    main();
+  </script>
+</body>
+</html>
