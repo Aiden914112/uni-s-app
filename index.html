@@ -5,107 +5,247 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Uni-S 生活圈</title>
   <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    /* CSS 全局設定 */
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding: 0; margin: 0; background-color: #f2f3f5; touch-action: manipulation; -webkit-user-select: none; user-select: none; padding-bottom: 90px; }
+    /* ====================
+       1. 全局設定 (旗艦版配色)
+       ==================== */
+    :root {
+      --primary-color: #C5A674; /* 參考截圖的奶茶金/質感金 */
+      --bg-color: #F7F7F7;
+      --text-color: #333;
+      --card-bg: #fff;
+    }
+
+    body { 
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+      padding: 0; margin: 0; background-color: var(--bg-color); 
+      touch-action: manipulation; -webkit-user-select: none; user-select: none; 
+      padding-bottom: 90px; 
+    }
     .hidden { display: none !important; }
     #loading, #error-box { text-align: center; padding: 50px; color: #999; }
+
+    /* ====================
+       2. 底部導航列 (Tab Bar - 質感升級)
+       ==================== */
+    #tab-bar { 
+      position: fixed; bottom: 0; left: 0; right: 0; 
+      background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px);
+      height: 60px; display: flex; 
+      border-top: 1px solid #eee; z-index: 200; 
+      padding-bottom: env(safe-area-inset-bottom); 
+    }
+    .tab-item { 
+      flex: 1; display: flex; flex-direction: column; 
+      align-items: center; justify-content: center; 
+      color: #999; font-size: 10px; cursor: pointer; 
+      -webkit-tap-highlight-color: transparent;
+    }
+    .tab-item.active { color: var(--primary-color); font-weight: bold; }
+    .tab-icon { font-size: 20px; margin-bottom: 4px; }
+
+    /* ====================
+       3. 大廳樣式 (Lobby - 參考截圖佈局)
+       ==================== */
+    #lobby-view { padding-bottom: 20px; }
     
-    /* 底部導航 */
-    #tab-bar { position: fixed; bottom: 0; left: 0; right: 0; background: white; height: 60px; display: flex; border-top: 1px solid #eee; z-index: 200; padding-bottom: env(safe-area-inset-bottom); }
-    .tab-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #999; font-size: 10px; cursor: pointer; -webkit-tap-highlight-color: transparent; }
-    .tab-item.active { color: #06C755; }
-    .tab-icon { font-size: 24px; margin-bottom: 2px; }
+    /* 頂部裝飾背景 */
+    .lobby-header-bg {
+      background: linear-gradient(135deg, #2c3e50, #000); /* 深色質感背景 */
+      height: 180px; border-bottom-left-radius: 20px; border-bottom-right-radius: 20px;
+      position: relative; padding: 20px;
+    }
+    .lobby-brand { color: #C5A674; font-size: 14px; letter-spacing: 2px; font-weight: bold; opacity: 0.8; }
 
-    /* 大廳 */
-    #lobby-view { padding: 20px; }
-    #lobby-title { font-size: 24px; font-weight: 800; color: #111; margin-bottom: 20px; }
-    #lobby-title span { color: #06C755; }
-    .shop-card { background: white; border-radius: 16px; overflow: hidden; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); transition: transform 0.1s; cursor: pointer; }
+    /* 懸浮會員卡 (參考截圖5) */
+    .float-member-card {
+      background: white; margin: -100px 15px 15px 15px; 
+      border-radius: 12px; padding: 20px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+      position: relative; display: flex; align-items: center;
+    }
+    .mini-avatar { width: 50px; height: 50px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-right: 15px; }
+    .user-greeting { flex: 1; }
+    .user-greeting h3 { margin: 0; font-size: 16px; color: #333; }
+    .user-greeting p { margin: 4px 0 0 0; font-size: 12px; color: #888; display: flex; align-items: center; }
+    .level-badge { background: #333; color: #C5A674; padding: 2px 8px; border-radius: 4px; font-size: 10px; margin-left: 5px; }
+    
+    .quick-points { text-align: center; border-left: 1px solid #eee; padding-left: 15px; }
+    .quick-points .num { font-size: 20px; font-weight: bold; color: var(--primary-color); display: block; }
+    .quick-points .label { font-size: 10px; color: #999; }
+
+    /* 金剛區 (功能圖示 - 參考截圖5) */
+    .grid-menu { display: flex; justify-content: space-around; padding: 10px 15px; margin-bottom: 10px; }
+    .grid-item { text-align: center; width: 25%; }
+    .grid-icon { width: 40px; height: 40px; background: #FFF8E1; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin: 0 auto 5px auto; color: var(--primary-color); font-size: 18px; }
+    .grid-text { font-size: 12px; color: #555; }
+
+    /* 商家列表標題 */
+    .section-title { padding: 0 20px; font-size: 16px; font-weight: bold; color: #333; margin-bottom: 10px; display: flex; align-items: center; }
+    .section-title::before { content: ''; width: 4px; height: 16px; background: var(--primary-color); margin-right: 8px; border-radius: 2px; }
+
+    /* 商家卡片 (優化版) */
+    .shop-list-container { padding: 0 15px; }
+    .shop-card { 
+      background: white; border-radius: 12px; overflow: hidden; 
+      margin-bottom: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.03); 
+      display: flex; /* 改成橫向佈局，像外送平台 */
+      padding: 10px;
+      transition: transform 0.1s;
+    }
     .shop-card:active { transform: scale(0.98); }
-    .card-banner { height: 140px; background-size: cover; background-position: center; position: relative; }
-    .card-info { padding: 15px; }
-    .card-name { font-size: 18px; font-weight: bold; color: #333; margin-bottom: 5px; }
-    .card-tag { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.6); color: white; padding: 4px 10px; border-radius: 20px; font-size: 12px; backdrop-filter: blur(4px); }
+    .shop-thumb { width: 80px; height: 80px; border-radius: 8px; background-size: cover; background-position: center; flex-shrink: 0; }
+    .shop-info { padding-left: 15px; flex: 1; display: flex; flex-direction: column; justify-content: center; }
+    .shop-name { font-size: 16px; font-weight: bold; color: #333; margin-bottom: 5px; }
+    .shop-tags { display: flex; gap: 5px; }
+    .shop-tag { font-size: 10px; padding: 2px 6px; border-radius: 4px; background: #f0f0f0; color: #666; }
+    .shop-action { margin-top: 8px; }
+    .btn-visit { background: #333; color: #C5A674; border: none; padding: 4px 12px; border-radius: 20px; font-size: 12px; }
 
-    /* 會員中心 */
-    #member-view { padding: 20px; }
-    .member-card { background: linear-gradient(135deg, #06C755, #04a545); border-radius: 20px; padding: 25px; color: white; margin-bottom: 25px; box-shadow: 0 10px 20px rgba(6, 199, 85, 0.3); }
-    .member-header { display: flex; align-items: center; margin-bottom: 20px; }
-    .avatar { width: 60px; height: 60px; border-radius: 50%; border: 3px solid rgba(255,255,255,0.5); margin-right: 15px; background: #eee; }
-    .member-name { font-size: 20px; font-weight: bold; }
-    .points-value { font-size: 36px; font-weight: 800; }
-    .history-title { font-size: 18px; font-weight: bold; color: #333; margin-bottom: 15px; }
-    .history-item { background: white; border-radius: 12px; padding: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 10px; }
-    .h-header { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px; color: #888; }
-    .h-shop { font-size: 16px; font-weight: bold; color: #333; margin-bottom: 5px; }
-    .h-content { font-size: 14px; color: #666; white-space: pre-wrap; margin-bottom: 10px; background: #f9f9f9; padding: 8px; border-radius: 6px; }
-    .status-badge { padding: 4px 10px; border-radius: 15px; font-size: 12px; font-weight: bold; }
-    .status-wait { background: #fff3cd; color: #856404; }
-    .status-ok { background: #d4edda; color: #155724; }
-    .status-no { background: #f8d7da; color: #721c24; }
+    /* ====================
+       4. 會員中心 & 點餐 & 歷史 (沿用邏輯但優化樣式)
+       ==================== */
+    #member-view, #shop-view { padding: 0; }
+    /* 會員頭部背景圖 */
+    .member-header-bg { background-image: url('https://images.unsplash.com/photo-1577053036830-e99b05374823'); background-size: cover; height: 150px; position: relative; }
+    .member-info-overlay { 
+      position: absolute; bottom: -40px; left: 20px; right: 20px; 
+      background: white; padding: 20px; border-radius: 12px; 
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+      display: flex; align-items: center;
+    }
+    .big-avatar { width: 60px; height: 60px; border-radius: 50%; margin-right: 15px; border: 3px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    .points-box { text-align: center; margin-left: auto; }
+    
+    .history-container { margin-top: 60px; padding: 20px; }
+    
+    /* 點餐頁面的優化 */
+    #shop-view .shop-header { height: 180px; background-size: cover; background-position: center; position: relative; }
+    #shop-view .shop-header::after { content:''; position:absolute; inset:0; background: linear-gradient(transparent, rgba(0,0,0,0.7)); }
+    .shop-header-content { position: absolute; bottom: 20px; left: 20px; color: white; }
+    
+    .menu-list { padding: 15px; }
+    .menu-item { background: white; padding: 15px; border-radius: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
+    .item-price { color: #D32F2F; font-weight: bold; }
+    
+    .stepper button { width: 28px; height: 28px; background: #f5f5f5; border: none; border-radius: 50%; color: #333; font-weight: bold; }
+    .stepper .btn-plus { background: var(--primary-color); color: #fff; }
 
-    /* 點餐 */
-    #shop-view { background: #f8f9fa; }
-    #banner { width: 100%; height: 200px; background-size: cover; background-position: center; position: relative; background-color: #ddd; }
-    #shop-info { position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(transparent, rgba(0,0,0,0.8)); padding: 20px; color: white; }
-    #shop-name { font-size: 24px; font-weight: bold; margin: 0; }
-    #back-btn { position: absolute; top: 15px; left: 15px; background: rgba(0,0,0,0.5); color: white; border: none; width: 40px; height: 40px; border-radius: 50%; font-size: 20px; cursor: pointer; z-index: 10; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
-    .container { padding: 15px; }
-    .menu-item { background: white; padding: 15px; border-radius: 12px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
-    .stepper { display: flex; align-items: center; background: #f0f0f0; border-radius: 20px; padding: 2px; }
-    .stepper button { width: 32px; height: 32px; border-radius: 50%; border: none; font-size: 18px; cursor: pointer; }
-    .btn-plus { background: #06C755; color: white; }
-    #cart-bar { position: fixed; bottom: 0; left: 0; right: 0; background: white; padding: 15px 20px; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; z-index: 100; padding-bottom: max(15px, env(safe-area-inset-bottom)); }
-    #checkout-btn { background: #06C755; color: white; border: none; padding: 12px 25px; border-radius: 30px; font-weight: bold; cursor: pointer; opacity: 0.5; pointer-events: none; }
-    #checkout-btn.active { opacity: 1; pointer-events: auto; }
+    #cart-bar { position: fixed; bottom: 0; left: 0; right: 0; background: white; padding: 10px 20px; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; z-index: 100; padding-bottom: max(15px, env(safe-area-inset-bottom)); }
+    #checkout-btn { background: #333; color: var(--primary-color); border: none; padding: 10px 30px; border-radius: 30px; font-weight: bold; }
+    
+    .status-badge { padding: 2px 8px; border-radius: 4px; font-size: 11px; }
+    .status-wait { background: #FFF3E0; color: #F57C00; }
+    .status-ok { background: #E8F5E9; color: #388E3C; }
+    .status-no { background: #FFEBEE; color: #D32F2F; }
+    .history-item { background: white; padding: 15px; border-radius: 10px; margin-bottom: 10px; border: 1px solid #eee; }
+
   </style>
 </head>
 <body>
 
-  <div id="loading">載入中...</div>
+  <div id="loading">Uni-S 生活圈載入中...</div>
   <div id="error-box" class="hidden"></div>
 
   <div id="lobby-view" class="hidden">
-    <div id="lobby-title">Uni-S <span>生活圈</span></div>
-    <div style="font-size:14px; color:#666; margin-bottom:15px;">你好，<span id="lobby-user"></span>！今天要探索哪家好店？</div>
-    <div id="shop-list"></div>
+    <div class="lobby-header-bg">
+      <div class="lobby-brand">UNI-S PLATFORM</div>
+      <div style="color:white; font-size:20px; font-weight:bold; margin-top:5px;">美好的一天，<br>從一杯好茶開始</div>
+    </div>
+
+    <div class="float-member-card" onclick="switchTab('member')">
+      <img id="home-avatar" src="" class="mini-avatar">
+      <div class="user-greeting">
+        <h3><span id="home-user-name">...</span> <span class="level-badge" id="home-level">普通會員</span></h3>
+        <p>Uni-S ID: <span id="home-id-short">...</span></p>
+      </div>
+      <div class="quick-points">
+        <span class="num" id="home-points">0</span>
+        <span class="label">積分</span>
+      </div>
+    </div>
+
+    <div class="grid-menu">
+      <div class="grid-item">
+        <div class="grid-icon"><i class="fas fa-qrcode"></i></div>
+        <div class="grid-text">掃碼點餐</div>
+      </div>
+      <div class="grid-item">
+        <div class="grid-icon"><i class="fas fa-ticket"></i></div>
+        <div class="grid-text">優惠券</div>
+      </div>
+      <div class="grid-item">
+        <div class="grid-icon"><i class="fas fa-map-marker-alt"></i></div>
+        <div class="grid-text">附近門店</div>
+      </div>
+      <div class="grid-item">
+        <div class="grid-icon"><i class="fas fa-headset"></i></div>
+        <div class="grid-text">客服</div>
+      </div>
+    </div>
+
+    <div class="section-title">推薦商家</div>
+    <div id="shop-list" class="shop-list-container"></div>
   </div>
+
 
   <div id="member-view" class="hidden">
-    <div class="member-card">
-      <div class="member-header">
-        <img id="m-avatar" src="" class="avatar">
-        <div>
-          <div id="m-name" class="member-name">...</div>
-          <div style="font-size:12px; opacity:0.9;">Uni-S 會員</div>
-        </div>
+    <div class="member-header-bg"></div>
+    <div class="member-info-overlay">
+      <img id="m-avatar" src="" class="big-avatar">
+      <div>
+        <div id="m-name" style="font-size:18px; font-weight:bold;">...</div>
+        <div id="m-level" style="font-size:12px; color:#666;">普通會員</div>
       </div>
-      <div style="font-size:12px; opacity:0.8;">目前累積點數</div>
-      <div class="points-value"><span id="m-points">0</span> <span class="points-unit">P</span></div>
+      <div class="points-box">
+        <div style="font-size:24px; font-weight:bold; color:#C5A674;" id="m-points">0</div>
+        <div style="font-size:10px; color:#999;">可用積分</div>
+      </div>
     </div>
-    <div class="history-title">📜 最近訂單紀錄</div>
-    <div id="history-loading" style="text-align:center; color:#999; font-size:12px;">正在查詢...</div>
-    <div id="history-list" class="history-list"></div>
+
+    <div class="history-container">
+      <div class="section-title">最近訂單</div>
+      <div id="history-loading" style="text-align:center; color:#999; font-size:12px;">查詢中...</div>
+      <div id="history-list"></div>
+    </div>
   </div>
+
 
   <div id="shop-view" class="hidden">
-    <button id="back-btn" onclick="goLobby()">‹</button>
-    <div id="banner"><div id="shop-info"><h1 id="shop-name">載入中...</h1></div></div>
-    <div class="container"><div id="menu-list"></div></div>
+    <div id="back-btn" onclick="goLobby()"><i class="fas fa-chevron-left"></i></div>
+    <div id="shop-banner" class="shop-header">
+      <div class="shop-header-content">
+        <h2 id="shop-name" style="margin:0;">...</h2>
+        <div style="font-size:12px; opacity:0.8; margin-top:5px;">營業中 • 現點現做</div>
+      </div>
+    </div>
+
+    <div class="menu-list" id="menu-list"></div>
+
     <div id="cart-bar">
-      <div>總計 $<span id="total-display">0</span></div>
-      <button id="checkout-btn" onclick="sendOrder()">送出訂單 (0)</button>
+      <div>
+        <div style="font-size:10px; color:#999;">預估金額</div>
+        <div style="font-size:20px; font-weight:bold; color:#333;">$<span id="total-display">0</span></div>
+      </div>
+      <button id="checkout-btn" onclick="sendOrder()">去結算 (0)</button>
     </div>
   </div>
 
+
   <div id="tab-bar">
-    <div class="tab-item active" onclick="switchTab('lobby')"><div class="tab-icon">🏠</div><div>首頁</div></div>
-    <div class="tab-item" onclick="switchTab('member')"><div class="tab-icon">👤</div><div>會員</div></div>
+    <div class="tab-item active" onclick="switchTab('lobby')">
+      <div class="tab-icon"><i class="fas fa-home"></i></div>
+      <div>首頁</div>
+    </div>
+    <div class="tab-item" onclick="switchTab('member')">
+      <div class="tab-icon"><i class="fas fa-user"></i></div>
+      <div>我的</div>
+    </div>
   </div>
 
   <script>
-    // ⚠️⚠️⚠️ 設定區：請填入你的 ID 和 URL ⚠️⚠️⚠️
+    // ⚠️⚠️⚠️ 記得填入你的 ID 和 URL ⚠️⚠️⚠️
     const MY_LIFF_ID = "2008590518-p2AoVQO2"; 
     const API_URL = "https://script.google.com/macros/s/AKfycbzxUYXVSMjF8Zt7KqBo9qGvottN4zoxkM1qCu97ZqugJ7Nf6czxu0DzBY9DN1nVRtdn/exec";
 
@@ -115,8 +255,9 @@
       try {
         await liff.init({ liffId: MY_LIFF_ID });
         if (!liff.isLoggedIn()) { liff.login(); return; }
+        
         userProfile = await liff.getProfile();
-        document.getElementById('lobby-user').innerText = userProfile.displayName;
+        updateUserUI(userProfile); // 初始化大廳顯示
 
         const res = await fetch(API_URL);
         allShops = await res.json();
@@ -125,7 +266,21 @@
         const shopId = new URLSearchParams(window.location.search).get('id');
         if (shopId && allShops[shopId]) openShop(shopId);
         else { renderLobby(); switchTab('lobby'); }
+        
+        // 偷偷預先加載點數，讓首頁看起來有數字
+        fetchMemberData();
+
       } catch (err) { showError(err.message); }
+    }
+
+    function updateUserUI(profile) {
+      // 更新大廳
+      document.getElementById('home-user-name').innerText = profile.displayName;
+      document.getElementById('home-avatar').src = profile.pictureUrl;
+      document.getElementById('home-id-short').innerText = profile.userId.substring(0, 8) + "...";
+      // 更新會員頁
+      document.getElementById('m-name').innerText = profile.displayName;
+      document.getElementById('m-avatar').src = profile.pictureUrl;
     }
 
     function switchTab(tab) {
@@ -138,6 +293,7 @@
       if (tab === 'lobby') {
         document.getElementById('lobby-view').classList.remove('hidden');
         document.querySelectorAll('.tab-item')[0].classList.add('active');
+        fetchMemberData(); // 更新首頁點數
       } else if (tab === 'member') {
         document.getElementById('member-view').classList.remove('hidden');
         document.querySelectorAll('.tab-item')[1].classList.add('active');
@@ -147,15 +303,16 @@
     }
 
     async function fetchMemberData() {
-      document.getElementById('m-name').innerText = userProfile.displayName;
-      document.getElementById('m-avatar').src = userProfile.pictureUrl;
-      document.getElementById('m-points').innerText = "...";
       try {
         const url = `${API_URL}?action=getMember&userId=${userProfile.userId}`;
         const res = await fetch(url);
         const data = await res.json();
+        // 同步更新首頁和會員頁的點數
         document.getElementById('m-points').innerText = data.points;
-      } catch(e) { document.getElementById('m-points').innerText = "Err"; }
+        document.getElementById('m-level').innerText = data.level;
+        document.getElementById('home-points').innerText = data.points;
+        document.getElementById('home-level').innerText = data.level;
+      } catch(e) { console.error(e); }
     }
 
     async function loadOrderHistory() {
@@ -167,17 +324,25 @@
         const history = await response.json();
         loadingDiv.style.display = 'none';
         
-        if (history.length === 0) { listDiv.innerHTML = '<div style="text-align:center;color:#999;font-size:12px;">尚無訂單紀錄</div>'; return; }
+        if (history.length === 0) { listDiv.innerHTML = '<div style="text-align:center;color:#999;font-size:12px;margin-top:20px;">您還沒有訂單紀錄</div>'; return; }
         
         let html = '';
         history.forEach(order => {
           let badgeClass = 'status-wait';
           if (order.status.includes('已接單')) badgeClass = 'status-ok';
           if (order.status.includes('已婉拒')) badgeClass = 'status-no';
-          html += `<div class="history-item"><div class="h-header"><span>${order.time}</span><span>#${order.orderId}</span></div><div class="h-shop">${order.shopName}</div><div class="h-content">${order.content}</div><div class="h-footer"><span class="status-badge ${badgeClass}">${order.status}</span></div></div>`;
+          html += `
+            <div class="history-item">
+              <div style="display:flex; justify-content:space-between; margin-bottom:5px; font-size:12px; color:#888;">
+                <span>${order.time}</span>
+                <span class="status-badge ${badgeClass}">${order.status}</span>
+              </div>
+              <div style="font-weight:bold; margin-bottom:5px;">${order.shopName}</div>
+              <div style="font-size:12px; color:#666; background:#f9f9f9; padding:8px; border-radius:4px;">${order.content}</div>
+            </div>`;
         });
         listDiv.innerHTML = html;
-      } catch (e) { loadingDiv.style.display = 'none'; listDiv.innerHTML = '<div style="text-align:center;color:#999;font-size:12px;">尚無訂單 (或載入失敗)</div>'; }
+      } catch (e) { loadingDiv.style.display = 'none'; }
     }
 
     function renderLobby() {
@@ -185,7 +350,21 @@
       let html = '';
       Object.keys(allShops).forEach(id => {
         const s = allShops[id];
-        html += `<div class="shop-card" onclick="openShop('${id}', true)"><div class="card-banner" style="background-image:url(${s.bannerUrl})"><div class="card-tag">營業中</div></div><div class="card-info"><div class="card-name">${s.name}</div><div class="card-desc">點擊進入預約點餐...</div></div></div>`;
+        // 這裡把商家卡片改成橫式的
+        html += `
+          <div class="shop-card" onclick="openShop('${id}', true)">
+            <div class="shop-thumb" style="background-image:url(${s.bannerUrl})"></div>
+            <div class="shop-info">
+              <div class="shop-name">${s.name}</div>
+              <div class="shop-tags">
+                <span class="shop-tag">免運費</span>
+                <span class="shop-tag">好評</span>
+              </div>
+              <div class="shop-action">
+                <button class="btn-visit">去點餐</button>
+              </div>
+            </div>
+          </div>`;
       });
       list.innerHTML = html;
     }
@@ -198,11 +377,25 @@
     }
     
     function renderShopUI(data) {
-      document.getElementById('shop-name').innerText = data.name; document.getElementById('banner').style.backgroundImage = `url(${data.bannerUrl})`; document.getElementById('total-display').innerText = '0';
-      const btn = document.getElementById('checkout-btn'); btn.innerText = '送出訂單 (0)'; btn.classList.remove('active'); btn.style.backgroundColor = '#ccc';
+      document.getElementById('shop-name').innerText = data.name; 
+      document.getElementById('shop-banner').style.backgroundImage = `url(${data.bannerUrl})`; 
+      document.getElementById('total-display').innerText = '0';
+      const btn = document.getElementById('checkout-btn'); btn.innerText = '去結算 (0)'; btn.classList.remove('active'); btn.style.backgroundColor = '#ccc'; btn.style.color = '#fff';
+      
       let html = '';
       data.menu.forEach((item, index) => {
-        html += `<div class="menu-item"><div style="flex:1;"><span class="item-name">${item.name}</span><span class="item-price">$${item.price}</span></div><div class="stepper"><button class="btn-minus" onclick="updateCart('${item.name}', ${item.price}, -1)">−</button><span class="count" id="count-${index}">0</span><button class="btn-plus" style="background:${data.themeColor}" onclick="updateCart('${item.name}', ${item.price}, 1)">+</button></div></div>`;
+        html += `
+          <div class="menu-item">
+            <div style="flex:1;">
+              <span class="item-name">${item.name}</span>
+              <span class="item-price">$${item.price}</span>
+            </div>
+            <div class="stepper">
+              <button class="btn-minus" onclick="updateCart('${item.name}', ${item.price}, -1)">−</button>
+              <span class="count" id="count-${index}">0</span>
+              <button class="btn-plus" style="background:${data.themeColor}" onclick="updateCart('${item.name}', ${item.price}, 1)">+</button>
+            </div>
+          </div>`;
       });
       document.getElementById('menu-list').innerHTML = html;
     }
@@ -215,51 +408,32 @@
         if (cart[item.name]) { total += cart[item.name] * item.price; count += cart[item.name]; }
       });
       document.getElementById('total-display').innerText = total;
-      const btn = document.getElementById('checkout-btn'); btn.innerText = `送出訂單 (${count})`;
-      if (count > 0) { btn.classList.add('active'); btn.style.backgroundColor = currentShop.themeColor; } else { btn.classList.remove('active'); btn.style.backgroundColor = '#ccc'; }
+      const btn = document.getElementById('checkout-btn'); btn.innerText = `去結算 (${count})`;
+      if (count > 0) { btn.classList.add('active'); btn.style.backgroundColor = '#333'; btn.style.color = '#C5A674'; } else { btn.classList.remove('active'); btn.style.backgroundColor = '#ccc'; btn.style.color = '#fff'; }
     }
 
-    // 🔥🔥 這是更新後的 sendOrder (含電話驗證) 🔥🔥
     async function sendOrder() {
       if (!liff.isInClient()) { alert('請在 LINE App 中使用'); return; }
-      
-      let orderDetail = "";
-      let total = 0;
-      for (let [name, qty] of Object.entries(cart)) {
-        if (qty > 0) {
-          let item = currentShop.menu.find(i => i.name === name);
-          let subtotal = item.price * qty;
-          orderDetail += `${name} x ${qty} ($${subtotal})\n`;
-          total += subtotal;
-        }
-      }
-
+      let orderDetail = ""; let total = 0;
+      for (let [name, qty] of Object.entries(cart)) { if (qty > 0) { let item = currentShop.menu.find(i => i.name === name); let subtotal = item.price * qty; orderDetail += `${name} x ${qty} ($${subtotal})\n`; total += subtotal; } }
       if (total === 0) { alert("購物車是空的喔！"); return; }
       orderDetail += `----------------\n總金額：$${total} 元`;
 
-      // 📞 電話檢查邏輯
       let userPhone = localStorage.getItem("uni_user_phone");
       if (!userPhone) {
         userPhone = prompt("請輸入您的手機號碼，以便店家聯絡：");
-        if (!userPhone || userPhone.trim() === "") { alert("❌ 必須填寫手機號碼才能下單喔！"); return; }
-        if (userPhone.length < 9 || isNaN(userPhone)) { alert("❌ 手機號碼格式不正確"); return; }
+        if (!userPhone || userPhone.trim() === "") { alert("❌ 必須填寫手機號碼"); return; }
         localStorage.setItem("uni_user_phone", userPhone);
       }
       orderDetail += `\n----------------\n📞 聯絡電話：${userPhone}`;
 
-      const btn = document.getElementById('checkout-btn');
-      btn.innerText = "處理中..."; btn.disabled = true;
-      
+      const btn = document.getElementById('checkout-btn'); btn.innerText = "處理中..."; btn.disabled = true;
       try {
         await liff.sendMessages([{ type: "text", text: `【Uni-S】\n我向 ${currentShop.name} 下單了：\n\n${orderDetail}` }]);
         const orderData = { shopId: currentShop.id, userName: userProfile.displayName, userId: userProfile.userId, order: orderDetail };
         await fetch(API_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(orderData) });
-        alert("✅ 訂單已送出！\n店家將會收到您的聯絡電話。"); 
-        goLobby();
-      } catch (err) { 
-        alert("發送失敗：" + err.message); 
-        btn.innerText = "重試"; btn.disabled = false;
-      }
+        alert("✅ 訂單已送出！"); goLobby();
+      } catch (err) { alert("發送失敗：" + err.message); btn.innerText = "重試"; btn.disabled = false; }
     }
     
     function goLobby() { const url = new URL(window.location); url.searchParams.delete('id'); window.history.pushState({}, '', url); switchTab('lobby'); }
