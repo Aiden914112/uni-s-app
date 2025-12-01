@@ -390,40 +390,49 @@ async function main() {
       } catch(e) { loading.style.display = 'none'; }
     }
 
-    // 開啟訂單詳情
-    function openOrderDetail(index) {
-      const order = orderCache[index];
-      if (!order) return;
-      
+// 開啟訂單詳情 (含取消按鈕邏輯)
+    function openOrderDetail(orderData) {
+      document.getElementById('tab-bar').classList.add('hidden');
+      document.getElementById('orders-view').classList.add('hidden');
       document.getElementById('order-detail-view').classList.remove('hidden');
-      document.getElementById('od-shop-name').innerText = order.shopName;
-      document.getElementById('od-id').innerText = order.orderId;
-      document.getElementById('od-time').innerText = order.time;
-      document.getElementById('od-status').innerText = order.status;
       
-      // 解析內容
-      let itemsHtml = '';
-      let phone = '--';
-      let total = '';
+      // 填入資料
+      document.getElementById('od-shop-name').innerText = orderData.shopName;
+      document.getElementById('od-id').innerText = orderData.orderId;
+      document.getElementById('od-time').innerText = orderData.time;
+      document.getElementById('od-status').innerText = orderData.status;
       
-      const lines = order.content.split('\n');
+      // 解析內容 (保持不變)
+      let contentHtml = ''; let totalPrice = ''; let userPhone = '--';
+      const lines = orderData.content.split('\n');
       lines.forEach(line => {
-        if (line.includes('聯絡電話：')) phone = line.replace('聯絡電話：','').trim();
-        else if (line.includes('總金額：')) total = line.replace('總金額：','').replace('----------------','').trim();
+        if (line.includes('聯絡電話：')) userPhone = line.replace('聯絡電話：', '').trim();
+        else if (line.includes('總金額：')) totalPrice = line.replace('總金額：', '').replace('----------------', '').trim();
         else if (!line.includes('---') && line.trim() !== '') {
            let parts = line.split(' x ');
            if (parts.length >= 2) {
-             itemsHtml += `<div class="od-item"><div class="od-item-name">${parts[0]}</div><div class="od-item-qty">x${parts[1].split(' ')[0]}</div><div class="od-item-price">${parts[1].split('(')[1]?.replace(')','') || ''}</div></div>`;
+             contentHtml += `<div class="od-item"><div class="od-item-name">${parts[0]}</div><div class="od-item-qty">x${parts[1].split(' ')[0]}</div><div class="od-item-price">${parts[1].split('(')[1]?.replace(')','') || ''}</div></div>`;
            }
         }
       });
-      
-      document.getElementById('od-items-list').innerHTML = itemsHtml;
-      document.getElementById('od-total-price').innerText = total;
-      document.getElementById('od-phone').innerText = phone;
-    }
+      document.getElementById('od-items-list').innerHTML = contentHtml;
+      document.getElementById('od-total-price').innerText = totalPrice;
+      document.getElementById('od-user-phone').innerText = userPhone;
 
-    function closeOrderDetail() { document.getElementById('order-detail-view').classList.add('hidden'); }
+      // 🔥 新增：動態顯示「取消按鈕」
+      const cancelBtnContainer = document.getElementById('od-cancel-container');
+      
+      // 只有 "待確認" 的訂單可以取消
+      if (orderData.status.includes("待確認")) {
+        cancelBtnContainer.innerHTML = `
+          <button onclick="cancelOrder('${orderData.orderId}')" style="width:100%; padding:12px; border:1px solid #D32F2F; background:#fff; color:#D32F2F; border-radius:30px; font-weight:bold; margin-top:20px;">
+            取消訂單
+          </button>`;
+      } else {
+        // 如果已接單或已取消，就清空按鈕，或者顯示提示
+        cancelBtnContainer.innerHTML = '';
+      }
+    }
 
     // 大廳與搜尋
     function renderLobby(shops) {
@@ -501,8 +510,45 @@ async function main() {
     function showError(m) { document.getElementById('loading').classList.add('hidden'); document.getElementById('error-box').classList.remove('hidden'); document.getElementById('error-box').innerText = m; }
 
     main();
+
+    // 🚫 取消訂單功能
+    async function cancelOrder(orderId) {
+      if (!confirm("確定要取消這筆訂單嗎？")) return;
+      
+      // 顯示讀取中
+      const container = document.getElementById('od-cancel-container');
+      container.innerHTML = '<div style="text-align:center; color:#999;">處理中...</div>';
+      
+      try {
+        const response = await fetch(API_URL, {
+          method: 'POST',
+          // 這裡我們用 no-cors 比較保險，但因為需要知道成功與否，如果 Apps Script 沒設 CORS header，fetch 會讀不到回傳
+          // 不過我們可以用 "reload" 大法
+          mode: 'no-cors', 
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            action: "cancelOrder", 
+            orderId: orderId, 
+            userId: userProfile.userId 
+          })
+        });
+        
+        // 因 no-cors 讀不到結果，我們假設它成功，直接跳提示並重整
+        // (等待個 1 秒讓後端跑完)
+        setTimeout(() => {
+          alert("已送出取消請求。");
+          closeOrderDetail(); // 回列表
+          loadOrderHistory(); // 重新整理列表，狀態應該會變
+        }, 1000);
+
+      } catch (e) {
+        alert("連線錯誤：" + e.message);
+        closeOrderDetail();
+      }
+    }
   </script>
 </body>
 </html>
+
 
 
