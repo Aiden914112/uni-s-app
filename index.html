@@ -398,19 +398,29 @@ async function main() {
       } catch(e) { loading.style.display = 'none'; }
     }
 
-// 開啟訂單詳情 (含取消按鈕邏輯)
-    function openOrderDetail(orderData) {
+// 開啟訂單詳情 (修正版：透過 index 抓取資料)
+    function openOrderDetail(index) {
+      // 1. 從快取中抓取該筆訂單資料
+      const orderData = orderCache[index]; 
+      
+      // 防呆：如果找不到資料就停止
+      if (!orderData) {
+        console.error("無法讀取訂單資料, Index:", index);
+        return;
+      }
+
+      // 2. 切換畫面 (隱藏底部 Tab 和會員頁，顯示詳情頁)
       document.getElementById('tab-bar').classList.add('hidden');
-      document.getElementById('orders-view').classList.add('hidden');
+      ['lobby-view', 'coupons-view', 'member-view', 'shop-view'].forEach(id => document.getElementById(id).classList.add('hidden'));
       document.getElementById('order-detail-view').classList.remove('hidden');
       
-      // 填入資料
+      // 3. 填入資料
       document.getElementById('od-shop-name').innerText = orderData.shopName;
       document.getElementById('od-id').innerText = orderData.orderId;
       document.getElementById('od-time').innerText = orderData.time;
       document.getElementById('od-status').innerText = orderData.status;
       
-      // 解析內容 (保持不變)
+      // 4. 解析內容
       let contentHtml = ''; let totalPrice = ''; let userPhone = '--';
       const lines = orderData.content.split('\n');
       lines.forEach(line => {
@@ -427,7 +437,7 @@ async function main() {
       document.getElementById('od-total-price').innerText = totalPrice;
       document.getElementById('od-user-phone').innerText = userPhone;
 
-      // 🔥 新增：動態顯示「取消按鈕」
+      // 5. 動態顯示「取消按鈕」
       const cancelBtnContainer = document.getElementById('od-cancel-container');
       
       // 只有 "待確認" 的訂單可以取消
@@ -437,7 +447,6 @@ async function main() {
             取消訂單
           </button>`;
       } else {
-        // 如果已接單或已取消，就清空按鈕，或者顯示提示
         cancelBtnContainer.innerHTML = '';
       }
     }
@@ -557,6 +566,7 @@ async function main() {
   </script>
 </body>
 </html>
+
 
 
 
