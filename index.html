@@ -7,24 +7,14 @@
   <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    /* 全局變數 */
+    /* ... (保留原本的 CSS 全局設定) ... */
     :root { --primary: #06C755; --gold: #C5A674; --bg: #F5F6F7; --text: #333; }
     body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding: 0; margin: 0; background-color: var(--bg); color: var(--text); touch-action: manipulation; -webkit-user-select: none; user-select: none; padding-bottom: 90px; }
     .hidden { display: none !important; }
     #loading, #error-box { text-align: center; padding: 50px; color: #999; }
 
-    /* 返回按鈕 (加大版) */
-    .big-back-btn {
-      position: absolute; top: 15px; left: 15px;
-      width: 44px; height: 44px;
-      background: rgba(0,0,0,0.6); backdrop-filter: blur(5px);
-      border-radius: 50%; color: white; border: none;
-      font-size: 20px; display: flex; align-items: center; justify-content: center;
-      z-index: 200; cursor: pointer;
-    }
-
     /* 底部導航 */
-    #tab-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; height: 60px; display: flex; border-top: 1px solid #eee; z-index: 100; padding-bottom: env(safe-area-inset-bottom); }
+    #tab-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; height: 60px; display: flex; border-top: 1px solid #eee; z-index: 200; padding-bottom: env(safe-area-inset-bottom); }
     .tab-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #999; font-size: 10px; cursor: pointer; }
     .tab-item.active { color: var(--primary); font-weight: bold; }
     .tab-icon { font-size: 22px; margin-bottom: 3px; }
@@ -34,16 +24,16 @@
     .lobby-header-bg { background: linear-gradient(135deg, #2c3e50, #000); height: 160px; border-radius: 0 0 20px 20px; padding: 20px; color: var(--gold); }
     .float-member-card { background: #fff; margin: -80px 15px 15px 15px; border-radius: 12px; padding: 15px; box-shadow: 0 8px 20px rgba(0,0,0,0.08); display: flex; align-items: center; cursor: pointer; }
     .mini-avatar { width: 50px; height: 50px; border-radius: 50%; margin-right: 12px; background: #eee; }
+    .user-greeting h3 { margin: 0; font-size: 16px; color: #333; }
+    .user-greeting p { margin: 2px 0 0 0; font-size: 12px; color: #888; }
     .quick-points { margin-left: auto; text-align: center; border-left: 1px solid #eee; padding-left: 15px; }
     .quick-points .num { font-size: 20px; font-weight: bold; color: var(--gold); display: block; }
     .quick-points .label { font-size: 10px; color: #999; }
-    
     .search-bar { margin: 0 15px 15px 15px; background: #fff; padding: 10px; border-radius: 20px; display: flex; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
     .search-bar input { border: none; flex: 1; outline: none; margin-left: 10px; font-size: 14px; }
     .filter-scroll { display: flex; gap: 10px; overflow-x: auto; padding: 0 15px 10px 15px; scrollbar-width: none; }
     .filter-tag { background: #fff; padding: 6px 16px; border-radius: 20px; font-size: 13px; color: #666; border: 1px solid #eee; }
     .filter-tag.active { background: var(--primary); color: #fff; border-color: var(--primary); }
-    
     .section-title { padding: 0 15px; font-size: 16px; font-weight: bold; margin-bottom: 10px; display: flex; align-items: center; }
     .section-title::before { content: ''; width: 4px; height: 16px; background: var(--primary); margin-right: 8px; border-radius: 2px; }
     .shop-list-container { padding: 0 15px; }
@@ -69,8 +59,6 @@
     .service-item { text-align: center; }
     .service-icon { font-size: 24px; color: #555; margin-bottom: 5px; }
     .service-label { font-size: 11px; color: #666; }
-
-    /* 歷史訂單列表 (修復版) */
     .history-section { padding: 0 15px 20px 15px; }
     .history-simple-item { background: #fff; padding: 15px; border-radius: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.02); cursor: pointer; }
     .hs-info { flex: 1; }
@@ -83,8 +71,8 @@
     .hs-price { font-size: 16px; font-weight: bold; color: #333; margin-left: 10px; }
     .hs-arrow { color: #ccc; margin-left: 10px; font-size: 14px; }
 
-    /* 訂單詳情 (獨立層，樣式修復) */
-    #order-detail-view { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: #F5F6F7; z-index: 500; overflow-y: auto; display: flex; flex-direction: column; }
+    /* 訂單詳情 */
+    #order-detail-view { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: #F5F6F7; z-index: 300; overflow-y: auto; display: flex; flex-direction: column; }
     .od-navbar { background: #fff; padding: 15px; display: flex; align-items: center; font-weight: bold; position: sticky; top: 0; z-index: 10; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
     .od-back { font-size: 20px; margin-right: 15px; cursor: pointer; width: 30px; display: flex; align-items: center; }
     .od-content { padding: 15px; padding-bottom: 50px; }
@@ -105,30 +93,38 @@
     #shop-view { background: #f8f9fa; }
     #banner { width: 100%; height: 200px; background-size: cover; background-position: center; position: relative; }
     #shop-title-overlay { position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(transparent, rgba(0,0,0,0.8)); padding: 20px; color: white; }
+    .big-back-btn { position: absolute; top: 15px; left: 15px; width: 40px; height: 40px; border-radius: 50%; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); border: none; color: #fff; font-size: 20px; z-index: 10; display:flex; align-items:center; justify-content:center; cursor: pointer; }
     
-    /* 零售版排版 */
+    /* 🔥 零售版 (Retail) 專用樣式 */
     .menu-list-retail { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 15px; }
-    .menu-list-retail .menu-item { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.05); display: flex; flex-direction: column; padding: 0; }
+    .menu-list-retail .menu-item { 
+      background: white; border-radius: 12px; overflow: hidden; 
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05); display: flex; flex-direction: column; padding: 0; 
+    }
     .menu-item-img { height: 120px; background-color: #eee; background-size: cover; background-position: center; }
     .menu-item-content { padding: 10px; flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
-    
-    /* 餐飲版排版 */
-    .menu-list-food .menu-item { background: white; padding: 15px; border-radius: 12px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+    /* 🔥 零售版加減按鈕縮小，以適應網格 */
+    .menu-list-retail .stepper { background: transparent; padding: 0; justify-content: flex-end; }
+    .menu-list-retail .stepper button { width: 24px; height: 24px; font-size: 14px; }
+    .menu-list-retail .count { font-size: 13px; margin: 0 6px; font-weight: bold; }
 
-    .stepper button { width: 28px; height: 28px; border-radius: 50%; border: none; }
+    /* 餐飲版 (Food) 樣式 */
+    .menu-list-food .menu-item { background: white; padding: 15px; border-radius: 12px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+    .stepper { display: flex; align-items: center; background: #f0f0f0; border-radius: 20px; padding: 2px; }
+    .stepper button { width: 28px; height: 28px; border-radius: 50%; border: none; font-size: 16px; cursor: pointer; }
     .btn-plus { background: var(--primary); color: white; }
+    .btn-minus { background: transparent; color: #888; }
+    .count { margin: 0 8px; font-weight: bold; font-size: 14px; }
+
     #cart-bar { position: fixed; bottom: 0; left: 0; right: 0; background: white; padding: 15px 20px; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; z-index: 100; padding-bottom: max(15px, env(safe-area-inset-bottom)); }
     #checkout-btn { background: var(--primary); color: white; border: none; padding: 10px 25px; border-radius: 30px; font-weight: bold; }
 
-    /* 服務選擇彈窗 */
-    #service-modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 500; display: flex; align-items: flex-end; justify-content: center; }
-    .service-sheet { background: #fff; width: 100%; border-radius: 20px 20px 0 0; padding: 25px; }
-    .service-title { font-size: 18px; font-weight: bold; margin-bottom: 20px; text-align: center; }
-    .service-options { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
-    .service-option { padding: 15px; border: 2px solid #eee; border-radius: 12px; font-weight: bold; text-align: center; cursor: pointer; }
-    .service-option.selected { border-color: var(--primary); color: var(--primary); background: rgba(6, 199, 85, 0.05); }
-    
-    /* 編輯彈窗 */
+    /* 領券與編輯 */
+    #coupons-view { padding: 15px; }
+    .coupon-card { background: #fff; border-radius: 12px; display: flex; margin-bottom: 15px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+    .coupon-left { background: linear-gradient(135deg, #FF9966, #FF5E62); width: 100px; color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px; text-align: center; }
+    .coupon-right { flex: 1; padding: 15px; display: flex; flex-direction: column; justify-content: center; position: relative; }
+    .btn-claim { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); background: #fff; border: 1px solid #FF5E62; color: #FF5E62; padding: 5px 12px; border-radius: 20px; font-size: 12px; }
     #edit-modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 400; display: flex; align-items: center; justify-content: center; }
     .modal-content { background: #fff; width: 80%; border-radius: 16px; padding: 20px; }
     .form-input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 15px; box-sizing: border-box; }
@@ -136,6 +132,10 @@
     .btn-cancel, .btn-save { flex: 1; padding: 10px; border-radius: 20px; text-align: center; cursor: pointer; }
     .btn-cancel { border: 1px solid #ddd; background: #fff; }
     .btn-save { background: var(--primary); color: #fff; font-weight: bold; }
+    #service-modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 500; display: flex; align-items: flex-end; justify-content: center; }
+    .service-sheet { background: #fff; width: 100%; border-radius: 20px 20px 0 0; padding: 25px; }
+    .service-option { padding: 15px; border: 2px solid #eee; border-radius: 12px; font-weight: bold; text-align: center; cursor: pointer; margin-bottom: 10px; }
+    .service-option.selected { border-color: var(--primary); color: var(--primary); background: rgba(6, 199, 85, 0.05); }
   </style>
 </head>
 <body>
@@ -144,15 +144,8 @@
   <div id="error-box" class="hidden"></div>
 
   <div id="lobby-view" class="hidden">
-    <div class="lobby-header-bg">
-      <div style="font-weight:bold; letter-spacing:1px; font-size:12px; opacity:0.8;">UNI-S PLATFORM</div>
-      <div style="font-size:20px; font-weight:bold; margin-top:5px; color:#fff;">探索美好生活</div>
-    </div>
-    <div class="float-member-card" onclick="switchTab('member')">
-      <img id="home-avatar" src="" class="mini-avatar">
-      <div class="user-greeting"><h3><span id="home-name">...</span></h3><p>點擊查看會員權益 ›</p></div>
-      <div class="quick-points"><span class="num" id="home-points">0</span><span class="label">積分</span></div>
-    </div>
+    <div class="lobby-header-bg"><div style="font-weight:bold; letter-spacing:1px; font-size:12px; opacity:0.8;">UNI-S PLATFORM</div><div style="font-size:20px; font-weight:bold; margin-top:5px; color:#fff;">探索美好生活</div></div>
+    <div class="float-member-card" onclick="switchTab('member')"><img id="home-avatar" src="" class="mini-avatar"><div class="user-greeting"><h3><span id="home-name">...</span></h3><p>點擊查看會員權益 ›</p></div><div class="quick-points"><span class="num" id="home-points">0</span><span class="label">積分</span></div></div>
     <div class="search-bar"><i class="fas fa-search" style="color:#999;"></i><input type="text" id="search-input" placeholder="搜尋店家..." oninput="filterShops()"></div>
     <div class="filter-scroll"><div class="filter-tag active">全部</div><div class="filter-tag">美食</div><div class="filter-tag">飲品</div><div class="filter-tag">生活</div></div>
     <div class="section-title" style="margin-top:15px;">推薦商家</div>
@@ -161,56 +154,28 @@
 
   <div id="coupons-view" class="hidden">
     <div class="section-title" style="margin:20px 15px 10px 15px;">領券中心</div>
-    <div style="padding:0 15px;"><div style="text-align:center;color:#999;">優惠券功能開發中...</div></div>
+    <div style="padding:0 15px;"><div class="coupon-card"><div class="coupon-left"><div class="coupon-price" style="font-size:28px;font-weight:bold;"><span>$</span>20</div><div>滿200可用</div></div><div class="coupon-right"><div style="font-weight:bold;margin-bottom:5px;">新人見面禮</div><div style="font-size:12px;color:#888;">全平台通用</div><div class="btn-claim" onclick="alert('領取成功')">領取</div></div></div></div>
   </div>
 
   <div id="member-view" class="hidden">
     <div class="member-header-bg"></div>
     <div class="premium-card">
-      <div class="card-user-row">
-        <img id="m-avatar" src="" class="card-avatar">
-        <div style="flex:1;"><div id="m-name" class="card-name">...</div><div id="m-level" class="card-level-tag">普通會員</div></div>
-        <i class="fas fa-edit" onclick="openEditModal()" style="font-size:20px; color:var(--gold); opacity:0.8; cursor:pointer;"></i>
-      </div>
-      <div class="card-stats-row">
-        <div class="stat-box"><span class="stat-num">0</span><span class="stat-label">餘額</span></div>
-        <div class="stat-box" style="border-left:1px solid rgba(255,255,255,0.1); border-right:1px solid rgba(255,255,255,0.1);"><span class="stat-num" id="m-points">0</span><span class="stat-label">積分</span></div>
-        <div class="stat-box"><span class="stat-num">2</span><span class="stat-label">優惠券</span></div>
-      </div>
+      <div class="card-user-row"><img id="m-avatar" src="" class="card-avatar"><div style="flex:1;"><div id="m-name" class="card-name">...</div><div id="m-level" class="card-level-tag">普通會員</div></div><i class="fas fa-edit" onclick="openEditModal()" style="font-size:20px; color:var(--gold); opacity:0.8; cursor:pointer;"></i></div>
+      <div class="card-stats-row"><div class="stat-box"><span class="stat-num">0</span><span class="stat-label">餘額</span></div><div class="stat-box" style="border-left:1px solid rgba(255,255,255,0.1); border-right:1px solid rgba(255,255,255,0.1);"><span class="stat-num" id="m-points">0</span><span class="stat-label">積分</span></div><div class="stat-box"><span class="stat-num">2</span><span class="stat-label">優惠券</span></div></div>
     </div>
-    <div class="service-section">
-      <div class="service-item"><div class="service-icon"><i class="fas fa-gift"></i></div><div class="service-label">積分兌換</div></div>
-      <div class="service-item"><div class="service-icon"><i class="fas fa-headset"></i></div><div class="service-label">聯繫客服</div></div>
-      <div class="service-item"><div class="service-icon"><i class="fas fa-question-circle"></i></div><div class="service-label">常見問題</div></div>
-      <div class="service-item"><div class="service-icon"><i class="fas fa-info-circle"></i></div><div class="service-label">關於我們</div></div>
-    </div>
-    <div class="history-section">
-      <div class="section-title" style="padding:0; margin-bottom:10px;">最近訂單</div>
-      <div id="history-loading" style="text-align:center; color:#999; font-size:12px;">載入中...</div>
-      <div id="history-list"></div>
-    </div>
+    <div class="service-section"><div class="service-item"><div class="service-icon"><i class="fas fa-gift"></i></div><div class="service-label">積分兌換</div></div><div class="service-item"><div class="service-icon"><i class="fas fa-headset"></i></div><div class="service-label">聯繫客服</div></div><div class="service-item"><div class="service-icon"><i class="fas fa-question-circle"></i></div><div class="service-label">常見問題</div></div><div class="service-item"><div class="service-icon"><i class="fas fa-info-circle"></i></div><div class="service-label">關於我們</div></div></div>
+    <div class="history-section"><div class="section-title" style="padding:0; margin-bottom:10px;">最近訂單</div><div id="history-loading" style="text-align:center; color:#999; font-size:12px;">載入中...</div><div id="history-list"></div></div>
   </div>
 
   <div id="order-detail-view" class="hidden">
-    <div class="od-navbar"><button class="od-back" onclick="closeOrderDetail()" style="border:none;background:none;padding:0;"><i class="fas fa-chevron-left"></i></button><div style="flex:1;text-align:center;margin-right:30px;">訂單詳情</div></div>
+    <div class="od-navbar"><div class="od-back" onclick="closeOrderDetail()"><i class="fas fa-chevron-left"></i></div><div>訂單詳情</div></div>
     <div class="od-content">
       <div class="od-card">
-        <div class="od-shop-header"><div class="od-shop-name" id="od-shop-name">...</div></div>
+        <div class="od-shop-header"><div class="od-shop-name" id="od-shop-name">...</div><div class="od-actions"><div class="action-btn" onclick="alert('撥打電話')"><i class="fas fa-phone"></i>電話</div><div class="action-btn" onclick="alert('開啟地圖')"><i class="fas fa-map-marker-alt"></i>導航</div></div></div>
         <div class="od-info-row"><span class="od-label">訂單狀態</span><span id="od-status" style="font-weight:bold;">...</span></div>
       </div>
-      <div class="od-card">
-        <div style="font-weight:bold; margin-bottom:15px;">餐點明細</div>
-        <div id="od-items-list"></div>
-        <div style="border-top:1px solid #f5f5f5; margin-top:10px; padding-top:10px; text-align:right;">
-          <span style="font-size:14px;">合計</span> <span id="od-total-price" style="font-size:18px; font-weight:bold; color:#D32F2F;">...</span>
-        </div>
-      </div>
-      <div class="od-card">
-        <div style="font-weight:bold; margin-bottom:15px;">訂單資訊</div>
-        <div class="od-info-row"><span class="od-label">訂單編號</span><span id="od-id">...</span></div>
-        <div class="od-info-row"><span class="od-label">下單時間</span><span id="od-time">...</span></div>
-        <div class="od-info-row"><span class="od-label">預留電話</span><span id="od-phone">...</span></div>
-      </div>
+      <div class="od-card"><div style="font-weight:bold; margin-bottom:15px;">餐點明細</div><div id="od-items-list"></div><div style="border-top:1px solid #f5f5f5; margin-top:10px; padding-top:10px; text-align:right;"><span style="font-size:14px;">合計</span> <span id="od-total-price" style="font-size:18px; font-weight:bold; color:#D32F2F;">...</span></div></div>
+      <div class="od-card"><div style="font-weight:bold; margin-bottom:15px;">訂單資訊</div><div class="od-info-row"><span class="od-label">訂單編號</span><span id="od-id">...</span></div><div class="od-info-row"><span class="od-label">下單時間</span><span id="od-time">...</span></div><div class="od-info-row"><span class="od-label">預留電話</span><span id="od-phone">...</span></div></div>
       <div id="od-cancel-container" style="padding: 0 15px 30px 15px;"></div>
     </div>
   </div>
@@ -219,10 +184,7 @@
     <button class="big-back-btn" onclick="goLobby()"><i class="fas fa-chevron-left"></i></button>
     <div id="banner"><div id="shop-title-overlay"><h1 id="shop-name-title" style="margin:0; font-size:24px;">...</h1></div></div>
     <div id="menu-container" class="container"></div>
-    <div id="cart-bar">
-      <div>總計 $<span id="total-display">0</span></div>
-      <button id="checkout-btn" onclick="preCheckout()">去結算 (0)</button>
-    </div>
+    <div id="cart-bar"><div>總計 $<span id="total-display">0</span></div><button id="checkout-btn" onclick="preCheckout()">去結算 (0)</button></div>
   </div>
 
   <div id="edit-modal" class="hidden">
@@ -251,7 +213,7 @@
   </div>
 
   <script>
-    // ⚠️⚠️⚠️ 這裡填入你的 ID 和 URL ⚠️⚠️⚠️
+    // ⚠️⚠️⚠️ ID 填這裡 ⚠️⚠️⚠️
     const MY_LIFF_ID = "2008590518-p2AoVQO2"; 
     const API_URL = "https://script.google.com/macros/s/AKfycbzxUYXVSMjF8Zt7KqBo9qGvottN4zoxkM1qCu97ZqugJ7Nf6czxu0DzBY9DN1nVRtdn/exec";
 
@@ -273,10 +235,9 @@
 
         if (shopId && allShops[shopId]) { openShop(shopId); } 
         else if (targetTab === 'member') { renderLobby(allShops); switchTab('member'); }
+        else if (targetTab === 'coupons') { renderLobby(allShops); switchTab('coupons'); }
         else { renderLobby(allShops); switchTab('lobby'); }
-        
         fetchMemberData(); 
-
       } catch (err) { showError(err.message); }
     }
 
@@ -353,6 +314,7 @@
       } catch(e) { loading.style.display = 'none'; }
     }
 
+    // 🔥 修正後的 openOrderDetail
     function openOrderDetail(index) {
       const orderData = orderCache[index];
       if (!orderData) return;
@@ -448,7 +410,7 @@
                 <div style="font-weight:bold; font-size:14px; margin-bottom:5px;">${item.name}</div>
                 <div style="display:flex; justify-content:space-between; align-items:center;">
                   <span style="color:#e64a19; font-weight:bold;">$${item.price}</span>
-                  <div class="stepper"><button class="btn-plus" onclick="upd('${item.name}',${item.price},1)">+</button></div>
+                  <div class="stepper"><button class="btn-minus" onclick="upd('${item.name}',${item.price},-1)">-</button><span class="count" id="c-${idx}">0</span><button class="btn-plus" onclick="upd('${item.name}',${item.price},1)">+</button></div>
                 </div>
               </div>
             </div>`;
@@ -511,7 +473,6 @@
       } catch(e) { alert("失敗: "+e.message); btn.innerText = "重試"; btn.disabled = false; }
     }
 
-    // 編輯資料
     function openEditModal() {
       const data = window.currentMemberData || {};
       document.getElementById('edit-name').value = data.name || userProfile.displayName;
