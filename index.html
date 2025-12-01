@@ -7,11 +7,39 @@
   <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    /* ... (保留原本的 CSS 全局設定) ... */
-    :root { --primary: #06C755; --gold: #C5A674; --bg: #F5F6F7; --text: #333; }
+    /* ==================== 全局設定 ==================== */
+    :root { 
+      --primary: #06C755; --gold: #C5A674; --bg: #F5F6F7; --text: #333; 
+      --dark-card: #2b2b2b;
+    }
     body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding: 0; margin: 0; background-color: var(--bg); color: var(--text); touch-action: manipulation; -webkit-user-select: none; user-select: none; padding-bottom: 90px; }
     .hidden { display: none !important; }
     #loading, #error-box { text-align: center; padding: 50px; color: #999; }
+
+    /* ==================== 🔥 自訂彈窗樣式 (取代 alert/confirm) ==================== */
+    #msg-modal-overlay {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.5); z-index: 1000;
+      display: flex; align-items: center; justify-content: center;
+      backdrop-filter: blur(2px);
+    }
+    .msg-box {
+      background: white; width: 80%; max-width: 320px;
+      border-radius: 16px; padding: 25px;
+      text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      animation: popIn 0.2s ease-out;
+    }
+    .msg-icon { font-size: 40px; margin-bottom: 15px; color: var(--primary); }
+    .msg-icon.error { color: #D32F2F; }
+    .msg-text { font-size: 18px; font-weight: bold; color: #333; margin-bottom: 20px; line-height: 1.5; }
+    .msg-btns { display: flex; gap: 10px; justify-content: center; }
+    .msg-btn {
+      flex: 1; padding: 12px; border-radius: 30px; font-size: 16px; font-weight: bold;
+      border: none; cursor: pointer;
+    }
+    .msg-btn-ok { background: var(--primary); color: white; }
+    .msg-btn-cancel { background: #eee; color: #666; }
+    @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
     /* 底部導航 */
     #tab-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; height: 60px; display: flex; border-top: 1px solid #eee; z-index: 200; padding-bottom: env(safe-area-inset-bottom); }
@@ -43,7 +71,15 @@
     .shop-name { font-size: 16px; font-weight: bold; color: #333; margin-bottom: 5px; }
     .btn-visit { background: #333; color: var(--gold); border: none; padding: 4px 12px; border-radius: 20px; font-size: 12px; }
 
-    /* 會員中心 */
+    /* 領券 */
+    #coupons-view { padding: 15px; }
+    .coupon-card { background: #fff; border-radius: 12px; display: flex; margin-bottom: 15px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+    .coupon-left { background: linear-gradient(135deg, #FF9966, #FF5E62); width: 100px; color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px; text-align: center; }
+    .coupon-price { font-size: 28px; font-weight: bold; }
+    .coupon-right { flex: 1; padding: 15px; display: flex; flex-direction: column; justify-content: center; position: relative; }
+    .btn-claim { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); background: #fff; border: 1px solid #FF5E62; color: #FF5E62; padding: 5px 12px; border-radius: 20px; font-size: 12px; }
+
+    /* 會員 */
     #member-view { padding: 0; }
     .member-header-bg { background-color: var(--bg); height: 80px; }
     .premium-card { margin: -60px 15px 15px 15px; background: linear-gradient(135deg, #2b2b2b, #1a1a1a); border-radius: 16px; padding: 20px; color: #fff; box-shadow: 0 10px 30px rgba(0,0,0,0.15); position: relative; overflow: hidden; }
@@ -94,37 +130,23 @@
     #banner { width: 100%; height: 200px; background-size: cover; background-position: center; position: relative; }
     #shop-title-overlay { position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(transparent, rgba(0,0,0,0.8)); padding: 20px; color: white; }
     .big-back-btn { position: absolute; top: 15px; left: 15px; width: 40px; height: 40px; border-radius: 50%; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); border: none; color: #fff; font-size: 20px; z-index: 10; display:flex; align-items:center; justify-content:center; cursor: pointer; }
-    
-    /* 🔥 零售版 (Retail) 專用樣式 */
     .menu-list-retail { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 15px; }
-    .menu-list-retail .menu-item { 
-      background: white; border-radius: 12px; overflow: hidden; 
-      box-shadow: 0 2px 8px rgba(0,0,0,0.05); display: flex; flex-direction: column; padding: 0; 
-    }
+    .menu-list-retail .menu-item { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.05); display: flex; flex-direction: column; padding: 0; }
     .menu-item-img { height: 120px; background-color: #eee; background-size: cover; background-position: center; }
     .menu-item-content { padding: 10px; flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
-    /* 🔥 零售版加減按鈕縮小，以適應網格 */
     .menu-list-retail .stepper { background: transparent; padding: 0; justify-content: flex-end; }
     .menu-list-retail .stepper button { width: 24px; height: 24px; font-size: 14px; }
     .menu-list-retail .count { font-size: 13px; margin: 0 6px; font-weight: bold; }
-
-    /* 餐飲版 (Food) 樣式 */
     .menu-list-food .menu-item { background: white; padding: 15px; border-radius: 12px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
     .stepper { display: flex; align-items: center; background: #f0f0f0; border-radius: 20px; padding: 2px; }
     .stepper button { width: 28px; height: 28px; border-radius: 50%; border: none; font-size: 16px; cursor: pointer; }
     .btn-plus { background: var(--primary); color: white; }
     .btn-minus { background: transparent; color: #888; }
     .count { margin: 0 8px; font-weight: bold; font-size: 14px; }
-
     #cart-bar { position: fixed; bottom: 0; left: 0; right: 0; background: white; padding: 15px 20px; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; z-index: 100; padding-bottom: max(15px, env(safe-area-inset-bottom)); }
     #checkout-btn { background: var(--primary); color: white; border: none; padding: 10px 25px; border-radius: 30px; font-weight: bold; }
 
-    /* 領券與編輯 */
-    #coupons-view { padding: 15px; }
-    .coupon-card { background: #fff; border-radius: 12px; display: flex; margin-bottom: 15px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
-    .coupon-left { background: linear-gradient(135deg, #FF9966, #FF5E62); width: 100px; color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px; text-align: center; }
-    .coupon-right { flex: 1; padding: 15px; display: flex; flex-direction: column; justify-content: center; position: relative; }
-    .btn-claim { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); background: #fff; border: 1px solid #FF5E62; color: #FF5E62; padding: 5px 12px; border-radius: 20px; font-size: 12px; }
+    /* 彈窗們 */
     #edit-modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 400; display: flex; align-items: center; justify-content: center; }
     .modal-content { background: #fff; width: 80%; border-radius: 16px; padding: 20px; }
     .form-input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 15px; box-sizing: border-box; }
@@ -140,7 +162,18 @@
 </head>
 <body>
 
-  <div id="loading">載入中...</div>
+  <div id="msg-modal-overlay" class="hidden">
+    <div class="msg-box">
+      <div id="msg-icon" class="msg-icon"><i class="fas fa-check-circle"></i></div>
+      <div id="msg-text" class="msg-text">訊息內容</div>
+      <div class="msg-btns">
+        <button id="msg-btn-no" class="msg-btn msg-btn-cancel hidden" onclick="closeMsgModal(false)">取消</button>
+        <button id="msg-btn-yes" class="msg-btn msg-btn-ok" onclick="closeMsgModal(true)">確定</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="loading"><div style="font-size:30px; margin-bottom:10px;"><i class="fas fa-circle-notch fa-spin" style="color:#06C755;"></i></div>載入中...</div>
   <div id="error-box" class="hidden"></div>
 
   <div id="lobby-view" class="hidden">
@@ -154,7 +187,7 @@
 
   <div id="coupons-view" class="hidden">
     <div class="section-title" style="margin:20px 15px 10px 15px;">領券中心</div>
-    <div style="padding:0 15px;"><div class="coupon-card"><div class="coupon-left"><div class="coupon-price" style="font-size:28px;font-weight:bold;"><span>$</span>20</div><div>滿200可用</div></div><div class="coupon-right"><div style="font-weight:bold;margin-bottom:5px;">新人見面禮</div><div style="font-size:12px;color:#888;">全平台通用</div><div class="btn-claim" onclick="alert('領取成功')">領取</div></div></div></div>
+    <div style="padding:0 15px;"><div class="coupon-card"><div class="coupon-left"><div class="coupon-price" style="font-size:28px;font-weight:bold;"><span>$</span>20</div><div>滿200可用</div></div><div class="coupon-right"><div style="font-weight:bold;margin-bottom:5px;">新人見面禮</div><div style="font-size:12px;color:#888;">全平台通用</div><div class="btn-claim" onclick="showMsg('領取成功！')">領取</div></div></div></div>
   </div>
 
   <div id="member-view" class="hidden">
@@ -163,15 +196,20 @@
       <div class="card-user-row"><img id="m-avatar" src="" class="card-avatar"><div style="flex:1;"><div id="m-name" class="card-name">...</div><div id="m-level" class="card-level-tag">普通會員</div></div><i class="fas fa-edit" onclick="openEditModal()" style="font-size:20px; color:var(--gold); opacity:0.8; cursor:pointer;"></i></div>
       <div class="card-stats-row"><div class="stat-box"><span class="stat-num">0</span><span class="stat-label">餘額</span></div><div class="stat-box" style="border-left:1px solid rgba(255,255,255,0.1); border-right:1px solid rgba(255,255,255,0.1);"><span class="stat-num" id="m-points">0</span><span class="stat-label">積分</span></div><div class="stat-box"><span class="stat-num">2</span><span class="stat-label">優惠券</span></div></div>
     </div>
-    <div class="service-section"><div class="service-item"><div class="service-icon"><i class="fas fa-gift"></i></div><div class="service-label">積分兌換</div></div><div class="service-item"><div class="service-icon"><i class="fas fa-headset"></i></div><div class="service-label">聯繫客服</div></div><div class="service-item"><div class="service-icon"><i class="fas fa-question-circle"></i></div><div class="service-label">常見問題</div></div><div class="service-item"><div class="service-icon"><i class="fas fa-info-circle"></i></div><div class="service-label">關於我們</div></div></div>
+    <div class="service-section">
+      <div class="service-item" onclick="showMsg('積分兌換功能開發中')"><div class="service-icon"><i class="fas fa-gift"></i></div><div class="service-label">積分兌換</div></div>
+      <div class="service-item" onclick="showMsg('客服連線中...')"><div class="service-icon"><i class="fas fa-headset"></i></div><div class="service-label">聯繫客服</div></div>
+      <div class="service-item" onclick="showMsg('常見問題頁面')"><div class="service-icon"><i class="fas fa-question-circle"></i></div><div class="service-label">常見問題</div></div>
+      <div class="service-item" onclick="showMsg('Uni-S v1.0')"><div class="service-icon"><i class="fas fa-info-circle"></i></div><div class="service-label">關於我們</div></div>
+    </div>
     <div class="history-section"><div class="section-title" style="padding:0; margin-bottom:10px;">最近訂單</div><div id="history-loading" style="text-align:center; color:#999; font-size:12px;">載入中...</div><div id="history-list"></div></div>
   </div>
 
   <div id="order-detail-view" class="hidden">
-    <div class="od-navbar"><div class="od-back" onclick="closeOrderDetail()"><i class="fas fa-chevron-left"></i></div><div>訂單詳情</div></div>
+    <div class="od-navbar"><button class="od-back" onclick="closeOrderDetail()" style="border:none;background:none;padding:0;"><i class="fas fa-chevron-left"></i></button><div style="flex:1;text-align:center;margin-right:30px;">訂單詳情</div></div>
     <div class="od-content">
       <div class="od-card">
-        <div class="od-shop-header"><div class="od-shop-name" id="od-shop-name">...</div><div class="od-actions"><div class="action-btn" onclick="alert('撥打電話')"><i class="fas fa-phone"></i>電話</div><div class="action-btn" onclick="alert('開啟地圖')"><i class="fas fa-map-marker-alt"></i>導航</div></div></div>
+        <div class="od-shop-header"><div class="od-shop-name" id="od-shop-name">...</div><div class="od-actions"><div class="action-btn" onclick="showMsg('撥打電話...')"><i class="fas fa-phone"></i>電話</div><div class="action-btn" onclick="showMsg('開啟地圖...')"><i class="fas fa-map-marker-alt"></i>導航</div></div></div>
         <div class="od-info-row"><span class="od-label">訂單狀態</span><span id="od-status" style="font-weight:bold;">...</span></div>
       </div>
       <div class="od-card"><div style="font-weight:bold; margin-bottom:15px;">餐點明細</div><div id="od-items-list"></div><div style="border-top:1px solid #f5f5f5; margin-top:10px; padding-top:10px; text-align:right;"><span style="font-size:14px;">合計</span> <span id="od-total-price" style="font-size:18px; font-weight:bold; color:#D32F2F;">...</span></div></div>
@@ -218,6 +256,29 @@
     const API_URL = "https://script.google.com/macros/s/AKfycbzxUYXVSMjF8Zt7KqBo9qGvottN4zoxkM1qCu97ZqugJ7Nf6czxu0DzBY9DN1nVRtdn/exec";
 
     let allShops = {}; let currentShop = null; let cart = {}; let userProfile = null; let orderCache = []; let selectedService = "";
+    
+    // 自訂彈窗邏輯
+    let modalCallback = null;
+    function showMsg(text, callback) {
+      document.getElementById('msg-text').innerText = text;
+      document.getElementById('msg-icon').className = 'msg-icon fas fa-check-circle'; // 預設成功圖示
+      document.getElementById('msg-icon').classList.remove('error');
+      document.getElementById('msg-btn-no').classList.add('hidden');
+      document.getElementById('msg-modal-overlay').classList.remove('hidden');
+      modalCallback = callback;
+    }
+    function showConfirm(text, onYes) {
+      document.getElementById('msg-text').innerText = text;
+      document.getElementById('msg-icon').className = 'msg-icon fas fa-question-circle';
+      document.getElementById('msg-btn-no').classList.remove('hidden');
+      document.getElementById('msg-modal-overlay').classList.remove('hidden');
+      modalCallback = onYes;
+    }
+    function closeMsgModal(isYes) {
+      document.getElementById('msg-modal-overlay').classList.add('hidden');
+      if (isYes && modalCallback) modalCallback();
+      modalCallback = null;
+    }
 
     async function main() {
       try {
@@ -314,7 +375,6 @@
       } catch(e) { loading.style.display = 'none'; }
     }
 
-    // 🔥 修正後的 openOrderDetail
     function openOrderDetail(index) {
       const orderData = orderCache[index];
       if (!orderData) return;
@@ -356,15 +416,16 @@
     }
 
     async function cancelOrder(orderId) {
-      if (!confirm("確定要取消這筆訂單嗎？")) return;
-      document.getElementById('od-cancel-container').innerHTML = '<div style="text-align:center; color:#999;">處理中...</div>';
-      try {
-        await fetch(API_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: "cancelOrder", orderId: orderId, userId: userProfile.userId }) });
-        setTimeout(() => { alert("已送出取消請求。"); closeOrderDetail(); loadOrderHistory(); }, 1000);
-      } catch (e) { alert("錯誤：" + e.message); }
+      // 🔥 使用自訂彈窗取代 confirm
+      showConfirm("確定要取消這筆訂單嗎？", async function() {
+        showMsg("處理中...", null); // 顯示處理中
+        try {
+          await fetch(API_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: "cancelOrder", orderId: orderId, userId: userProfile.userId }) });
+          setTimeout(() => { showMsg("已送出取消請求", () => { closeOrderDetail(); loadOrderHistory(); }); }, 1500);
+        } catch (e) { showMsg("錯誤：" + e.message); }
+      });
     }
 
-    // 大廳與搜尋
     function renderLobby(shops) {
       const list = document.getElementById('shop-list');
       let html = '';
@@ -439,10 +500,9 @@
       if(count>0) { btn.classList.add('active'); btn.style.backgroundColor = currentShop.themeColor; } else { btn.classList.remove('active'); btn.style.backgroundColor = '#ccc'; }
     }
 
-    // 結帳與服務選擇
     function preCheckout() {
       let total = 0; for (let qty of Object.values(cart)) total += qty;
-      if (total === 0) { alert("購物車是空的"); return; }
+      if (total === 0) { showMsg("購物車是空的"); return; }
       const services = currentShop.services || ["預設服務"];
       const container = document.getElementById('service-options-container'); container.innerHTML = '';
       services.forEach((svc, idx) => {
@@ -469,8 +529,8 @@
       try {
         await liff.sendMessages([{type:"text", text:`【Uni-S】\n我向 ${currentShop.name} 下單了 (${selectedService})：\n\n${detail}`}]);
         await fetch(API_URL, {method:'POST', mode:'no-cors', headers:{'Content-Type':'application/json'}, body:JSON.stringify({shopId:currentShop.id, userName:userProfile.displayName, userId:userProfile.userId, order:detail})});
-        alert("✅ 訂單已送出！"); goLobby();
-      } catch(e) { alert("失敗: "+e.message); btn.innerText = "重試"; btn.disabled = false; }
+        showMsg("✅ 訂單已送出！", () => { goLobby(); });
+      } catch(e) { showMsg("失敗: "+e.message); btn.innerText = "重試"; btn.disabled = false; }
     }
 
     function openEditModal() {
@@ -485,12 +545,12 @@
       const name = document.getElementById('edit-name').value;
       const phone = document.getElementById('edit-phone').value;
       const birthday = document.getElementById('edit-birthday').value;
-      if (!name || !phone) { alert("姓名與電話為必填"); return; }
+      if (!name || !phone) { showMsg("姓名與電話為必填"); return; }
       const btn = document.querySelector('.btn-save'); btn.innerText = "儲存中...";
       try {
         await fetch(API_URL, { method: 'POST', mode: 'no-cors', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ action: "updateProfile", userId: userProfile.userId, name: name, phone: phone, birthday: birthday }) });
-        alert("資料更新成功！"); localStorage.setItem("uni_user_phone", phone); closeEditModal(); fetchMemberData();
-      } catch(e) { alert("更新失敗"); } finally { btn.innerText = "儲存"; }
+        showMsg("資料更新成功！", () => { localStorage.setItem("uni_user_phone", phone); closeEditModal(); fetchMemberData(); });
+      } catch(e) { showMsg("更新失敗"); } finally { btn.innerText = "儲存"; }
     }
 
     function goLobby() { const url = new URL(window.location); url.searchParams.delete('id'); window.history.pushState({}, '', url); switchTab('lobby'); }
