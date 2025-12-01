@@ -463,7 +463,7 @@ async function fetchMemberData(isBackground = false) {
         html += `
           <div class="shop-card" onclick="openShop('${id}', true)">
             <div class="shop-thumb" style="background-image:url(${s.bannerUrl})"></div>
-            <div class="shop-info"><div class="shop-name">${s.name}</div><div class="shop-action"><button class="btn-visit">去點餐</button></div></div>
+            <div class="shop-info"><div class="shop-name">${s.name}</div><div class="shop-action"><button class="btn-visit">進入商鋪</button></div></div>
           </div>`;
       });
       list.innerHTML = html;
@@ -530,5 +530,6 @@ async function fetchMemberData(isBackground = false) {
   </script>
 </body>
 </html>
+
 
 
