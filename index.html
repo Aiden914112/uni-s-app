@@ -117,6 +117,11 @@
 
     /* ==================== 4. 各種彈窗 ==================== */
     /* 購物車明細 */
+    .cart-header { display: flex; justify-content: space-between; align-items: center; padding: 15px; background: #fff; border-bottom: 1px solid #f5f5f5; border-radius: 20px 20px 0 0; }
+    .cart-stepper { display: flex; align-items: center; background: #f5f5f5; border-radius: 20px; }
+    .cart-stepper button { width: 32px; height: 32px; border: none; background: transparent; font-size: 14px; display: flex; align-items: center; justify-content: center; color: #666; }
+    .cart-stepper span { font-weight: bold; margin: 0 8px; font-size: 14px; min-width: 20px; text-align: center; }
+
     .cart-list { padding: 0 15px; max-height: 50vh; overflow-y: auto; }
     .cart-item { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid #f5f5f5; }
     
@@ -257,11 +262,18 @@
     </div>
   </div>
 
-  <div id="cart-modal" class="modal-overlay hidden">
-    <div class="modal-sheet" style="padding:0;">
-      <div style="background:#f5f5f5;padding:10px 15px;font-size:12px;color:#666;display:flex;justify-content:space-between;"><span>已選商品</span><span onclick="clearCart()" style="cursor:pointer;"><i class="fas fa-trash"></i> 清空</span></div>
+  <div id="cart-modal" class="modal-overlay hidden" onclick="closeCartModal()">
+    <div class="modal-sheet" style="padding:0;" onclick="event.stopPropagation()">
+      <div class="cart-header">
+         <div style="font-weight:bold;font-size:16px;">購物車內容</div>
+         <div onclick="closeCartModal()" style="cursor:pointer;padding:5px;"><i class="fas fa-chevron-down"></i></div>
+      </div>
+      <div style="background:#f9f9f9;padding:8px 15px;font-size:12px;color:#666;display:flex;justify-content:space-between;align-items:center;">
+          <span>已選商品</span>
+          <span onclick="clearCart()" style="cursor:pointer;color:#999;"><i class="fas fa-trash"></i> 清空</span>
+      </div>
       <div id="cart-list" class="cart-list"></div>
-      <div style="height:50px;" onclick="closeCartModal()"></div>
+      <div style="height:20px;"></div>
     </div>
   </div>
   <div id="spec-modal" class="modal-overlay hidden">
@@ -474,15 +486,52 @@
       else { document.getElementById('cart-bar').style.display = 'none'; closeCartModal(); }
     }
     function openCartModal() {
-      if(cart.length===0) return;
+      if(cart.length===0) { closeCartModal(); return; }
       const list = document.getElementById('cart-list');
       let html = '';
       cart.forEach((item, idx) => {
-        html += `<div class="cart-item"><div><div style="font-size:15px;font-weight:bold;">${item.name}</div><div style="font-size:12px;color:#999;">$${item.price} x ${item.qty}</div></div><div style="display:flex;align-items:center;gap:15px;"><div style="font-weight:bold;">$${item.total}</div><div onclick="removeCartItem(${idx})" style="color:#ccc;cursor:pointer;"><i class="fas fa-trash-alt"></i></div></div></div>`;
+        html += `
+        <div class="cart-item">
+            <div style="flex:1;">
+                <div style="font-size:15px;font-weight:bold;margin-bottom:4px;">${item.name}</div>
+                <div style="font-size:12px;color:#999;">$${item.price}</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:15px;">
+                <div style="font-weight:bold;min-width:40px;text-align:right;">$${item.total}</div>
+                <div class="cart-stepper">
+                    <button onclick="updateCartItemQty(${idx}, -1)"><i class="fas fa-minus"></i></button>
+                    <span>${item.qty}</span>
+                    <button onclick="updateCartItemQty(${idx}, 1)"><i class="fas fa-plus"></i></button>
+                </div>
+            </div>
+        </div>`;
       });
       list.innerHTML = html;
       document.getElementById('cart-modal').classList.remove('hidden');
     }
+
+    function updateCartItemQty(idx, change) {
+        let item = cart[idx];
+        if(!item) return;
+        
+        item.qty += change;
+        
+        if(item.qty <= 0) {
+            cart.splice(idx, 1);
+        } else {
+            item.total = item.price * item.qty;
+        }
+        
+        updateCartUI();
+        
+        // 如果購物車還有商品，重新渲染清單；否則關閉
+        if(cart.length > 0) {
+            openCartModal(); 
+        } else {
+            closeCartModal(); 
+        }
+    }
+
     function closeCartModal() { document.getElementById('cart-modal').classList.add('hidden'); }
     function closeSpecModal() { document.getElementById('spec-modal').classList.add('hidden'); }
     function clearCart() { cart = []; updateCartUI(); }
