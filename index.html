@@ -364,7 +364,7 @@
       modalCb = cb; 
     }
     function showConfirm(txt, cb) {
-      document.getElementById('msg-text').innerText = txt;
+      document.getElementById('msg-text').innerText = txt; 
       document.getElementById('msg-btn-no').classList.remove('hidden');
       document.getElementById('msg-modal-overlay').classList.remove('hidden');
       modalCb = cb;
@@ -403,20 +403,39 @@
     }
 
     // ========== 優惠券邏輯 (重寫部分) ==========
-    async function loadRedeemableCoupons() {
+    async function loadCoupons() {
         console.log("正在載入可兌換優惠券...");
         const list = document.getElementById('coupons-list');
         list.innerHTML = '<div style="text-align:center;color:#999;font-size:12px;">載入優惠券中...</div>';
         
         try {
-            const res = await fetch(`${API_URL}?action=getCoupons`);
+            // 呼叫 API
+            const res = await fetch(API_URL, {
+                method: 'POST',
+                // 使用 text/plain 或 no-cors 時 POST 內容可能變成 string
+                // 但為了標準化，這裡轉為 JSON 字串
+                body: JSON.stringify({ action: "getCoupons" })
+            });
             
-            // 檢查回應狀態
-            if (!res.ok) throw new Error("網路回應異常: " + res.status);
-            
-            const coupons = await res.json();
-            console.log("優惠券資料回傳:", coupons);
+            // 1. 先取得原始文字，方便 Debug HTML 錯誤頁面
+            const text = await res.text();
+            console.log("Raw Response:", text);
 
+            // 2. 嘗試解析 JSON
+            let coupons;
+            try {
+                coupons = JSON.parse(text);
+            } catch (e) {
+                // 如果解析失敗，通常是因為回傳了 HTML 錯誤頁面
+                throw new Error("Server returned non-JSON response: " + text.substring(0, 50) + "...");
+            }
+
+            // 3. 檢查是否有邏輯錯誤 (例如 status: error)
+            if (coupons.status === 'error') {
+                throw new Error(coupons.message);
+            }
+
+            // 4. 檢查是否為陣列
             if (!Array.isArray(coupons)) {
                 console.error("API 回傳格式錯誤，應為陣列", coupons);
                 throw new Error("資料格式錯誤");
@@ -440,9 +459,10 @@
                 </div>`;
             });
             list.innerHTML = html;
+
         } catch(e) { 
             console.error("載入優惠券失敗:", e);
-            list.innerHTML = `<div style="text-align:center;color:red;font-size:12px;margin-top:10px;">載入失敗: ${e.message}<br><span style="color:#999;font-size:10px;cursor:pointer;" onclick="loadRedeemableCoupons()">點擊重試</span></div>`; 
+            list.innerHTML = `<div style="text-align:center;color:red;font-size:12px;margin-top:10px;">載入失敗: ${e.message}<br><span style="color:#999;font-size:10px;cursor:pointer;" onclick="loadCoupons()">點擊重試</span></div>`; 
         }
     }
 
@@ -450,7 +470,8 @@
         showConfirm("確定要兌換這張優惠券嗎？", async () => {
             showMsg("處理中...", null);
             try {
-                const res = await fetch(API_URL, {
+                // POST 請求
+                await fetch(API_URL, {
                     method: 'POST', mode: 'no-cors',
                     body: JSON.stringify({ action: "redeemCoupon", userId: userProfile.userId, couponId: id })
                 });
@@ -468,7 +489,14 @@
         const list = document.getElementById('my-coupons-list');
         try {
             const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "getMyCoupons", userId: userProfile.userId }) });
-            myCoupons = await res.json(); // 全域變數
+            // 注意：這裡假設 getMyCoupons 也是正常的 JSON 回傳 (由 doPost 處理)
+            // 但因為是 GET 還是 POST? 原本是 POST。
+            // 這裡簡單處理，如果報錯會在 console 顯示
+            const text = await res.text();
+            let data;
+            try { data = JSON.parse(text); } catch(e) { throw new Error("JSON Parse Error"); }
+            
+            myCoupons = data; // 全域變數
             if (myCoupons.length === 0) {
                 list.innerHTML = '尚無優惠券';
             } else {
@@ -499,7 +527,8 @@
       try {
           // 重新抓取最新優惠券
           const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "getMyCoupons", userId: userProfile.userId }) });
-          myCoupons = await res.json();
+          const text = await res.text();
+          myCoupons = JSON.parse(text);
           
           myCoupons.forEach(c => {
               let opt = document.createElement('option');
@@ -558,13 +587,33 @@
     }
 
     // ... (其餘 Geolocation, Helper Functions 保持不變) ...
-    // ... 為節省篇幅，保留之前的 calculateDistance, initLocationService, updateUI, switchTab 等 ...
     
     function calculateDistance(lat1, lon1, lat2, lon2) { const R = 6371; const dLat = deg2rad(lat2 - lat1); const dLon = deg2rad(lon2 - lon1); const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * Math.sin(dLon/2) * Math.sin(dLon/2); const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); return (R * c).toFixed(1); }
     function deg2rad(deg) { return deg * (Math.PI/180); }
     function initLocationService() { return new Promise((resolve) => { if (!navigator.geolocation) { resolve(); return; } const timeoutId = setTimeout(() => { resolve(); }, 5000); navigator.geolocation.getCurrentPosition((position) => { clearTimeout(timeoutId); userLocation = { lat: position.coords.latitude, lng: position.coords.longitude }; Object.values(allShops).forEach(shop => { if (shop.lat && shop.lng && !isNaN(shop.lat) && !isNaN(shop.lng)) { const dist = calculateDistance(userLocation.lat, userLocation.lng, shop.lat, shop.lng); shop.distance = parseFloat(dist); shop.distanceText = dist + " km"; } else { shop.distance = 9999; shop.distanceText = ""; } }); resolve(); }, (error) => { clearTimeout(timeoutId); resolve(); }); }); }
     function updateUI() { ['home-name','m-name'].forEach(id => document.getElementById(id).innerText = userProfile.displayName); ['home-avatar','m-avatar'].forEach(id => document.getElementById(id).src = userProfile.pictureUrl); }
-    function switchTab(tab) { ['lobby-view', 'coupons-view', 'member-view', 'shop-view', 'order-detail-view'].forEach(id => document.getElementById(id).classList.add('hidden')); document.getElementById('tab-bar').classList.remove('hidden'); document.querySelectorAll('.tab-item').forEach(el => el.classList.remove('active')); if (tab === 'lobby') { document.getElementById('lobby-view').classList.remove('hidden'); document.querySelectorAll('.tab-item')[0].classList.add('active'); fetchMemberData(); } else if (tab === 'coupons') { document.getElementById('coupons-view').classList.remove('hidden'); document.querySelectorAll('.tab-item')[1].classList.add('active'); loadRedeemableCoupons(); /*載入優惠券*/ } else if (tab === 'member') { document.getElementById('member-view').classList.remove('hidden'); document.querySelectorAll('.tab-item')[2].classList.add('active'); fetchMemberData(); loadOrderHistory(); loadMyCoupons(); /*載入我的優惠券*/ } }
+    
+    // 更新 switchTab 以呼叫新的函數名稱 loadCoupons
+    function switchTab(tab) { 
+        ['lobby-view', 'coupons-view', 'member-view', 'shop-view', 'order-detail-view'].forEach(id => document.getElementById(id).classList.add('hidden')); 
+        document.getElementById('tab-bar').classList.remove('hidden'); 
+        document.querySelectorAll('.tab-item').forEach(el => el.classList.remove('active')); 
+        if (tab === 'lobby') { 
+            document.getElementById('lobby-view').classList.remove('hidden'); 
+            document.querySelectorAll('.tab-item')[0].classList.add('active'); 
+            fetchMemberData(); 
+        } else if (tab === 'coupons') { 
+            document.getElementById('coupons-view').classList.remove('hidden'); 
+            document.querySelectorAll('.tab-item')[1].classList.add('active'); 
+            loadCoupons(); /* 改為呼叫 loadCoupons */ 
+        } else if (tab === 'member') { 
+            document.getElementById('member-view').classList.remove('hidden'); 
+            document.querySelectorAll('.tab-item')[2].classList.add('active'); 
+            fetchMemberData(); 
+            loadOrderHistory(); 
+            loadMyCoupons(); 
+        } 
+    }
     
     function openShop(id) { currentShop = allShops[id]; currentShop.id = id; cart = []; updateCartUI(); const url = new URL(window.location); url.searchParams.set('id', id); window.history.pushState({}, '', url); document.getElementById('tab-bar').classList.add('hidden'); ['lobby-view','coupons-view','member-view'].forEach(id=>document.getElementById(id).classList.add('hidden')); document.getElementById('shop-view').classList.remove('hidden'); document.getElementById('shop-name-title').innerText = currentShop.name; document.getElementById('shop-banner').style.backgroundImage = `url(${currentShop.bannerUrl})`; document.getElementById('shop-address').innerText = currentShop.address || "暫無地址資訊"; document.getElementById('shop-hours').innerText = currentShop.openHours || "營業時間未定"; if (currentShop.type === 'retail') { document.getElementById('food-sidebar').style.display = 'none'; document.getElementById('food-content').style.display = 'none'; document.getElementById('mode-retail').style.display = 'grid'; renderRetailMenu(); } else { document.getElementById('mode-retail').style.display = 'none'; document.getElementById('food-sidebar').style.display = 'block'; document.getElementById('food-content').style.display = 'block'; renderFoodMenu(); } }
     function openMap() { if (currentShop) { if (currentShop.address && currentShop.address.trim() !== "") { window.open(`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(currentShop.address)}`, '_blank'); } else if (currentShop.lat && currentShop.lng) { window.open(`https://www.google.com/maps/dir/?api=1&destination=${currentShop.lat},${currentShop.lng}`, '_blank'); } else { showMsg("無法取得商家位置資訊"); } } }
