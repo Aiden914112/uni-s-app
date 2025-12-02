@@ -402,17 +402,31 @@
       } catch (err) { showMsg(err.message); }
     }
 
-    // ========== 優惠券邏輯 ==========
+    // ========== 優惠券邏輯 (重寫部分) ==========
     async function loadRedeemableCoupons() {
+        console.log("正在載入可兌換優惠券...");
         const list = document.getElementById('coupons-list');
         list.innerHTML = '<div style="text-align:center;color:#999;font-size:12px;">載入優惠券中...</div>';
+        
         try {
             const res = await fetch(`${API_URL}?action=getCoupons`);
+            
+            // 檢查回應狀態
+            if (!res.ok) throw new Error("網路回應異常: " + res.status);
+            
             const coupons = await res.json();
+            console.log("優惠券資料回傳:", coupons);
+
+            if (!Array.isArray(coupons)) {
+                console.error("API 回傳格式錯誤，應為陣列", coupons);
+                throw new Error("資料格式錯誤");
+            }
+
             if (coupons.length === 0) {
-                list.innerHTML = '<div style="text-align:center;color:#999;font-size:12px;">目前無可兌換優惠券</div>';
+                list.innerHTML = '<div style="text-align:center;color:#999;font-size:12px;margin-top:20px;">目前沒有可用的優惠券</div>';
                 return;
             }
+            
             let html = '';
             coupons.forEach(c => {
                 html += `
@@ -426,7 +440,10 @@
                 </div>`;
             });
             list.innerHTML = html;
-        } catch(e) { list.innerHTML = '<div style="text-align:center;color:red;">載入失敗</div>'; }
+        } catch(e) { 
+            console.error("載入優惠券失敗:", e);
+            list.innerHTML = `<div style="text-align:center;color:red;font-size:12px;margin-top:10px;">載入失敗: ${e.message}<br><span style="color:#999;font-size:10px;cursor:pointer;" onclick="loadRedeemableCoupons()">點擊重試</span></div>`; 
+        }
     }
 
     async function redeemCoupon(id) {
