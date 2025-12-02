@@ -93,7 +93,7 @@
     .dist-badge { font-size: 11px; color: var(--primary); background: #F0EDE5; padding: 3px 8px; border-radius: 6px; margin-left: 8px; display: inline-flex; align-items: center; gap: 4px; }
     .dist-badge i { font-size: 10px; }
 
-    /* 優惠券樣式 (Refined) */
+    /* 優惠券樣式 */
     .coupon-grid { display: grid; grid-template-columns: 1fr; gap: 16px; padding: 0 20px; }
     .coupon-item { 
       background: #fff; border-radius: 14px; display: flex; overflow: hidden; 
@@ -105,7 +105,7 @@
       align-items: center; justify-content: center; text-align: center; padding: 10px; 
       position: relative;
     }
-    .coupon-left::after { /* 郵票孔效果 */
+    .coupon-left::after { 
       content: ""; position: absolute; right: -6px; top: 0; bottom: 0; width: 12px; 
       background-image: radial-gradient(circle, #fff 4px, transparent 5px); 
       background-size: 10px 14px; background-repeat: repeat-y; 
@@ -135,7 +135,7 @@
       box-shadow: 0 15px 40px rgba(44, 38, 32, 0.25); position: relative; overflow: hidden; 
       border: 1px solid rgba(255,255,255,0.1);
     }
-    .premium-card::before { /* 紋理裝飾 */
+    .premium-card::before { 
       content: ""; position: absolute; top: -50px; right: -50px; width: 150px; height: 150px; 
       background: radial-gradient(circle, rgba(204, 186, 138, 0.1) 0%, transparent 70%); 
       pointer-events: none;
@@ -157,15 +157,64 @@
     .service-icon { font-size: 24px; color: #6B6359; margin-bottom: 8px; }
     .service-label { font-size: 12px; color: #666; letter-spacing: 0.5px; }
 
-    .history-section { padding: 0 20px 100px 20px; } /* 增加底部 padding 防止被 tab bar 遮擋 */
-    .history-simple-item { 
-      background: #fff; padding: 16px; border-radius: 14px; margin-bottom: 12px; 
-      display: flex; justify-content: space-between; align-items: center; 
-      box-shadow: 0 2px 8px rgba(0,0,0,0.03); cursor: pointer; border: 1px solid #F7F4EF;
+    /* New History Card Style (Standalone) */
+    .history-card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 15px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+      border: 1px solid #F0EDE5;
+      position: relative;
+      transition: transform 0.2s;
     }
-    .status-wait { background: #FFF8E1; color: #D4A017; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: bold; }
-    .status-ok { background: #EEF5E5; color: var(--success); padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: bold; }
-    .status-no { background: #FDEEEE; color: var(--danger); padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: bold; }
+    .history-card:active { transform: scale(0.98); }
+    .hc-header { display: flex; justify-content: space-between; margin-bottom: 12px; border-bottom: 1px dashed #E0D8CC; padding-bottom: 8px; }
+    .hc-shop { font-weight: bold; font-size: 16px; color: #2C2620; font-family: 'Noto Serif TC'; }
+    .hc-date { font-size: 12px; color: #999; }
+    .hc-body { display: flex; justify-content: space-between; align-items: center; }
+    .hc-summary { font-size: 13px; color: #666; line-height: 1.5; flex: 1; padding-right: 10px; }
+    .hc-price { font-size: 18px; font-weight: bold; color: var(--primary); font-family: 'Noto Serif TC'; }
+    .hc-status { 
+      display: inline-block; padding: 4px 8px; border-radius: 4px; 
+      font-size: 11px; font-weight: bold; margin-top: 5px;
+    }
+
+    .status-wait { background: #FFF8E1; color: #D4A017; }
+    .status-ok { background: #EEF5E5; color: var(--success); }
+    .status-no { background: #FDEEEE; color: var(--danger); }
+
+    /* Refined Order Detail (Receipt Look) */
+    #order-detail-view { 
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0; 
+      background: rgba(44, 38, 32, 0.6); backdrop-filter: blur(5px); 
+      z-index: 950; 
+      display: flex; align-items: center; justify-content: center; 
+      padding: 20px; 
+    }
+    .od-paper { 
+      background: #fff; width: 100%; max-width: 350px; border-radius: 10px; 
+      padding: 0; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.3); 
+      display: flex; flex-direction: column; max-height: 85vh;
+      position: relative;
+    }
+    /* Jagged edge effect (top decoration) */
+    .od-paper::before {
+      content: ""; display: block; height: 10px; background: var(--primary);
+    }
+    .od-header { padding: 20px; text-align: center; border-bottom: 1px solid #F0EDE5; }
+    .od-shop-name { font-size: 20px; font-weight: bold; font-family: 'Noto Serif TC'; color: #2C2620; }
+    .od-id { font-size: 11px; color: #999; margin-top: 5px; letter-spacing: 1px; }
+    .od-scroll-content { padding: 20px; overflow-y: auto; flex: 1; }
+    .od-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 14px; color: #555; }
+    .od-total-section { 
+      margin-top: 20px; padding-top: 15px; border-top: 1px dashed #2C2620; 
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .od-total-label { font-size: 14px; font-weight: bold; }
+    .od-total-val { font-size: 22px; font-weight: bold; color: var(--danger); font-family: 'Noto Serif TC'; }
+    .od-footer { padding: 15px; background: #FAF9F6; text-align: center; border-top: 1px solid #F0EDE5; }
+    .btn-close-od { width: 40px; height: 40px; border-radius: 50%; border: 1px solid #ccc; background: #fff; color: #333; font-size: 16px; cursor: pointer; margin-top: 10px; display: flex; justify-content: center; align-items: center; margin: 0 auto;}
 
     /* ==================== 3. 店鋪頁面 (Shop) ==================== */
     #shop-view { background: #fff; height: 100%; display: flex; flex-direction: column; position: relative; z-index: 50; }
@@ -231,9 +280,6 @@
     .spec-add-btn { background: var(--primary); color: #fff; padding: 12px 30px; border-radius: 30px; font-weight: bold; cursor: pointer; text-align: center; box-shadow: 0 4px 12px rgba(159, 140, 109, 0.3); }
     .stepper { display: flex; align-items: center; background: #F7F4EF; border-radius: 20px; padding: 4px 10px; border: 1px solid #E0D8CC; }
     
-    #order-detail-view { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--bg); z-index: 950; overflow-y: auto; display: flex; flex-direction: column; }
-    .od-navbar { background: #fff; padding: 15px; display: flex; align-items: center; font-weight: bold; position: sticky; top: 0; z-index: 10; box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
-    
     .service-option { padding: 15px; border: 1px solid #E0D8CC; border-radius: 12px; font-weight: bold; text-align: center; cursor: pointer; margin-bottom: 12px; background: #fff; color: #666; transition: all 0.2s; }
     .service-option.selected { border-color: var(--primary); color: var(--primary); background: #F2EFE9; }
 
@@ -293,6 +339,16 @@
     </div>
   </div>
 
+  <!-- 新增的獨立歷史紀錄頁面 -->
+  <div id="history-view" class="scroll-view hidden" style="background:#fff;">
+    <div style="padding:20px 20px 10px 20px; display:flex; align-items:center;">
+        <div style="font-weight:bold; font-size:20px; color:#2C2620;">歷史訂單</div>
+    </div>
+    <div id="history-list-container" style="padding: 20px;">
+        <div style="text-align:center;color:#999;font-size:12px;">載入中...</div>
+    </div>
+  </div>
+
   <div id="member-view" class="scroll-view hidden">
     <div class="member-header-bg"></div>
     <div class="premium-card">
@@ -328,12 +384,6 @@
     <div style="padding:0 20px 20px 20px;">
         <div style="font-weight:bold; margin-bottom:15px; font-size:16px; color:#2C2620;">我的優惠券</div>
         <div id="my-coupons-list" style="color:#999;font-size:13px; text-align:center; padding:20px 0;">載入中...</div>
-    </div>
-
-    <div id="history-scroll-target" class="history-section" style="padding:0 20px 100px 20px;">
-      <div style="font-weight:bold; margin-bottom:15px; font-size:16px; color:#2C2620;">最近訂單</div>
-      <div id="history-loading" style="text-align:center; color:#999; font-size:13px; padding:20px;">載入中...</div>
-      <div id="history-list"></div>
     </div>
   </div>
 
@@ -371,29 +421,38 @@
     </div>
   </div>
 
-  <!-- 訂單詳情 -->
+  <!-- Refined Order Detail (Receipt Style) -->
   <div id="order-detail-view" class="hidden">
-    <div class="od-navbar">
-        <div style="font-size:20px;width:30px;cursor:pointer;color:#666;" onclick="closeOrderDetail()"><i class="fas fa-chevron-left"></i></div>
-        <div style="flex:1;text-align:center;margin-right:30px;color:#2C2620;">訂單詳情</div>
-    </div>
-    <div class="od-content" style="padding:20px;">
-      <div class="od-card">
-        <div class="od-shop-header" style="font-size:18px;font-weight:bold;margin-bottom:12px;color:#2C2620;"><span id="od-shop-name">...</span></div>
-        <div style="display:flex;justify-content:space-between;font-size:13px;color:#666;"><span>狀態</span><span id="od-status" style="font-weight:bold;">...</span></div>
+    <div class="od-paper">
+      <div class="od-header">
+        <div class="od-shop-name" id="od-shop-name">...</div>
+        <div class="od-id">單號：<span id="od-id"></span></div>
+        <div style="font-size:11px;color:#999;margin-top:2px;" id="od-time"></div>
+        <div style="margin-top:10px;"><span id="od-status" style="font-weight:bold;font-size:13px;padding:3px 8px;border-radius:4px;background:#eee;">...</span></div>
       </div>
-      <div class="od-card">
-        <div style="font-weight:bold;margin-bottom:12px;color:#4A4A4A;">餐點明細</div>
-        <div id="od-items-list"></div>
-        <div style="text-align:right;margin-top:15px;padding-top:15px;border-top:1px dashed #eee;font-weight:bold;color:var(--danger);font-size:16px;">合計 <span id="od-total-price">...</span></div>
+      
+      <div class="od-scroll-content" id="od-items-list">
+        <!-- Items go here -->
       </div>
-      <div class="od-card">
-        <div style="font-weight:bold;margin-bottom:12px;color:#4A4A4A;">訂單資訊</div>
-        <div style="font-size:13px;color:#666;margin-bottom:6px;">編號：<span id="od-id"></span></div>
-        <div style="font-size:13px;color:#666;margin-bottom:6px;">時間：<span id="od-time"></span></div>
-        <div style="font-size:13px;color:#666;">電話：<span id="od-phone"></span></div>
+
+      <div style="padding:20px;background:#fff;">
+        <div class="od-total-section">
+          <span class="od-total-label">總計金額</span>
+          <span class="od-total-val" id="od-total-price">...</span>
+        </div>
+        
+        <div style="margin-top:10px;font-size:13px;color:#666;display:flex;justify-content:space-between;">
+            <span>聯絡電話</span>
+            <span id="od-phone">...</span>
+        </div>
+
+        <div id="od-cancel-container" style="margin-top:20px;"></div>
       </div>
-      <div id="od-cancel-container" style="margin-top:25px;"></div>
+
+      <div class="od-footer">
+        <div style="font-size:11px;color:#999;margin-bottom:8px;">Uni-S Platform Service</div>
+        <button class="btn-close-od" onclick="closeOrderDetail()"><i class="fas fa-times"></i></button>
+      </div>
     </div>
   </div>
 
@@ -542,7 +601,9 @@
     // ========== 路由邏輯更新 (switchTab) ==========
     function switchTab(tab) {
         // 隱藏所有視圖
-        ['lobby-view', 'coupons-view', 'member-view', 'shop-view', 'order-detail-view'].forEach(id => document.getElementById(id).classList.add('hidden'));
+        ['lobby-view', 'coupons-view', 'member-view', 'shop-view', 'history-view'].forEach(id => document.getElementById(id).classList.add('hidden'));
+        document.getElementById('order-detail-view').classList.add('hidden'); // 確保 modal 隱藏
+        
         document.getElementById('tab-bar').classList.remove('hidden');
         document.querySelectorAll('.tab-item').forEach(el => el.classList.remove('active'));
         
@@ -551,25 +612,16 @@
             document.querySelectorAll('.tab-item')[0].classList.add('active');
             fetchMemberData();
         } else if (tab === 'history') {
-            // "紀錄" Tab：導向會員頁面並聚焦歷史區塊
-            document.getElementById('member-view').classList.remove('hidden');
+            document.getElementById('history-view').classList.remove('hidden');
             document.querySelectorAll('.tab-item')[1].classList.add('active'); // Highlight middle tab
-            fetchMemberData();
             loadOrderHistory();
-            loadMyCoupons();
-            // 簡單滾動到歷史區
-            setTimeout(() => {
-                document.getElementById('history-scroll-target').scrollIntoView({behavior: "smooth"});
-            }, 100);
         } else if (tab === 'member') {
             document.getElementById('member-view').classList.remove('hidden');
             document.querySelectorAll('.tab-item')[2].classList.add('active');
             fetchMemberData();
-            loadOrderHistory();
             loadMyCoupons();
         } else if (tab === 'coupons') {
-            // "優惠券"：現在是子頁面，不亮燈 Tab Bar (或者保持 Member 亮燈也可，這邊選擇不亮燈以示進入子層級)
-            // 隱藏 Tab Bar 讓畫面更乾淨
+            // "優惠券"：現在是子頁面
             document.getElementById('tab-bar').classList.add('hidden'); 
             document.getElementById('coupons-view').classList.remove('hidden');
             loadCoupons();
@@ -737,7 +789,7 @@
     function initLocationService() { return new Promise((resolve) => { if (!navigator.geolocation) { resolve(); return; } const timeoutId = setTimeout(() => { resolve(); }, 5000); navigator.geolocation.getCurrentPosition((position) => { clearTimeout(timeoutId); userLocation = { lat: position.coords.latitude, lng: position.coords.longitude }; Object.values(allShops).forEach(shop => { if (shop.lat && shop.lng && !isNaN(shop.lat) && !isNaN(shop.lng)) { const dist = calculateDistance(userLocation.lat, userLocation.lng, shop.lat, shop.lng); shop.distance = parseFloat(dist); shop.distanceText = dist + " km"; } else { shop.distance = 9999; shop.distanceText = ""; } }); resolve(); }, (error) => { clearTimeout(timeoutId); resolve(); }); }); }
     function updateUI() { ['home-name','m-name'].forEach(id => document.getElementById(id).innerText = userProfile.displayName); ['home-avatar','m-avatar'].forEach(id => document.getElementById(id).src = userProfile.pictureUrl); }
     
-    function openShop(id) { currentShop = allShops[id]; currentShop.id = id; cart = []; updateCartUI(); const url = new URL(window.location); url.searchParams.set('id', id); window.history.pushState({}, '', url); document.getElementById('tab-bar').classList.add('hidden'); ['lobby-view','coupons-view','member-view'].forEach(id=>document.getElementById(id).classList.add('hidden')); document.getElementById('shop-view').classList.remove('hidden'); document.getElementById('shop-name-title').innerText = currentShop.name; document.getElementById('shop-banner').style.backgroundImage = `url(${currentShop.bannerUrl})`; document.getElementById('shop-address').innerText = currentShop.address || "暫無地址資訊"; document.getElementById('shop-hours').innerText = currentShop.openHours || "營業時間未定"; if (currentShop.type === 'retail') { document.getElementById('food-sidebar').style.display = 'none'; document.getElementById('food-content').style.display = 'none'; document.getElementById('mode-retail').style.display = 'grid'; renderRetailMenu(); } else { document.getElementById('mode-retail').style.display = 'none'; document.getElementById('food-sidebar').style.display = 'block'; document.getElementById('food-content').style.display = 'block'; renderFoodMenu(); } }
+    function openShop(id) { currentShop = allShops[id]; currentShop.id = id; cart = []; updateCartUI(); const url = new URL(window.location); url.searchParams.set('id', id); window.history.pushState({}, '', url); document.getElementById('tab-bar').classList.add('hidden'); ['lobby-view','coupons-view','member-view','history-view'].forEach(id=>document.getElementById(id).classList.add('hidden')); document.getElementById('shop-view').classList.remove('hidden'); document.getElementById('shop-name-title').innerText = currentShop.name; document.getElementById('shop-banner').style.backgroundImage = `url(${currentShop.bannerUrl})`; document.getElementById('shop-address').innerText = currentShop.address || "暫無地址資訊"; document.getElementById('shop-hours').innerText = currentShop.openHours || "營業時間未定"; if (currentShop.type === 'retail') { document.getElementById('food-sidebar').style.display = 'none'; document.getElementById('food-content').style.display = 'none'; document.getElementById('mode-retail').style.display = 'grid'; renderRetailMenu(); } else { document.getElementById('mode-retail').style.display = 'none'; document.getElementById('food-sidebar').style.display = 'block'; document.getElementById('food-content').style.display = 'block'; renderFoodMenu(); } }
     function openMap() { if (currentShop) { if (currentShop.address && currentShop.address.trim() !== "") { window.open(`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(currentShop.address)}`, '_blank'); } else if (currentShop.lat && currentShop.lng) { window.open(`https://www.google.com/maps/dir/?api=1&destination=${currentShop.lat},${currentShop.lng}`, '_blank'); } else { showMsg("無法取得商家位置資訊"); } } }
     function renderFoodMenu() { const catList = document.getElementById('food-sidebar'); const prodList = document.getElementById('food-content'); catList.innerHTML = ''; prodList.innerHTML = ''; let menu = Array.isArray(currentShop.menu) && currentShop.menu[0].category ? currentShop.menu : [{category:"全部", items:currentShop.menu}]; menu.forEach((cat, idx) => { catList.innerHTML += `<div class="category-item ${idx===0?'active':''}" id="cat-btn-${idx}" onclick="document.getElementById('cat-sec-${idx}').scrollIntoView({behavior:'smooth'})">${cat.category}</div>`; let itemsHtml = ''; cat.items.forEach(item => { let itemJson = JSON.stringify(item).replace(/"/g, '&quot;'); itemsHtml += `<div class="food-item" onclick="openSpecModal(${itemJson})"><div class="food-img" style="background-image:url(${item.img||currentShop.bannerUrl})"></div><div class="food-info"><div><div class="food-name">${item.name}</div><div class="food-desc">${item.desc||''}</div></div><div class="food-action"><div class="food-price">$${item.price}</div><div class="btn-add-mini">+</div></div></div></div>`; }); prodList.innerHTML += `<div id="cat-sec-${idx}" class="cat-section"><div class="category-title" style="margin:15px 0 10px 0;font-weight:bold;color:#333;">${cat.category}</div>${itemsHtml}</div>`; }); prodList.onscroll = function() { const secs = document.querySelectorAll('.cat-section'); secs.forEach((sec,i) => { if(sec.offsetTop - prodList.offsetTop <= prodList.scrollTop + 50) { document.querySelectorAll('.category-item').forEach(e=>e.classList.remove('active')); document.getElementById(`cat-btn-${i}`).classList.add('active'); } }); }; }
     function renderRetailMenu() { let html = ''; currentShop.menu.forEach((item, idx) => { let img = item.img || currentShop.bannerUrl; html += `<div class="retail-item"><div class="retail-img" style="background-image:url(${img})"></div><div class="retail-info"><div style="font-weight:bold;font-size:14px;">${item.name}</div><div class="retail-actions" style="display:flex;justify-content:space-between;align-items:center;"><span style="color:#e64a19;font-weight:bold;">$${item.price}</span><div class="stepper-mini"><button onclick="updateCartRetail('${item.name}', ${item.price}, -1)">-</button><span id="r-qty-${idx}" style="font-size:13px;font-weight:bold;margin:0 5px;">0</span><button onclick="updateCartRetail('${item.name}', ${item.price}, 1)">+</button></div></div></div></div>`; }); document.getElementById('mode-retail').innerHTML = html; }
@@ -755,9 +807,107 @@
     function removeCartItem(idx) { cart.splice(idx, 1); updateCartUI(); if(cart.length > 0) openCartModal(); }
     function selSvc(el, s) { document.querySelectorAll('.service-option').forEach(e=>e.classList.remove('selected')); el.classList.add('selected'); selectedService = s; }
     
-    function loadOrderHistory() { document.getElementById('history-loading').style.display='block'; fetch(API_URL, {method:'POST', body:JSON.stringify({action:"getHistory", userId:userProfile.userId})}).then(res=>res.json()).then(data=>{ orderCache = data; document.getElementById('history-loading').style.display='none'; if(orderCache.length===0) { document.getElementById('history-list').innerHTML = '<div style="text-align:center;color:#999;">無紀錄</div>'; return; } let html = ''; orderCache.forEach((o, i) => { let price = o.content.split('總金額：')[1]?.split('\n')[0].replace('元','').trim() || ''; let cls = o.status.includes('已接單')?'status-ok':(o.status.includes('婉拒')||o.status.includes('取消')?'status-no':'status-wait'); html += `<div class="history-simple-item" onclick="openOrderDetail(${i})"><div class="hs-info"><div class="hs-shop">${o.shopName}</div><div class="hs-date">${o.time}</div><div class="hs-status ${cls}">${o.status}</div></div><div class="hs-price">${price}</div><div class="hs-arrow">›</div></div>`; }); document.getElementById('history-list').innerHTML = html; }).catch(e=>{}); }
-    function openOrderDetail(idx) { let o = orderCache[idx]; document.getElementById('tab-bar').classList.add('hidden'); ['lobby-view','coupons-view','member-view'].forEach(id=>document.getElementById(id).classList.add('hidden')); document.getElementById('order-detail-view').classList.remove('hidden'); document.getElementById('od-shop-name').innerText = o.shopName; document.getElementById('od-status').innerText = o.status; document.getElementById('od-id').innerText = o.orderId; document.getElementById('od-time').innerText = o.time; let html = '', total = '', phone = '--'; o.content.split('\n').forEach(line => { if(line.includes('總金額')) total = line.split('：')[1]; else if(line.includes('電話')) phone = line.split('：')[1]; else if(!line.includes('---') && line.trim()) html += `<div class="od-item" style="display:flex;justify-content:space-between;margin-bottom:5px;"><div class="od-item-name">${line}</div></div>`; }); document.getElementById('od-items-list').innerHTML = html; document.getElementById('od-total-price').innerText = total; document.getElementById('od-phone').innerText = phone; document.getElementById('od-cancel-container').innerHTML = o.status.includes('待確認') ? `<div class="spec-add-btn" style="background:#fff;color:#D32F2F;border:1px solid #D32F2F;text-align:center;" onclick="cancelOrder('${o.orderId}')">取消訂單</div>` : ''; }
-    function closeOrderDetail() { document.getElementById('order-detail-view').classList.add('hidden'); document.getElementById('member-view').classList.remove('hidden'); document.getElementById('tab-bar').classList.remove('hidden'); }
+    // Updated History Logic
+    function loadOrderHistory() {
+        document.getElementById('history-list-container').innerHTML = '<div style="text-align:center;color:#999;font-size:12px;">載入中...</div>';
+        
+        fetch(API_URL, {method:'POST', body:JSON.stringify({action:"getHistory", userId:userProfile.userId})})
+        .then(res=>res.json())
+        .then(data=>{ 
+            orderCache = data; 
+            const container = document.getElementById('history-list-container');
+            
+            if(orderCache.length===0) { 
+                container.innerHTML = '<div style="text-align:center;color:#999;padding:40px;">尚無訂單紀錄</div>'; 
+                return; 
+            } 
+            
+            let html = ''; 
+            orderCache.forEach((o, i) => { 
+                // Parse Price
+                let price = o.content.split('總金額：')[1]?.split('\n')[0].replace('元','').trim() || ''; 
+                
+                // Parse Summary (Clean up content for card view)
+                let summary = o.content.split('\n')
+                    .filter(line => !line.includes('總金額') && !line.includes('---') && !line.includes('電話') && line.trim() !== '')
+                    .slice(0, 2)
+                    .join(', ');
+                if (summary.length > 20) summary = summary.substring(0, 20) + '...';
+
+                // Status Styling
+                let statusClass = 'status-wait';
+                if (o.status.includes('已接單')) statusClass = 'status-ok';
+                else if (o.status.includes('婉拒') || o.status.includes('取消')) statusClass = 'status-no';
+
+                html += `
+                <div class="history-card" onclick="openOrderDetail(${i})">
+                    <div class="hc-header">
+                        <div class="hc-shop">${o.shopName}</div>
+                        <div class="hc-date">${o.time}</div>
+                    </div>
+                    <div class="hc-body">
+                        <div class="hc-summary">${summary || '點擊查看詳情'}</div>
+                        <div style="text-align:right;">
+                            <div class="hc-price">$${price}</div>
+                            <div class="hc-status ${statusClass}">${o.status}</div>
+                        </div>
+                    </div>
+                </div>`; 
+            }); 
+            container.innerHTML = html; 
+        }).catch(e=>{
+            document.getElementById('history-list-container').innerHTML = '<div style="text-align:center;color:red;">載入失敗</div>';
+        }); 
+    }
+
+    function openOrderDetail(idx) { 
+        let o = orderCache[idx]; 
+        // 顯示 Modal
+        document.getElementById('order-detail-view').classList.remove('hidden'); 
+        
+        // 填充資料
+        document.getElementById('od-shop-name').innerText = o.shopName; 
+        document.getElementById('od-status').innerText = o.status; 
+        document.getElementById('od-id').innerText = o.orderId; 
+        document.getElementById('od-time').innerText = o.time; 
+        
+        let html = '', total = '0', phone = '--'; 
+        o.content.split('\n').forEach(line => { 
+            if(line.includes('總金額')) {
+                total = line.split('：')[1].replace('元','').trim(); 
+            } else if(line.includes('電話')) {
+                phone = line.split('：')[1]; 
+            } else if(!line.includes('---') && line.trim()) {
+                // Try to split item and price if possible, otherwise just show line
+                let parts = line.split('$');
+                let name = line; 
+                let price = '';
+                if(parts.length > 1) {
+                    name = parts[0];
+                    price = '$' + parts[1];
+                }
+                html += `<div class="od-row"><div>${name}</div><div>${price}</div></div>`; 
+            } 
+        }); 
+        
+        document.getElementById('od-items-list').innerHTML = html; 
+        document.getElementById('od-total-price').innerText = total; 
+        document.getElementById('od-phone').innerText = phone; 
+        
+        // Cancel Button Logic
+        const cancelDiv = document.getElementById('od-cancel-container');
+        if(o.status.includes('待確認')) {
+            cancelDiv.innerHTML = `<div class="spec-add-btn" style="background:#fff;color:#D32F2F;border:1px solid #D32F2F;text-align:center;box-shadow:none;" onclick="cancelOrder('${o.orderId}')">取消訂單</div>`;
+        } else {
+            cancelDiv.innerHTML = '';
+        }
+    }
+
+    function closeOrderDetail() { 
+        document.getElementById('order-detail-view').classList.add('hidden'); 
+        // 不再切換 Tab，保持在當前畫面 (History View)
+    }
+
     function cancelOrder(oid) { showConfirm("確定取消？", async () => { await fetch(API_URL, {method:'POST', mode:'no-cors', headers:{'Content-Type':'application/json'}, body:JSON.stringify({action:"cancelOrder", orderId:oid, userId:userProfile.userId})}); setTimeout(() => { showMsg("已送出取消", () => { closeOrderDetail(); loadOrderHistory(); }); }, 1500); }); }
     function renderLobby(shops) { let html = ''; let shopArray = Object.keys(shops).map(key => { let s = shops[key]; s.id = key; return s; }); shopArray.sort((a, b) => { if (a.distance && b.distance) { return a.distance - b.distance; } return 0; }); shopArray.forEach(s => { let distHtml = s.distanceText ? `<span class="dist-badge"><i class="fas fa-location-arrow"></i> ${s.distanceText}</span>` : ''; html += `<div class="shop-card" onclick="openShop('${s.id}')"><div class="shop-thumb" style="background-image:url(${s.bannerUrl})"></div><div class="shop-info"><div class="shop-name" style="font-weight:bold;margin-bottom:5px; display:flex; align-items:center;">${s.name} ${distHtml}</div><div class="shop-action"><button class="btn-visit">去逛逛</button></div></div></div>`; }); document.getElementById('shop-list').innerHTML = html; }
     function filterShops() { let key = document.getElementById('search-input').value.toLowerCase(); let res = {}; Object.keys(allShops).forEach(k => { if(allShops[k].name.toLowerCase().includes(key)) res[k] = allShops[k]; }); renderLobby(res); }
