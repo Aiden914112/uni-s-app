@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Uni-S 掌櫃系統</title>
+    <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        /* 共用變數 (Morandi/Song Dynasty) */
+        :root {
+            --primary: #9F8C6D;
+            --gold: #CCB28A;
+            --bg: #F7F4EF;
+            --text: #4A4A4A;
+            --danger: #B85C5C;
+            --success: #7A8B69;
+            --card-bg: #fff;
+        }
+
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 頂部標題 */
+        header {
+            background: linear-gradient(135deg, #4A4036, #2C2620);
+            color: var(--gold);
+            padding: 15px 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            flex-shrink: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .app-title { font-family: 'Noto Serif TC'; font-size: 18px; font-weight: bold; letter-spacing: 1px; }
+        .shop-badge { background: rgba(204, 178, 138, 0.2); padding: 4px 12px; border-radius: 20px; font-size: 12px; border: 1px solid rgba(204, 178, 138, 0.4); }
+
+        /* 頁籤 */
+        .tabs {
+            display: flex;
+            background: #fff;
+            border-bottom: 1px solid #E0D8CC;
+            flex-shrink: 0;
+        }
+        .tab {
+            flex: 1;
+            text-align: center;
+            padding: 15px 0;
+            font-weight: bold;
+            color: #888;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.3s;
+        }
+        .tab.active { color: var(--primary); }
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 20%; right: 20%;
+            height: 3px;
+            background: var(--primary);
+            border-radius: 3px 3px 0 0;
+        }
+        .badge {
+            background: var(--danger); color: white; border-radius: 10px;
+            padding: 2px 6px; font-size: 10px; vertical-align: top; margin-left: 2px;
+            display: none; /* 預設隱藏，有數字再顯示 */
+        }
+
+        /* 內容區 */
+        .content-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* 訂單卡片 (KDS 風格 - 按鈕較大) */
+        .order-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+            border: 1px solid #E0D8CC;
+            border-left: 5px solid #ccc; /* 預設邊框色 */
+            transition: transform 0.2s;
+        }
+        .order-card[data-status="待確認"] { border-left-color: var(--danger); }
+        .order-card[data-status="✅ 已接單"] { border-left-color: var(--success); }
+        .order-card[data-status="製作中"] { border-left-color: var(--gold); }
+
+        .oc-header { display: flex; justify-content: space-between; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px dashed #eee; }
+        .oc-id { font-family: 'Noto Serif TC'; font-weight: bold; font-size: 16px; color: #2C2620; }
+        .oc-time { font-size: 12px; color: #999; }
+        
+        .oc-customer { font-size: 13px; font-weight: bold; margin-bottom: 8px; color: #555; }
+        .oc-items { font-size: 14px; line-height: 1.6; color: #333; margin-bottom: 15px; white-space: pre-wrap; }
+        .oc-note { background: #FFF8E1; color: #D4A017; padding: 5px 10px; border-radius: 4px; font-size: 12px; margin-bottom: 15px; display: inline-block;}
+
+        .oc-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
+        .oc-price { font-size: 18px; font-weight: bold; color: var(--danger); font-family: 'Noto Serif TC'; }
+        
+        .oc-actions { display: flex; gap: 10px; }
+        .btn { border: none; padding: 8px 20px; border-radius: 30px; font-size: 14px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 5px; }
+        .btn-primary { background: var(--success); color: white; }
+        .btn-danger { background: #fff; border: 1px solid var(--danger); color: var(--danger); }
+        .btn-gold { background: var(--gold); color: white; }
+        .btn-disabled { background: #eee; color: #999; cursor: not-allowed; }
+
+        /* Loading & Overlay */
+        #loading-overlay { position: fixed; inset: 0; background: rgba(247, 244, 239, 0.9); z-index: 2000; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        #error-overlay { position: fixed; inset: 0; background: #333; z-index: 3000; display: flex; flex-direction: column; justify-content: center; align-items: center; color: white; text-align: center; padding: 20px; }
+    </style>
+</head>
+<body>
+
+    <!-- Loading -->
+    <div id="loading-overlay">
+        <i class="fas fa-circle-notch fa-spin fa-2x" style="color:var(--primary);"></i>
+        <p style="margin-top:10px; font-weight:bold;">系統連線中...</p>
+    </div>
+
+    <!-- Error / Access Denied -->
+    <div id="error-overlay" class="hidden">
+        <i class="fas fa-lock fa-3x" style="color:var(--danger); margin-bottom:20px;"></i>
+        <h2>無法存取</h2>
+        <p id="error-msg">您沒有管理權限，或系統發生錯誤。</p>
+    </div>
+
+    <!-- Header -->
+    <header>
+        <div class="app-title">Uni-S 掌櫃系統</div>
+        <div class="shop-badge" id="shop-name-display">載入中...</div>
+    </header>
+
+    <!-- Tabs -->
+    <div class="tabs">
+        <div class="tab active" onclick="setTab('pending')">待處理 <span id="badge-pending" class="badge">0</span></div>
+        <div class="tab" onclick="setTab('processing')">製作中 <span id="badge-processing" class="badge">0</span></div>
+        <div class="tab" onclick="setTab('history')">歷史紀錄</div>
+    </div>
+
+    <!-- Content -->
+    <div class="content-area" id="orders-container">
+        <!-- Orders will be injected here -->
+    </div>
+
+    <script>
+        // ⚠️⚠️⚠️ 設定區 ⚠️⚠️⚠️
+        const MY_ADMIN_LIFF_ID = "YOUR_ADMIN_LIFF_ID"; // 請填入申請的 Admin LIFF ID
+        const API_URL = "https://script.google.com/macros/s/AKfycbzxUYXVSMjF8Zt7KqBo9qGvottN4zoxkM1qCu97ZqugJ7Nf6czxu0DzBY9DN1nVRtdn/exec";
+
+        let userProfile = null;
+        let allOrders = [];
+        let currentTab = 'pending'; // pending, processing, history
+        let refreshTimer = null;
+
+        async function initAdmin() {
+            try {
+                await liff.init({ liffId: MY_ADMIN_LIFF_ID });
+                if (!liff.isLoggedIn()) {
+                    liff.login();
+                    return;
+                }
+                userProfile = await liff.getProfile();
+                
+                // 初次載入
+                await fetchOrders();
+                
+                // 自動刷新 (每 15 秒)
+                refreshTimer = setInterval(fetchOrders, 15000);
+
+            } catch (err) {
+                showError("LIFF 初始化失敗：" + err.message);
+            }
+        }
+
+        async function fetchOrders() {
+            try {
+                const res = await fetch(API_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        action: "getStoreOrders",
+                        userId: userProfile.userId
+                    })
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    document.getElementById('loading-overlay').classList.add('hidden');
+                    document.getElementById('shop-name-display').innerText = data.shopName;
+                    allOrders = data.orders;
+                    updateBadges();
+                    renderOrders();
+                } else {
+                    showError(data.message || "權限不足");
+                }
+            } catch (e) {
+                console.error("Fetch error", e);
+                // 不顯示全屏錯誤，避免干擾操作，僅 log
+            }
+        }
+
+        function updateBadges() {
+            const pendingCount = allOrders.filter(o => o.status === "待確認").length;
+            const processingCount = allOrders.filter(o => o.status === "✅ 已接單" || o.status === "製作中").length;
+
+            const b1 = document.getElementById('badge-pending');
+            const b2 = document.getElementById('badge-processing');
+
+            b1.innerText = pendingCount;
+            b1.style.display = pendingCount > 0 ? 'inline-block' : 'none';
+            
+            b2.innerText = processingCount;
+            b2.style.display = processingCount > 0 ? 'inline-block' : 'none';
+        }
+
+        function setTab(tab) {
+            currentTab = tab;
+            document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+            // 簡單的選取邏輯，實際開發建議用 id 或 data-attribute
+            const tabs = document.querySelectorAll('.tab');
+            if(tab === 'pending') tabs[0].classList.add('active');
+            if(tab === 'processing') tabs[1].classList.add('active');
+            if(tab === 'history') tabs[2].classList.add('active');
+            renderOrders();
+        }
+
+        function renderOrders() {
+            const container = document.getElementById('orders-container');
+            container.innerHTML = '';
+
+            let filtered = [];
+            if (currentTab === 'pending') {
+                filtered = allOrders.filter(o => o.status === "待確認");
+            } else if (currentTab === 'processing') {
+                filtered = allOrders.filter(o => o.status === "✅ 已接單" || o.status === "製作中");
+            } else {
+                // History: Exclude pending/processing statuses
+                filtered = allOrders.filter(o => !["待確認", "✅ 已接單", "製作中"].includes(o.status));
+            }
+
+            if (filtered.length === 0) {
+                container.innerHTML = '<div style="text-align:center;color:#999;padding:40px;">目前無訂單</div>';
+                return;
+            }
+
+            filtered.forEach(o => {
+                let btnsHtml = '';
+                
+                // Dynamic Buttons Logic
+                if (o.status === "待確認") {
+                    btnsHtml = `
+                        <button class="btn btn-danger" onclick="updateStatus('${o.orderId}', '已婉拒')">婉拒</button>
+                        <button class="btn btn-primary" onclick="updateStatus('${o.orderId}', '✅ 已接單')">接單</button>
+                    `;
+                } else if (o.status === "✅ 已接單") {
+                    btnsHtml = `<button class="btn btn-gold" onclick="updateStatus('${o.orderId}', '製作中')">開始製作</button>`;
+                } else if (o.status === "製作中") {
+                    btnsHtml = `<button class="btn btn-primary" onclick="updateStatus('${o.orderId}', '可取餐')"><i class="fas fa-bell"></i> 通知取餐</button>`;
+                } else if (o.status === "可取餐") {
+                    btnsHtml = `<button class="btn btn-disabled" onclick="updateStatus('${o.orderId}', '已完成')">完成訂單</button>`;
+                } else {
+                    btnsHtml = `<span style="font-size:12px;color:#999;">${o.status}</span>`;
+                }
+
+                // Clean Content
+                let contentClean = o.content.replace(/----------------/g, '').trim();
+                let price = o.total ? `$${o.total}` : '';
+
+                const card = document.createElement('div');
+                card.className = 'order-card';
+                card.setAttribute('data-status', o.status);
+                card.innerHTML = `
+                    <div class="oc-header">
+                        <div class="oc-id">#${o.orderId.split('-')[1] || o.orderId}</div>
+                        <div class="oc-time">${o.time.split(' ')[1] || o.time}</div>
+                    </div>
+                    <div class="oc-customer">👤 ${o.customerName}</div>
+                    <div class="oc-items">${contentClean}</div>
+                    <div class="oc-footer">
+                        <div class="oc-price">${price}</div>
+                        <div class="oc-actions">${btnsHtml}</div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        async function updateStatus(oid, newStatus) {
+            if(!confirm(`確認將訂單狀態變更為「${newStatus}」？`)) return;
+
+            // Show global loading if needed, or button loading
+            // 這裡簡單使用全屏 loading
+            document.getElementById('loading-overlay').classList.remove('hidden');
+
+            try {
+                const res = await fetch(API_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        action: "updateStatus",
+                        userId: userProfile.userId,
+                        orderId: oid,
+                        newStatus: newStatus
+                    })
+                });
+                const data = await res.json();
+                
+                if(data.success) {
+                    await fetchOrders(); // Reload data
+                } else {
+                    alert("更新失敗：" + data.message);
+                    document.getElementById('loading-overlay').classList.add('hidden');
+                }
+            } catch(e) {
+                alert("網路錯誤");
+                document.getElementById('loading-overlay').classList.add('hidden');
+            }
+        }
+
+        function showError(msg) {
+            document.getElementById('loading-overlay').classList.add('hidden');
+            document.getElementById('error-overlay').classList.remove('hidden');
+            document.getElementById('error-msg').innerText = msg;
+        }
+
+        // Start
+        initAdmin();
+
+    </script>
+</body>
+</html>
