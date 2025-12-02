@@ -40,10 +40,16 @@
     
     .search-bar { margin: 0 15px 15px 15px; background: #fff; padding: 10px; border-radius: 20px; display: flex; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
     .search-bar input { border: none; flex: 1; outline: none; margin-left: 10px; font-size: 14px; }
+    
+    /* 大廳商家卡片增強 */
     .shop-card { background: #fff; border-radius: 12px; overflow: hidden; margin-bottom: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.03); display: flex; padding: 10px; cursor: pointer; }
     .shop-thumb { width: 80px; height: 80px; border-radius: 8px; background-size: cover; background-position: center; flex-shrink: 0; }
     .shop-info { padding-left: 15px; flex: 1; display: flex; flex-direction: column; justify-content: center; }
     .btn-visit { background: #333; color: var(--gold); border: none; padding: 4px 12px; border-radius: 20px; font-size: 12px; width: fit-content; }
+    
+    /* LBS 距離標籤 */
+    .dist-badge { font-size: 11px; color: #666; background: #f0f0f0; padding: 2px 6px; border-radius: 4px; margin-left: 8px; display: inline-flex; align-items: center; gap: 3px; }
+    .dist-badge i { font-size: 10px; color: var(--primary); }
 
     /* 會員中心樣式 */
     .member-header-bg { background-color: var(--bg); height: 80px; }
@@ -53,7 +59,7 @@
     .card-stats-row { display: flex; justify-content: space-between; text-align: center; }
     .stat-num { font-size: 20px; font-weight: bold; display: block; margin-bottom: 4px; }
     
-    /* 修復: 補回服務區塊樣式 */
+    /* 服務區塊樣式 */
     .service-section { background: #fff; margin: 0 15px 15px 15px; border-radius: 12px; padding: 20px 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.03); display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; }
     .service-item { text-align: center; cursor: pointer; }
     .service-icon { font-size: 24px; color: #555; margin-bottom: 5px; }
@@ -64,18 +70,25 @@
     .status-ok { background: #E8F5E9; color: #388E3C; padding:2px 6px; border-radius:4px; font-size:12px; }
     .status-no { background: #FFEBEE; color: #D32F2F; padding:2px 6px; border-radius:4px; font-size:12px; }
 
-    /* ==================== 3. 店鋪頁面 (Shop) - 雙模式整合修復版 ==================== */
+    /* ==================== 3. 店鋪頁面 (Shop) ==================== */
     #shop-view { background: #fff; height: 100%; display: flex; flex-direction: column; position: relative; z-index: 50; }
     
-    /* Banner 區域 (恢復原版視覺) */
+    /* Banner 區域 */
     .shop-banner-area { width: 100%; height: 180px; background-size: cover; background-position: center; position: relative; flex-shrink: 0; }
     .shop-banner-overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.7)); display: flex; align-items: flex-end; padding: 15px; }
     .shop-title-large { color: #fff; font-size: 22px; font-weight: bold; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
     
     .float-back { position: absolute; top: 15px; left: 15px; width: 36px; height: 36px; background: rgba(0,0,0,0.4); backdrop-filter: blur(4px); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; z-index: 200; cursor: pointer; }
 
-    /* 功能控制列 (新版功能) */
-    .shop-controls { background: #fff; padding: 10px 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); z-index: 20; flex-shrink: 0; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; }
+    /* 功能控制列 (增強版) */
+    .shop-controls { background: #fff; padding: 10px 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); z-index: 20; flex-shrink: 0; display: flex; flex-direction: column; gap: 8px; border-bottom: 1px solid #eee; }
+    .controls-top-row { display: flex; justify-content: space-between; align-items: center; }
+    
+    /* 商家詳細資訊 (LBS 新增) */
+    .shop-detail-info { font-size: 12px; color: #666; display: flex; flex-direction: column; gap: 4px; }
+    .info-row { display: flex; align-items: center; gap: 6px; }
+    .btn-nav { background: #E8F5E9; color: var(--primary); border: 1px solid var(--primary); padding: 4px 10px; border-radius: 15px; font-size: 12px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 4px; }
+
     .delivery-toggle { display: flex; background: #f0f0f0; border-radius: 20px; padding: 2px; }
     .toggle-btn { padding: 4px 12px; border-radius: 18px; border: none; font-size: 12px; background: transparent; color: #666; }
     .toggle-btn.active { background: var(--primary); color: #fff; font-weight: bold; }
@@ -218,8 +231,16 @@
     
     <!-- 控制列 -->
     <div class="shop-controls">
-      <div class="store-info-text" style="font-size:14px; color:#666;"><i class="fas fa-clock"></i> 營業中</div>
-      <div class="delivery-toggle"><button class="toggle-btn active">自取</button><button class="toggle-btn">外送</button></div>
+      <div class="controls-top-row">
+          <div class="delivery-toggle"><button class="toggle-btn active">自取</button><button class="toggle-btn">外送</button></div>
+          <!-- 導航按鈕 -->
+          <div class="btn-nav" id="btn-navigate" onclick="openMap()"><i class="fas fa-directions"></i> 導航</div>
+      </div>
+      <!-- LBS 資訊 -->
+      <div class="shop-detail-info">
+          <div class="info-row"><i class="fas fa-map-marker-alt" style="width:14px; text-align:center;"></i> <span id="shop-address">...</span></div>
+          <div class="info-row"><i class="fas fa-clock" style="width:14px; text-align:center;"></i> <span id="shop-hours">...</span></div>
+      </div>
     </div>
     
     <div class="shop-body">
@@ -325,6 +346,7 @@
     let allShops = {}; let currentShop = null; let cart = []; 
     let userProfile = null; let orderCache = []; let selectedService = "";
     let currentItem = null; let currentOptions = {}; let currentQty = 1;
+    let userLocation = null;
 
     // 彈窗
     let modalCb = null;
@@ -355,15 +377,96 @@
 
         const res = await fetch(API_URL);
         allShops = await res.json();
+        
+        // 1. Mock Data Injection (Crucial for Testing)
+        // Inject random location data around Taipei 101 for each shop
+        Object.values(allShops).forEach(shop => {
+            // Random lat between 25.0300 and 25.0400
+            shop.lat = 25.0300 + Math.random() * 0.01;
+            // Random lng between 121.5600 and 121.5700
+            shop.lng = 121.5600 + Math.random() * 0.01;
+            shop.address = "台北市信義區信義路五段7號 (測試資料)";
+            shop.openHours = "11:00 - 21:30";
+        });
+        
         document.getElementById('loading').classList.add('hidden');
 
         const params = new URLSearchParams(window.location.search);
-        if (params.get('id') && allShops[params.get('id')]) openShop(params.get('id'));
-        else if (params.get('tab') === 'member') { renderLobby(allShops); switchTab('member'); }
-        else { renderLobby(allShops); switchTab('lobby'); }
+        if (params.get('id') && allShops[params.get('id')]) {
+            openShop(params.get('id'));
+        } else if (params.get('tab') === 'member') { 
+            renderLobby(allShops); switchTab('member'); 
+        } else {
+            // 2. Before rendering, try to get location and sort
+            await initLocationService();
+            renderLobby(allShops); 
+            switchTab('lobby'); 
+        }
         
         fetchMemberData();
       } catch (err) { showMsg(err.message); }
+    }
+
+    // ========== Geolocation Helper Functions ==========
+    
+    // Haversine formula to calculate distance (in km)
+    function calculateDistance(lat1, lon1, lat2, lon2) {
+      const R = 6371; // Radius of the earth in km
+      const dLat = deg2rad(lat2 - lat1);
+      const dLon = deg2rad(lon2 - lon1);
+      const a = 
+        Math.sin(dLat/2) * Math.sin(dLat/2) +
+        Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * Math.sin(dLon/2) * Math.sin(dLon/2); 
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+      const d = R * c; // Distance in km
+      return d.toFixed(1);
+    }
+
+    function deg2rad(deg) {
+      return deg * (Math.PI/180);
+    }
+
+    // Get Location, Calculate Distance, Sort Shops
+    function initLocationService() {
+        return new Promise((resolve) => {
+            if (!navigator.geolocation) {
+                console.log("Geolocation is not supported by this browser.");
+                resolve();
+                return;
+            }
+            
+            // Set a timeout to avoid hanging if user doesn't respond
+            const timeoutId = setTimeout(() => {
+                console.log("Location request timed out.");
+                resolve();
+            }, 5000);
+
+            navigator.geolocation.getCurrentPosition((position) => {
+                clearTimeout(timeoutId);
+                userLocation = {
+                    lat: position.coords.latitude,
+                    lng: position.coords.longitude
+                };
+                
+                // Calculate distance for all shops
+                Object.values(allShops).forEach(shop => {
+                    if (shop.lat && shop.lng) {
+                        const dist = calculateDistance(userLocation.lat, userLocation.lng, shop.lat, shop.lng);
+                        shop.distance = parseFloat(dist);
+                        shop.distanceText = dist + " km";
+                    } else {
+                        shop.distance = 9999;
+                        shop.distanceText = "";
+                    }
+                });
+                
+                resolve();
+            }, (error) => {
+                clearTimeout(timeoutId);
+                console.log("Error getting location: " + error.message);
+                resolve(); // Resolve anyway to render default list
+            });
+        });
     }
 
     function updateUI() {
@@ -400,9 +503,13 @@
       ['lobby-view','coupons-view','member-view'].forEach(id=>document.getElementById(id).classList.add('hidden'));
       document.getElementById('shop-view').classList.remove('hidden');
       
-      // 設定 Banner 與標題 (修復: 恢復顯示)
+      // 設定 Banner 與標題
       document.getElementById('shop-name-title').innerText = currentShop.name;
       document.getElementById('shop-banner').style.backgroundImage = `url(${currentShop.bannerUrl})`;
+      
+      // 設定 LBS 資訊 (UI Updates - Shop Details)
+      document.getElementById('shop-address').innerText = currentShop.address || "暫無地址資訊";
+      document.getElementById('shop-hours').innerText = currentShop.openHours || "營業時間未定";
 
       if (currentShop.type === 'retail') {
         document.getElementById('food-sidebar').style.display = 'none';
@@ -415,6 +522,15 @@
         document.getElementById('food-content').style.display = 'block';
         renderFoodMenu();
       }
+    }
+    
+    // Action: Navigate Button
+    function openMap() {
+        if (currentShop && currentShop.lat && currentShop.lng) {
+            window.open(`https://www.google.com/maps/dir/?api=1&destination=${currentShop.lat},${currentShop.lng}`, '_blank');
+        } else {
+            showMsg("無法取得商家位置");
+        }
     }
 
     function renderFoodMenu() {
@@ -616,15 +732,34 @@
       });
     }
 
-    // 大廳與 API
+    // 大廳與 API (LBS Updates)
     function renderLobby(shops) {
       let html = '';
-      Object.keys(shops).forEach(id => {
-        let s = shops[id];
-        html += `<div class="shop-card" onclick="openShop('${id}')"><div class="shop-thumb" style="background-image:url(${s.bannerUrl})"></div><div class="shop-info"><div class="shop-name" style="font-weight:bold;margin-bottom:5px;">${s.name}</div><div class="shop-action"><button class="btn-visit">去逛逛</button></div></div></div>`;
+      
+      // Convert object to array for sorting
+      let shopArray = Object.keys(shops).map(key => {
+          let s = shops[key];
+          s.id = key; // Ensure ID is preserved
+          return s;
+      });
+
+      // Sort by distance if available
+      shopArray.sort((a, b) => {
+          if (a.distance && b.distance) {
+              return a.distance - b.distance;
+          }
+          return 0;
+      });
+
+      shopArray.forEach(s => {
+        // UI Update - Lobby: Add Distance Badge
+        let distHtml = s.distanceText ? `<span class="dist-badge"><i class="fas fa-location-arrow"></i> ${s.distanceText}</span>` : '';
+
+        html += `<div class="shop-card" onclick="openShop('${s.id}')"><div class="shop-thumb" style="background-image:url(${s.bannerUrl})"></div><div class="shop-info"><div class="shop-name" style="font-weight:bold;margin-bottom:5px; display:flex; align-items:center;">${s.name} ${distHtml}</div><div class="shop-action"><button class="btn-visit">去逛逛</button></div></div></div>`;
       });
       document.getElementById('shop-list').innerHTML = html;
     }
+    
     function filterShops() {
       let key = document.getElementById('search-input').value.toLowerCase();
       let res = {}; Object.keys(allShops).forEach(k => { if(allShops[k].name.toLowerCase().includes(key)) res[k] = allShops[k]; });
