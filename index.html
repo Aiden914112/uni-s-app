@@ -658,7 +658,7 @@
             coupons.forEach(c => {
                 html += `
                 <div class="coupon-item">
-                    <div class="coupon-left"><div class="coupon-val">$${c.value}</div><div style="font-size:10px;">抵用券</div></div>
+                    <div class="coupon-left"><div class="coupon-val">${c.value}</div><div style="font-size:10px;">抵用券</div></div>
                     <div class="coupon-right">
                         <div class="coupon-name">${c.name}</div>
                         <div class="coupon-cost">需 ${c.cost} 積分</div>
@@ -709,7 +709,7 @@
                     <div class="my-coupon-item">
                         <div>
                             <div style="font-weight:bold;color:#2C2620;">${c.name}</div>
-                            <div style="font-size:11px;color:#999;">折抵 $${c.value}</div>
+                            <div style="font-size:11px;color:#999;">折抵 ${c.value}</div>
                         </div>
                         <div style="color:var(--primary);font-weight:bold;font-size:12px;border:1px solid var(--primary);padding:2px 8px;border-radius:10px;">未使用</div>
                     </div>`;
@@ -739,7 +739,7 @@
               let opt = document.createElement('option');
               opt.value = c.uuid;
               opt.setAttribute('data-val', c.value);
-              opt.innerText = `${c.name} (折抵 $${c.value})`;
+              opt.innerText = `${c.name} (折抵 ${c.value})`;
               select.appendChild(opt);
           });
       } catch(e) {}
@@ -763,9 +763,9 @@
       const discount = parseInt(select.options[select.selectedIndex].getAttribute('data-val') || 0);
 
       let detail = "", total = 0;
-      cart.forEach(x => { detail += `${x.name} x ${x.qty} ($${x.total})\n`; total += x.total; });
-      detail += `----------------\n總金額：$${total} 元\n服務方式：${selectedService}`;
-      if (discount > 0) { detail += `\n優惠券折抵：-$${discount}\n實付金額：$${Math.max(0, total - discount)}`; }
+      cart.forEach(x => { detail += `${x.name} x ${x.qty} (${x.total})\n`; total += x.total; });
+      detail += `----------------\n總金額：${total} 元\n服務方式：${selectedService}`;
+      if (discount > 0) { detail += `\n優惠券折抵：-${discount}\n實付金額：${Math.max(0, total - discount)}`; }
 
       let phone = localStorage.getItem("uni_user_phone");
       if(!phone) { phone = prompt("請輸入您的手機號碼："); if(!phone) return; localStorage.setItem("uni_user_phone", phone); }
@@ -791,15 +791,15 @@
     
     function openShop(id) { currentShop = allShops[id]; currentShop.id = id; cart = []; updateCartUI(); const url = new URL(window.location); url.searchParams.set('id', id); window.history.pushState({}, '', url); document.getElementById('tab-bar').classList.add('hidden'); ['lobby-view','coupons-view','member-view','history-view'].forEach(id=>document.getElementById(id).classList.add('hidden')); document.getElementById('shop-view').classList.remove('hidden'); document.getElementById('shop-name-title').innerText = currentShop.name; document.getElementById('shop-banner').style.backgroundImage = `url(${currentShop.bannerUrl})`; document.getElementById('shop-address').innerText = currentShop.address || "暫無地址資訊"; document.getElementById('shop-hours').innerText = currentShop.openHours || "營業時間未定"; if (currentShop.type === 'retail') { document.getElementById('food-sidebar').style.display = 'none'; document.getElementById('food-content').style.display = 'none'; document.getElementById('mode-retail').style.display = 'grid'; renderRetailMenu(); } else { document.getElementById('mode-retail').style.display = 'none'; document.getElementById('food-sidebar').style.display = 'block'; document.getElementById('food-content').style.display = 'block'; renderFoodMenu(); } }
     function openMap() { if (currentShop) { if (currentShop.address && currentShop.address.trim() !== "") { window.open(`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(currentShop.address)}`, '_blank'); } else if (currentShop.lat && currentShop.lng) { window.open(`https://www.google.com/maps/dir/?api=1&destination=${currentShop.lat},${currentShop.lng}`, '_blank'); } else { showMsg("無法取得商家位置資訊"); } } }
-    function renderFoodMenu() { const catList = document.getElementById('food-sidebar'); const prodList = document.getElementById('food-content'); catList.innerHTML = ''; prodList.innerHTML = ''; let menu = Array.isArray(currentShop.menu) && currentShop.menu[0].category ? currentShop.menu : [{category:"全部", items:currentShop.menu}]; menu.forEach((cat, idx) => { catList.innerHTML += `<div class="category-item ${idx===0?'active':''}" id="cat-btn-${idx}" onclick="document.getElementById('cat-sec-${idx}').scrollIntoView({behavior:'smooth'})">${cat.category}</div>`; let itemsHtml = ''; cat.items.forEach(item => { let itemJson = JSON.stringify(item).replace(/"/g, '&quot;'); itemsHtml += `<div class="food-item" onclick="openSpecModal(${itemJson})"><div class="food-img" style="background-image:url(${item.img||currentShop.bannerUrl})"></div><div class="food-info"><div><div class="food-name">${item.name}</div><div class="food-desc">${item.desc||''}</div></div><div class="food-action"><div class="food-price">$${item.price}</div><div class="btn-add-mini">+</div></div></div></div>`; }); prodList.innerHTML += `<div id="cat-sec-${idx}" class="cat-section"><div class="category-title" style="margin:15px 0 10px 0;font-weight:bold;color:#333;">${cat.category}</div>${itemsHtml}</div>`; }); prodList.onscroll = function() { const secs = document.querySelectorAll('.cat-section'); secs.forEach((sec,i) => { if(sec.offsetTop - prodList.offsetTop <= prodList.scrollTop + 50) { document.querySelectorAll('.category-item').forEach(e=>e.classList.remove('active')); document.getElementById(`cat-btn-${i}`).classList.add('active'); } }); }; }
-    function renderRetailMenu() { let html = ''; currentShop.menu.forEach((item, idx) => { let img = item.img || currentShop.bannerUrl; html += `<div class="retail-item"><div class="retail-img" style="background-image:url(${img})"></div><div class="retail-info"><div style="font-weight:bold;font-size:14px;">${item.name}</div><div class="retail-actions" style="display:flex;justify-content:space-between;align-items:center;"><span style="color:#e64a19;font-weight:bold;">$${item.price}</span><div class="stepper-mini"><button onclick="updateCartRetail('${item.name}', ${item.price}, -1)">-</button><span id="r-qty-${idx}" style="font-size:13px;font-weight:bold;margin:0 5px;">0</span><button onclick="updateCartRetail('${item.name}', ${item.price}, 1)">+</button></div></div></div></div>`; }); document.getElementById('mode-retail').innerHTML = html; }
+    function renderFoodMenu() { const catList = document.getElementById('food-sidebar'); const prodList = document.getElementById('food-content'); catList.innerHTML = ''; prodList.innerHTML = ''; let menu = Array.isArray(currentShop.menu) && currentShop.menu[0].category ? currentShop.menu : [{category:"全部", items:currentShop.menu}]; menu.forEach((cat, idx) => { catList.innerHTML += `<div class="category-item ${idx===0?'active':''}" id="cat-btn-${idx}" onclick="document.getElementById('cat-sec-${idx}').scrollIntoView({behavior:'smooth'})">${cat.category}</div>`; let itemsHtml = ''; cat.items.forEach(item => { let itemJson = JSON.stringify(item).replace(/"/g, '&quot;'); itemsHtml += `<div class="food-item" onclick="openSpecModal(${itemJson})"><div class="food-img" style="background-image:url(${item.img||currentShop.bannerUrl})"></div><div class="food-info"><div><div class="food-name">${item.name}</div><div class="food-desc">${item.desc||''}</div></div><div class="food-action"><div class="food-price">${item.price}</div><div class="btn-add-mini">+</div></div></div></div>`; }); prodList.innerHTML += `<div id="cat-sec-${idx}" class="cat-section"><div class="category-title" style="margin:15px 0 10px 0;font-weight:bold;color:#333;">${cat.category}</div>${itemsHtml}</div>`; }); prodList.onscroll = function() { const secs = document.querySelectorAll('.cat-section'); secs.forEach((sec,i) => { if(sec.offsetTop - prodList.offsetTop <= prodList.scrollTop + 50) { document.querySelectorAll('.category-item').forEach(e=>e.classList.remove('active')); document.getElementById(`cat-btn-${i}`).classList.add('active'); } }); }; }
+    function renderRetailMenu() { let html = ''; currentShop.menu.forEach((item, idx) => { let img = item.img || currentShop.bannerUrl; html += `<div class="retail-item"><div class="retail-img" style="background-image:url(${img})"></div><div class="retail-info"><div style="font-weight:bold;font-size:14px;">${item.name}</div><div class="retail-actions" style="display:flex;justify-content:space-between;align-items:center;"><span style="color:#e64a19;font-weight:bold;">${item.price}</span><div class="stepper-mini"><button onclick="updateCartRetail('${item.name}', ${item.price}, -1)">-</button><span id="r-qty-${idx}" style="font-size:13px;font-weight:bold;margin:0 5px;">0</span><button onclick="updateCartRetail('${item.name}', ${item.price}, 1)">+</button></div></div></div></div>`; }); document.getElementById('mode-retail').innerHTML = html; }
     function openSpecModal(item) { currentItem = item; currentQty = 1; currentOptions = {}; document.getElementById('sp-name').innerText = item.name; document.getElementById('sp-desc').innerText = item.desc||''; document.getElementById('sp-price').innerText = item.price; document.getElementById('sp-img').style.backgroundImage = `url(${item.img||currentShop.bannerUrl})`; document.getElementById('sp-qty').innerText = 1; let html = ''; for (let [k, vals] of Object.entries(item.options||{})) { currentOptions[k] = vals[0]; let chips = vals.map((v,i) => `<div class="chip ${i===0?'selected':''}" onclick="selOpt(this,'${k}','${v}')">${v}</div>`).join(''); html += `<div class="option-group"><div class="option-title" style="margin-bottom:8px;font-size:13px;color:#666;">${k}</div><div class="option-chips" style="display:flex;gap:8px;flex-wrap:wrap;">${chips}</div></div>`; } document.getElementById('sp-options').innerHTML = html || '<div style="color:#999;font-size:12px;">無規格選項</div>'; document.getElementById('spec-modal').classList.remove('hidden'); }
     function selOpt(el, k, v) { el.parentNode.querySelectorAll('.chip').forEach(c=>c.classList.remove('selected')); el.classList.add('selected'); currentOptions[k] = v; }
     function updateSpQty(n) { if(currentQty+n>0) { currentQty+=n; document.getElementById('sp-qty').innerText=currentQty; document.getElementById('sp-price').innerText=currentItem.price*currentQty; } }
     function addSpecToCart() { let opts = Object.values(currentOptions).join('/'); if(opts) opts = `(${opts})`; cart.push({name: currentItem.name + " " + opts, price: currentItem.price, qty: currentQty, total: currentItem.price*currentQty}); document.getElementById('spec-modal').classList.add('hidden'); updateCartUI(); }
     function updateCartRetail(name, price, change) { let exist = cart.find(x => x.name === name); if(exist) { exist.qty += change; if(exist.qty<=0) cart = cart.filter(x=>x.name!==name); else exist.total = exist.price*exist.qty; } else if(change>0) cart.push({name:name, price:price, qty:1, total:price, opts:""}); updateCartUI(); currentShop.menu.forEach((item,idx) => { let el = document.getElementById(`r-qty-${idx}`); let inCart = cart.find(x=>x.name===item.name); if(el) el.innerText = inCart?inCart.qty:0; }); }
     function updateCartUI() { let totalQty = cart.reduce((a,b)=>a+b.qty,0); let totalPrice = cart.reduce((a,b)=>a+b.total,0); if(totalQty > 0) { document.getElementById('cart-bar').style.display = 'flex'; document.getElementById('cart-count').innerText = totalQty; document.getElementById('cart-total').innerText = totalPrice; } else { document.getElementById('cart-bar').style.display = 'none'; closeCartModal(); } }
-    function openCartModal() { if(cart.length===0) { closeCartModal(); return; } const list = document.getElementById('cart-list'); let html = ''; cart.forEach((item, idx) => { html += ` <div class="cart-item"> <div style="flex:1;"> <div style="font-size:15px;font-weight:bold;margin-bottom:4px;">${item.name}</div> <div style="font-size:12px;color:#999;">$${item.price}</div> </div> <div style="display:flex;align-items:center;gap:15px;"> <div style="font-weight:bold;min-width:40px;text-align:right;">$${item.total}</div> <div class="cart-stepper"> <button onclick="updateCartItemQty(${idx}, -1)"><i class="fas fa-minus"></i></button> <span>${item.qty}</span> <button onclick="updateCartItemQty(${idx}, 1)"><i class="fas fa-plus"></i></button> </div> </div> </div>`; }); list.innerHTML = html; document.getElementById('cart-modal').classList.remove('hidden'); }
+    function openCartModal() { if(cart.length===0) { closeCartModal(); return; } const list = document.getElementById('cart-list'); let html = ''; cart.forEach((item, idx) => { html += ` <div class="cart-item"> <div style="flex:1;"> <div style="font-size:15px;font-weight:bold;margin-bottom:4px;">${item.name}</div> <div style="font-size:12px;color:#999;">${item.price}</div> </div> <div style="display:flex;align-items:center;gap:15px;"> <div style="font-weight:bold;min-width:40px;text-align:right;">${item.total}</div> <div class="cart-stepper"> <button onclick="updateCartItemQty(${idx}, -1)"><i class="fas fa-minus"></i></button> <span>${item.qty}</span> <button onclick="updateCartItemQty(${idx}, 1)"><i class="fas fa-plus"></i></button> </div> </div> </div>`; }); list.innerHTML = html; document.getElementById('cart-modal').classList.remove('hidden'); }
     function updateCartItemQty(idx, change) { let item = cart[idx]; if(!item) return; item.qty += change; if(item.qty <= 0) { cart.splice(idx, 1); } else { item.total = item.price * item.qty; } updateCartUI(); if(cart.length > 0) { openCartModal(); } else { closeCartModal(); } }
     function closeCartModal() { document.getElementById('cart-modal').classList.add('hidden'); }
     function closeSpecModal() { document.getElementById('spec-modal').classList.add('hidden'); }
@@ -848,7 +848,7 @@
                     <div class="hc-body">
                         <div class="hc-summary">${summary || '點擊查看詳情'}</div>
                         <div style="text-align:right;">
-                            <div class="hc-price">$${price}</div>
+                            <div class="hc-price">${price}</div>
                             <div class="hc-status ${statusClass}">${o.status}</div>
                         </div>
                     </div>
@@ -921,3 +921,4 @@
   </script>
 </body>
 </html>
+
