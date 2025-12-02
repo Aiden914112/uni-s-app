@@ -378,16 +378,7 @@
         const res = await fetch(API_URL);
         allShops = await res.json();
         
-        // 1. Mock Data Injection (Crucial for Testing)
-        // Inject random location data around Taipei 101 for each shop
-        Object.values(allShops).forEach(shop => {
-            // Random lat between 25.0300 and 25.0400
-            shop.lat = 25.0300 + Math.random() * 0.01;
-            // Random lng between 121.5600 and 121.5700
-            shop.lng = 121.5600 + Math.random() * 0.01;
-            shop.address = "台北市信義區信義路五段7號 (測試資料)";
-            shop.openHours = "11:00 - 21:30";
-        });
+        // 移除 Mock Data，使用後端真實資料
         
         document.getElementById('loading').classList.add('hidden');
 
@@ -397,7 +388,7 @@
         } else if (params.get('tab') === 'member') { 
             renderLobby(allShops); switchTab('member'); 
         } else {
-            // 2. Before rendering, try to get location and sort
+            // 載入時先嘗試定位並排序
             await initLocationService();
             renderLobby(allShops); 
             switchTab('lobby'); 
@@ -450,7 +441,8 @@
                 
                 // Calculate distance for all shops
                 Object.values(allShops).forEach(shop => {
-                    if (shop.lat && shop.lng) {
+                    // Check for valid numbers from backend
+                    if (shop.lat && shop.lng && !isNaN(shop.lat) && !isNaN(shop.lng)) {
                         const dist = calculateDistance(userLocation.lat, userLocation.lng, shop.lat, shop.lng);
                         shop.distance = parseFloat(dist);
                         shop.distanceText = dist + " km";
@@ -524,12 +516,16 @@
       }
     }
     
-    // Action: Navigate Button
+    // Action: Navigate Button (優先使用地址，備用座標)
     function openMap() {
-        if (currentShop && currentShop.lat && currentShop.lng) {
-            window.open(`https://www.google.com/maps/dir/?api=1&destination=${currentShop.lat},${currentShop.lng}`, '_blank');
-        } else {
-            showMsg("無法取得商家位置");
+        if (currentShop) {
+            if (currentShop.address && currentShop.address.trim() !== "") {
+                 window.open(`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(currentShop.address)}`, '_blank');
+            } else if (currentShop.lat && currentShop.lng) {
+                 window.open(`https://www.google.com/maps/dir/?api=1&destination=${currentShop.lat},${currentShop.lng}`, '_blank');
+            } else {
+                 showMsg("無法取得商家位置資訊");
+            }
         }
     }
 
