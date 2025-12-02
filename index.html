@@ -29,7 +29,6 @@
     .tab-icon { font-size: 22px; margin-bottom: 3px; }
 
     /* ==================== 2. 主視圖容器 (大廳/會員/領券) ==================== */
-    /* 這些頁面需要可以捲動 */
     .scroll-view { flex: 1; overflow-y: auto; padding-bottom: 80px; -webkit-overflow-scrolling: touch; }
 
     /* 大廳樣式 */
@@ -53,31 +52,38 @@
     .card-avatar { width: 50px; height: 50px; border-radius: 50%; border: 2px solid var(--gold); margin-right: 12px; }
     .card-stats-row { display: flex; justify-content: space-between; text-align: center; }
     .stat-num { font-size: 20px; font-weight: bold; display: block; margin-bottom: 4px; }
+    
+    /* 修復: 補回服務區塊樣式 */
     .service-section { background: #fff; margin: 0 15px 15px 15px; border-radius: 12px; padding: 20px 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.03); display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; }
-    .service-item { text-align: center; }
+    .service-item { text-align: center; cursor: pointer; }
     .service-icon { font-size: 24px; color: #555; margin-bottom: 5px; }
+    .service-label { font-size: 11px; color: #666; }
+
     .history-simple-item { background: #fff; padding: 15px; border-radius: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.02); cursor: pointer; }
     .status-wait { background: #FFF3E0; color: #F57C00; padding:2px 6px; border-radius:4px; font-size:12px; }
     .status-ok { background: #E8F5E9; color: #388E3C; padding:2px 6px; border-radius:4px; font-size:12px; }
     .status-no { background: #FFEBEE; color: #D32F2F; padding:2px 6px; border-radius:4px; font-size:12px; }
 
-    /* ==================== 3. 店鋪頁面 (Shop) - 雙模式 ==================== */
+    /* ==================== 3. 店鋪頁面 (Shop) - 雙模式整合修復版 ==================== */
     #shop-view { background: #fff; height: 100%; display: flex; flex-direction: column; position: relative; z-index: 50; }
     
-    .shop-header-complex { background: #fff; padding: 10px 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); z-index: 20; flex-shrink: 0; }
-    .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-    .store-switch { font-size: 18px; font-weight: bold; color: #333; display: flex; align-items: center; cursor: pointer; }
+    /* Banner 區域 (恢復原版視覺) */
+    .shop-banner-area { width: 100%; height: 180px; background-size: cover; background-position: center; position: relative; flex-shrink: 0; }
+    .shop-banner-overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.7)); display: flex; align-items: flex-end; padding: 15px; }
+    .shop-title-large { color: #fff; font-size: 22px; font-weight: bold; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+    
+    .float-back { position: absolute; top: 15px; left: 15px; width: 36px; height: 36px; background: rgba(0,0,0,0.4); backdrop-filter: blur(4px); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; z-index: 200; cursor: pointer; }
+
+    /* 功能控制列 (新版功能) */
+    .shop-controls { background: #fff; padding: 10px 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); z-index: 20; flex-shrink: 0; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; }
     .delivery-toggle { display: flex; background: #f0f0f0; border-radius: 20px; padding: 2px; }
     .toggle-btn { padding: 4px 12px; border-radius: 18px; border: none; font-size: 12px; background: transparent; color: #666; }
     .toggle-btn.active { background: var(--primary); color: #fff; font-weight: bold; }
-    .store-detail-box { height: 0; overflow: hidden; transition: height 0.3s ease; font-size: 12px; color: #666; }
-    .store-detail-box.open { height: auto; padding-top: 10px; border-top: 1px dashed #eee; margin-top: 5px; }
-    .float-back { position: fixed; top: 15px; left: 15px; width: 36px; height: 36px; background: rgba(0,0,0,0.4); backdrop-filter: blur(4px); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; z-index: 200; cursor: pointer; }
-
-    /* 菜單容器 */
-    .shop-body { flex: 1; display: flex; overflow: hidden; position: relative; }
     
-    /* A. 茶飲模式 */
+    /* 菜單容器 */
+    .shop-body { flex: 1; display: flex; overflow: hidden; position: relative; background: #fff; }
+    
+    /* A. 茶飲模式 (Sidebar) */
     .menu-sidebar { width: 85px; background: #F5F5F5; overflow-y: auto; scrollbar-width: none; padding-bottom: 80px; }
     .category-item { padding: 18px 5px; font-size: 13px; color: #666; text-align: center; cursor: pointer; position: relative; }
     .category-item.active { background: #fff; color: #333; font-weight: bold; }
@@ -85,20 +91,23 @@
     
     .menu-content { flex: 1; overflow-y: auto; padding: 0 10px 80px 10px; scroll-behavior: smooth; }
     .category-title { font-size: 13px; font-weight: bold; color: #333; margin: 15px 0 10px 0; padding-left: 5px; }
-    .food-item { display: flex; margin-bottom: 20px; }
+    .food-item { display: flex; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px dashed #eee; }
+    .food-item:last-child { border-bottom: none; }
     .food-img { width: 90px; height: 90px; border-radius: 8px; background-color: #eee; background-size: cover; background-position: center; flex-shrink: 0; }
     .food-info { flex: 1; padding-left: 10px; display: flex; flex-direction: column; justify-content: space-between; }
     .food-name { font-size: 16px; font-weight: bold; color: #333; }
-    .food-desc { font-size: 11px; color: #999; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-    .btn-add-mini { background: var(--primary); color: #fff; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: bold; }
+    .food-desc { font-size: 11px; color: #999; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin-top: 4px;}
+    .food-action { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 5px; }
+    .food-price { color: var(--primary); font-weight: bold; }
+    .btn-add-mini { background: var(--primary); color: #fff; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: bold; }
 
-    /* B. 零售模式 */
-    .retail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 15px; width: 100%; overflow-y: auto; align-content: flex-start; }
+    /* B. 零售模式 (Grid) */
+    .retail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 15px; width: 100%; overflow-y: auto; align-content: flex-start; padding-bottom: 80px; }
     .retail-item { background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid #eee; display: flex; flex-direction: column; }
     .retail-img { height: 140px; background-color: #eee; background-size: cover; background-position: center; }
     .retail-info { padding: 10px; flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
     .stepper-mini { display: flex; align-items: center; background: #f5f5f5; border-radius: 20px; }
-    .stepper-mini button { width: 24px; height: 24px; border: none; background: transparent; font-size: 12px; }
+    .stepper-mini button { width: 24px; height: 24px; border: none; background: transparent; font-size: 12px; display:flex; align-items:center; justify-content:center; }
 
     /* 購物車條 */
     .cart-bar { position: absolute; bottom: 20px; left: 15px; right: 15px; background: #333; border-radius: 50px; padding: 0; display: flex; justify-content: space-between; align-items: center; color: #fff; box-shadow: 0 5px 20px rgba(0,0,0,0.3); z-index: 100; height: 50px; cursor: pointer; }
@@ -117,7 +126,7 @@
     .spec-options { padding: 0 15px 15px 15px; max-height: 40vh; overflow-y: auto; }
     .chip { padding: 6px 15px; background: #F5F5F5; border-radius: 6px; font-size: 12px; color: #333; border: 1px solid transparent; cursor: pointer; margin-right: 5px; margin-bottom: 5px; display: inline-block; }
     .chip.selected { background: #FEF0F0; color: var(--primary); border-color: var(--primary); }
-    .spec-add-btn { background: var(--primary); color: #fff; padding: 10px 30px; border-radius: 30px; font-weight: bold; cursor: pointer; }
+    .spec-add-btn { background: var(--primary); color: #fff; padding: 10px 30px; border-radius: 30px; font-weight: bold; cursor: pointer; text-align: center; }
     .stepper { display: flex; align-items: center; background: #f5f5f5; border-radius: 20px; padding: 2px 8px; }
     
     /* 訂單詳情 (獨立頁) */
@@ -132,6 +141,16 @@
     /* 編輯資料 */
     .modal-content-center { background: #fff; width: 80%; border-radius: 16px; padding: 20px; }
     .form-input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 15px; box-sizing: border-box; }
+    
+    /* 訊息彈窗樣式 (復刻原版) */
+    .msg-box { background: white; width: 80%; max-width: 320px; border-radius: 16px; padding: 25px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2); animation: popIn 0.2s ease-out; }
+    .msg-icon { font-size: 40px; margin-bottom: 15px; color: var(--primary); }
+    .msg-text { font-size: 18px; font-weight: bold; color: #333; margin-bottom: 20px; }
+    .msg-btns { display: flex; gap: 10px; justify-content: center; }
+    .msg-btn { flex: 1; padding: 12px; border-radius: 30px; font-size: 16px; font-weight: bold; border: none; cursor: pointer; }
+    .msg-btn-ok { background: var(--primary); color: white; }
+    .msg-btn-cancel { background: #eee; color: #666; }
+    @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
   </style>
 </head>
 <body>
@@ -152,7 +171,8 @@
   <div id="lobby-view" class="scroll-view hidden">
     <div class="lobby-header-bg"><div style="font-weight:bold; letter-spacing:1px; font-size:12px; opacity:0.8;">UNI-S PLATFORM</div><div style="font-size:20px; font-weight:bold; margin-top:5px; color:#fff;">探索美好生活</div></div>
     <div class="float-member-card" onclick="switchTab('member')"><img id="home-avatar" src="" class="mini-avatar"><div class="user-greeting"><h3><span id="home-name">...</span></h3><p>點擊查看會員權益 ›</p></div><div class="quick-points"><span class="num" id="home-points">0</span><span class="label">積分</span></div></div>
-    <div id="shop-list" style="padding: 20px 15px;"></div>
+    <div class="search-bar"><i class="fas fa-search" style="color:#999; margin-right:5px;"></i><input type="text" id="search-input" placeholder="搜尋店家..." oninput="filterShops()"></div>
+    <div id="shop-list" style="padding: 10px 15px;"></div>
   </div>
 
   <div id="coupons-view" class="scroll-view hidden">
@@ -166,6 +186,15 @@
       <div class="card-user-row"><img id="m-avatar" src="" class="mini-avatar" style="border:2px solid var(--gold);"><div style="flex:1;"><div id="m-name" style="font-size:18px;font-weight:bold;color:var(--gold);">...</div><div style="font-size:12px;background:linear-gradient(to right,#C5A674,#E5C690);color:#000;padding:2px 8px;border-radius:10px;display:inline-block;margin-top:4px;">普通會員</div></div><i class="fas fa-edit" onclick="openEditModal()" style="font-size:20px;color:var(--gold);opacity:0.8;cursor:pointer;"></i></div>
       <div class="card-stats-row"><div class="stat-box"><span class="stat-num">0</span><span style="font-size:11px;color:rgba(255,255,255,0.6);">餘額</span></div><div class="stat-box" style="border-left:1px solid rgba(255,255,255,0.1); border-right:1px solid rgba(255,255,255,0.1);"><span class="stat-num" id="m-points">0</span><span style="font-size:11px;color:rgba(255,255,255,0.6);">積分</span></div><div class="stat-box"><span class="stat-num">2</span><span style="font-size:11px;color:rgba(255,255,255,0.6);">優惠券</span></div></div>
     </div>
+    
+    <!-- 補回: 服務區塊 -->
+    <div class="service-section">
+      <div class="service-item" onclick="showMsg('積分兌換功能開發中')"><div class="service-icon"><i class="fas fa-gift"></i></div><div class="service-label">積分兌換</div></div>
+      <div class="service-item" onclick="showMsg('客服連線中...')"><div class="service-icon"><i class="fas fa-headset"></i></div><div class="service-label">聯繫客服</div></div>
+      <div class="service-item" onclick="showMsg('常見問題頁面')"><div class="service-icon"><i class="fas fa-question-circle"></i></div><div class="service-label">常見問題</div></div>
+      <div class="service-item" onclick="showMsg('Uni-S v1.1')"><div class="service-icon"><i class="fas fa-info-circle"></i></div><div class="service-label">關於我們</div></div>
+    </div>
+
     <div class="history-section" style="padding:0 15px;">
       <div style="font-weight:bold; margin-bottom:10px;">最近訂單</div>
       <div id="history-loading" style="text-align:center; color:#999; font-size:12px;">載入中...</div>
@@ -174,22 +203,29 @@
   </div>
 
   <div id="shop-view" class="hidden">
-    <div class="float-back" onclick="goLobby()"><i class="fas fa-chevron-left"></i></div>
-    <div class="shop-header-complex">
-      <div class="header-top">
-        <div class="store-switch" onclick="document.getElementById('store-detail').classList.toggle('open')"><span id="shop-name">...</span> <i class="fas fa-caret-down" style="margin-left:5px;font-size:14px;"></i></div>
-        <div class="delivery-toggle"><button class="toggle-btn active">自取</button><button class="toggle-btn">外送</button></div>
-      </div>
-      <div class="store-detail-box" id="store-detail">
-        <div class="detail-row"><i class="fas fa-clock"></i> 營業時間：10:00 - 22:00</div>
-        <div class="detail-row"><i class="fas fa-phone"></i> 02-2345-6789</div>
-      </div>
+    <!-- 補回: Banner 大圖區 -->
+    <div id="shop-banner" class="shop-banner-area">
+        <div class="shop-banner-overlay">
+            <h1 class="shop-title-large" id="shop-name-title">...</h1>
+        </div>
+        <div class="float-back" onclick="goLobby()"><i class="fas fa-chevron-left"></i></div>
     </div>
+    
+    <!-- 控制列 -->
+    <div class="shop-controls">
+      <div class="store-info-text" style="font-size:14px; color:#666;"><i class="fas fa-clock"></i> 營業中</div>
+      <div class="delivery-toggle"><button class="toggle-btn active">自取</button><button class="toggle-btn">外送</button></div>
+    </div>
+    
     <div class="shop-body">
+      <!-- 餐飲/茶飲模式側邊欄 -->
       <div class="menu-sidebar" id="food-sidebar" style="display:none;"></div>
+      <!-- 餐飲內容 -->
       <div class="menu-content" id="food-content" style="display:none;"></div>
+      <!-- 零售模式網格 -->
       <div id="mode-retail" class="retail-grid" style="display:none;"></div>
     </div>
+    
     <div id="cart-bar" class="cart-bar" style="display:none;">
       <div class="cart-left" onclick="openCartModal()">
         <div style="position:relative;margin-right:15px;"><i class="fas fa-shopping-bag" style="font-size:24px;"></i><div class="cart-badge" id="cart-count">0</div></div>
@@ -233,27 +269,32 @@
       <div style="text-align:right;padding:10px;"><i class="fas fa-times" onclick="closeSpecModal()" style="font-size:24px;color:#999;cursor:pointer;"></i></div>
       <div class="spec-header"><div class="spec-img" id="sp-img"></div><div><div style="font-size:18px;font-weight:bold;" id="sp-name"></div><div style="font-size:12px;color:#888;" id="sp-desc"></div></div></div>
       <div id="sp-options" class="spec-options"></div>
-      <div class="spec-footer">
-        <div style="display:flex;align-items:center;"><div style="font-size:20px;font-weight:bold;color:#333;margin-right:15px;">$<span id="sp-price">0</span></div><div class="stepper"><button onclick="updateSpQty(-1)">-</button><span id="sp-qty" style="margin:0 10px;font-weight:bold;">1</span><button onclick="updateSpQty(1)">+</button></div></div>
+      <div class="spec-footer" style="padding:15px; border-top:1px solid #eee;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:15px;">
+           <div style="font-size:20px;font-weight:bold;color:#333;">$<span id="sp-price">0</span></div>
+           <div class="stepper"><button onclick="updateSpQty(-1)">-</button><span id="sp-qty" style="margin:0 10px;font-weight:bold;">1</span><button onclick="updateSpQty(1)">+</button></div>
+        </div>
         <div class="spec-add-btn" onclick="addSpecToCart()">加入購物車</div>
       </div>
     </div>
   </div>
   <div id="service-modal" class="modal-overlay hidden">
     <div class="modal-sheet">
-      <div style="text-align:center;font-weight:bold;font-size:18px;margin-bottom:20px;">選擇服務方式</div>
-      <div id="service-options"></div>
-      <div class="spec-add-btn" style="text-align:center;margin-top:15px;" onclick="confirmOrder()">確認下單</div>
-      <div style="text-align:center;margin-top:15px;color:#999;cursor:pointer;" onclick="document.getElementById('service-modal').classList.add('hidden')">取消</div>
+      <div style="padding:20px;">
+        <div style="text-align:center;font-weight:bold;font-size:18px;margin-bottom:20px;">選擇服務方式</div>
+        <div id="service-options"></div>
+        <div class="spec-add-btn" style="text-align:center;margin-top:15px;" onclick="confirmOrder()">確認下單</div>
+        <div style="text-align:center;margin-top:15px;color:#999;cursor:pointer;" onclick="document.getElementById('service-modal').classList.add('hidden')">取消</div>
+      </div>
     </div>
   </div>
   <div id="edit-modal" class="modal-overlay hidden">
     <div class="modal-content-center">
       <div style="text-align:center;font-weight:bold;margin-bottom:15px;">編輯資料</div>
-      <div style="margin-bottom:10px;"><label style="font-size:12px;color:#666;">姓名</label><input type="text" id="edit-name" class="form-input" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:8px;"></div>
-      <div style="margin-bottom:10px;"><label style="font-size:12px;color:#666;">電話</label><input type="tel" id="edit-phone" class="form-input" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:8px;"></div>
-      <div style="margin-bottom:15px;"><label style="font-size:12px;color:#666;">生日</label><input type="date" id="edit-birthday" class="form-input" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:8px;"></div>
-      <div style="display:flex;gap:10px;"><div style="flex:1;text-align:center;padding:10px;background:#eee;border-radius:20px;" onclick="document.getElementById('edit-modal').classList.add('hidden')">取消</div><div style="flex:1;text-align:center;padding:10px;background:var(--primary);color:#fff;border-radius:20px;font-weight:bold;" onclick="saveProfile()">儲存</div></div>
+      <div style="margin-bottom:10px;"><label style="font-size:12px;color:#666;">姓名</label><input type="text" id="edit-name" class="form-input"></div>
+      <div style="margin-bottom:10px;"><label style="font-size:12px;color:#666;">電話</label><input type="tel" id="edit-phone" class="form-input"></div>
+      <div style="margin-bottom:15px;"><label style="font-size:12px;color:#666;">生日</label><input type="date" id="edit-birthday" class="form-input"></div>
+      <div style="display:flex;gap:10px;"><div style="flex:1;text-align:center;padding:10px;background:#eee;border-radius:20px;" onclick="closeEditModal()">取消</div><div class="btn-save" style="flex:1;text-align:center;padding:10px;background:var(--primary);color:#fff;border-radius:20px;font-weight:bold;cursor:pointer;" onclick="saveProfile()">儲存</div></div>
     </div>
   </div>
 
@@ -346,7 +387,10 @@
       document.getElementById('tab-bar').classList.add('hidden');
       ['lobby-view','coupons-view','member-view'].forEach(id=>document.getElementById(id).classList.add('hidden'));
       document.getElementById('shop-view').classList.remove('hidden');
-      document.getElementById('shop-name').innerText = currentShop.name;
+      
+      // 設定 Banner 與標題 (修復: 恢復顯示)
+      document.getElementById('shop-name-title').innerText = currentShop.name;
+      document.getElementById('shop-banner').style.backgroundImage = `url(${currentShop.bannerUrl})`;
 
       if (currentShop.type === 'retail') {
         document.getElementById('food-sidebar').style.display = 'none';
@@ -386,7 +430,7 @@
       let html = '';
       currentShop.menu.forEach((item, idx) => {
         let img = item.img || currentShop.bannerUrl;
-        html += `<div class="retail-item"><div class="retail-img" style="background-image:url(${img})"></div><div class="retail-info"><div style="font-weight:bold;font-size:14px;">${item.name}</div><div class="retail-actions"><span style="color:#e64a19;font-weight:bold;">$${item.price}</span><div class="stepper-mini"><button onclick="updateCartRetail('${item.name}', ${item.price}, -1)">-</button><span id="r-qty-${idx}" style="font-size:13px;font-weight:bold;margin:0 5px;">0</span><button onclick="updateCartRetail('${item.name}', ${item.price}, 1)">+</button></div></div></div></div>`;
+        html += `<div class="retail-item"><div class="retail-img" style="background-image:url(${img})"></div><div class="retail-info"><div style="font-weight:bold;font-size:14px;">${item.name}</div><div class="retail-actions" style="display:flex;justify-content:space-between;align-items:center;"><span style="color:#e64a19;font-weight:bold;">$${item.price}</span><div class="stepper-mini"><button onclick="updateCartRetail('${item.name}', ${item.price}, -1)">-</button><span id="r-qty-${idx}" style="font-size:13px;font-weight:bold;margin:0 5px;">0</span><button onclick="updateCartRetail('${item.name}', ${item.price}, 1)">+</button></div></div></div></div>`;
       });
       document.getElementById('mode-retail').innerHTML = html;
     }
@@ -504,7 +548,7 @@
       o.content.split('\n').forEach(line => {
         if(line.includes('總金額')) total = line.split('：')[1];
         else if(line.includes('電話')) phone = line.split('：')[1];
-        else if(!line.includes('---') && line.trim()) html += `<div class="od-item"><div class="od-item-name">${line}</div></div>`;
+        else if(!line.includes('---') && line.trim()) html += `<div class="od-item" style="display:flex;justify-content:space-between;margin-bottom:5px;"><div class="od-item-name">${line}</div></div>`;
       });
       document.getElementById('od-items-list').innerHTML = html;
       document.getElementById('od-total-price').innerText = total;
@@ -528,7 +572,7 @@
       let html = '';
       Object.keys(shops).forEach(id => {
         let s = shops[id];
-        html += `<div class="shop-card" onclick="openShop('${id}')"><div class="shop-thumb" style="background-image:url(${s.bannerUrl})"></div><div class="shop-info"><div class="shop-name">${s.name}</div><div class="shop-action"><button class="btn-visit">去逛逛</button></div></div></div>`;
+        html += `<div class="shop-card" onclick="openShop('${id}')"><div class="shop-thumb" style="background-image:url(${s.bannerUrl})"></div><div class="shop-info"><div class="shop-name" style="font-weight:bold;margin-bottom:5px;">${s.name}</div><div class="shop-action"><button class="btn-visit">去逛逛</button></div></div></div>`;
       });
       document.getElementById('shop-list').innerHTML = html;
     }
@@ -536,11 +580,6 @@
       let key = document.getElementById('search-input').value.toLowerCase();
       let res = {}; Object.keys(allShops).forEach(k => { if(allShops[k].name.toLowerCase().includes(key)) res[k] = allShops[k]; });
       renderLobby(res);
-    }
-    function filterCategory(type, el) {
-      document.querySelectorAll('.filter-tag').forEach(e=>e.classList.remove('active')); el.classList.add('active');
-      if(type==='all') renderLobby(allShops);
-      else { let res = {}; Object.keys(allShops).forEach(k => { if(allShops[k].type === type) res[k] = allShops[k]; }); renderLobby(res); }
     }
     function goLobby() { 
       const url = new URL(window.location); url.searchParams.delete('id'); window.history.pushState({}, '', url);
