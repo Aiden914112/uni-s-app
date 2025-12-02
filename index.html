@@ -6,159 +6,249 @@
   <title>Uni-S 生活圈</title>
   <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- 引入 Google Fonts: Noto Serif TC (宋體/明體) 增加人文感 -->
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+
   <style>
-    /* ==================== 0. 全局與重置 ==================== */
+    /* ==================== 0. 全局與重置 (Aesthetics Overhaul) ==================== */
     :root { 
-      --primary: #06C755; --gold: #C5A674; --bg: #F5F6F7; --text: #333; 
-      --tea-sidebar: #F5F5F5;
+      /* New Premium Palette: Earthy & Morandi Tones */
+      --primary: #9F8C6D; /* Muted Terracotta/Dark Gold - 主色調：沉穩陶土金 */
+      --gold: #CCB28A;    /* Softened Gold - 輔助色：柔和金 */ 
+      --bg: #F7F4EF;      /* Off-white/Earthy background - 背景：米白宣紙感 */ 
+      --text: #4A4A4A;    /* Soft Dark Grey - 文字：墨灰 */ 
+      --tea-sidebar: #F0EDE5; /* Lighter earthy tone - 側邊欄：淺灰褐 */
+      
+      --danger: #B85C5C;  /* Muted Red for warnings - 低飽和紅 */
+      --success: #7A8B69; /* Muted Green for success - 抹茶綠 */
     }
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding: 0; margin: 0; background-color: var(--bg); color: var(--text); touch-action: manipulation; -webkit-user-select: none; user-select: none; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
+
+    body { 
+      font-family: 'Noto Sans TC', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+      padding: 0; margin: 0; 
+      background-color: var(--bg); 
+      color: var(--text); 
+      touch-action: manipulation; 
+      -webkit-user-select: none; user-select: none; 
+      height: 100vh; overflow: hidden; display: flex; flex-direction: column; 
+    }
+    
+    h1, h2, h3, .shop-name, .coupon-val {
+      font-family: 'Noto Serif TC', serif; /* 標題使用襯線體，提升氣質 */
+    }
+
     .hidden { display: none !important; }
-    #loading { position: fixed; inset: 0; background: #fff; z-index: 2000; display: flex; justify-content: center; align-items: center; color: #999; flex-direction: column; }
+    #loading { position: fixed; inset: 0; background: var(--bg); z-index: 2000; display: flex; justify-content: center; align-items: center; color: var(--primary); flex-direction: column; }
 
     /* 通用彈窗遮罩 */
-    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(2px); }
+    .modal-overlay { position: fixed; inset: 0; background: rgba(60, 50, 40, 0.4); z-index: 1000; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
     /* 底部滑出面板 */
     .modal-sheet { background: #fff; width: 100%; border-radius: 20px 20px 0 0; max-height: 85vh; overflow-y: auto; animation: slideUp 0.3s; padding-bottom: 20px; position: absolute; bottom: 0; }
     @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
 
     /* ==================== 1. 底部導航 (Tab Bar) ==================== */
-    #tab-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; height: 60px; display: flex; border-top: 1px solid #eee; z-index: 900; padding-bottom: env(safe-area-inset-bottom); flex-shrink: 0; }
-    .tab-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #999; font-size: 10px; cursor: pointer; }
+    #tab-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; height: 65px; display: flex; border-top: 1px solid #E0D8CC; z-index: 900; padding-bottom: env(safe-area-inset-bottom); flex-shrink: 0; box-shadow: 0 -2px 10px rgba(0,0,0,0.02); }
+    .tab-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #999; font-size: 11px; cursor: pointer; transition: all 0.3s; }
     .tab-item.active { color: var(--primary); font-weight: bold; }
-    .tab-icon { font-size: 22px; margin-bottom: 3px; }
+    .tab-item.active .tab-icon { transform: translateY(-2px); }
+    .tab-icon { font-size: 20px; margin-bottom: 4px; }
 
-    /* ==================== 2. 主視圖容器 (大廳/會員/領券) ==================== */
+    /* ==================== 2. 主視圖容器 ==================== */
     .scroll-view { flex: 1; overflow-y: auto; padding-bottom: 80px; -webkit-overflow-scrolling: touch; }
 
     /* 大廳樣式 */
-    .lobby-header-bg { background: linear-gradient(135deg, #2c3e50, #000); height: 160px; border-radius: 0 0 20px 20px; padding: 20px; color: var(--gold); }
-    .float-member-card { background: #fff; margin: -80px 15px 15px 15px; border-radius: 12px; padding: 15px; box-shadow: 0 8px 20px rgba(0,0,0,0.08); display: flex; align-items: center; cursor: pointer; }
-    .mini-avatar { width: 50px; height: 50px; border-radius: 50%; margin-right: 12px; background: #eee; }
-    .quick-points { margin-left: auto; text-align: center; border-left: 1px solid #eee; padding-left: 15px; }
-    .quick-points .num { font-size: 20px; font-weight: bold; color: var(--gold); }
+    .lobby-header-bg { 
+      background: linear-gradient(135deg, #4A4036, #2C2620); /* 深咖啡色系漸層 */
+      height: 170px; border-radius: 0 0 24px 24px; padding: 25px 20px; color: var(--gold); 
+    }
+    .float-member-card { 
+      background: #fff; margin: -80px 20px 20px 20px; border-radius: 16px; padding: 18px; 
+      box-shadow: 0 10px 30px rgba(74, 64, 54, 0.08); 
+      display: flex; align-items: center; cursor: pointer; border: 1px solid #F0EDE5;
+    }
+    .mini-avatar { width: 54px; height: 54px; border-radius: 50%; margin-right: 15px; background: #E0D8CC; border: 2px solid var(--bg); }
+    .quick-points { margin-left: auto; text-align: center; border-left: 1px solid #E0D8CC; padding-left: 18px; }
+    .quick-points .num { font-size: 22px; font-weight: bold; color: var(--primary); font-family: 'Noto Serif TC'; }
+    .quick-points .label { font-size: 11px; color: #888; letter-spacing: 1px; }
     
-    .search-bar { margin: 0 15px 15px 15px; background: #fff; padding: 10px; border-radius: 20px; display: flex; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-    .search-bar input { border: none; flex: 1; outline: none; margin-left: 10px; font-size: 14px; }
-    .shop-card { background: #fff; border-radius: 12px; overflow: hidden; margin-bottom: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.03); display: flex; padding: 10px; cursor: pointer; }
-    .shop-thumb { width: 80px; height: 80px; border-radius: 8px; background-size: cover; background-position: center; flex-shrink: 0; }
-    .shop-info { padding-left: 15px; flex: 1; display: flex; flex-direction: column; justify-content: center; }
-    .btn-visit { background: #333; color: var(--gold); border: none; padding: 4px 12px; border-radius: 20px; font-size: 12px; width: fit-content; }
+    .search-bar { margin: 0 20px 20px 20px; background: #fff; padding: 12px 15px; border-radius: 12px; display: flex; align-items: center; box-shadow: 0 4px 12px rgba(0,0,0,0.03); border: 1px solid #F0EDE5; }
+    .search-bar input { border: none; flex: 1; outline: none; margin-left: 10px; font-size: 14px; background: transparent; color: var(--text); }
+    
+    /* 商家卡片 */
+    .shop-card { 
+      background: #fff; border-radius: 16px; overflow: hidden; margin-bottom: 20px; 
+      box-shadow: 0 4px 15px rgba(0,0,0,0.04); display: flex; padding: 12px; 
+      cursor: pointer; border: 1px solid #F0EDE5; transition: transform 0.2s;
+    }
+    .shop-card:active { transform: scale(0.98); }
+    .shop-thumb { width: 88px; height: 88px; border-radius: 12px; background-size: cover; background-position: center; flex-shrink: 0; filter: contrast(0.95); }
+    .shop-info { padding-left: 18px; flex: 1; display: flex; flex-direction: column; justify-content: center; }
+    .shop-name { font-size: 17px; font-weight: bold; color: #2C2620; margin-bottom: 6px; letter-spacing: 0.5px; }
+    .btn-visit { 
+      background: var(--primary); color: #fff; border: none; padding: 6px 16px; 
+      border-radius: 20px; font-size: 12px; width: fit-content; letter-spacing: 1px; 
+    }
     
     /* LBS 距離標籤 */
-    .dist-badge { font-size: 11px; color: #666; background: #f0f0f0; padding: 2px 6px; border-radius: 4px; margin-left: 8px; display: inline-flex; align-items: center; gap: 3px; }
-    .dist-badge i { font-size: 10px; color: var(--primary); }
+    .dist-badge { font-size: 11px; color: var(--primary); background: #F0EDE5; padding: 3px 8px; border-radius: 6px; margin-left: 8px; display: inline-flex; align-items: center; gap: 4px; }
+    .dist-badge i { font-size: 10px; }
 
-    /* 優惠券樣式 (新增) */
-    .coupon-grid { display: grid; grid-template-columns: 1fr; gap: 15px; padding: 0 15px; }
-    .coupon-item { background: #fff; border-radius: 12px; display: flex; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.05); position: relative; }
-    .coupon-left { background: linear-gradient(135deg, #FF9966, #FF5E62); width: 90px; color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 10px; }
-    .coupon-val { font-size: 24px; font-weight: bold; }
-    .coupon-right { flex: 1; padding: 12px; display: flex; flex-direction: column; justify-content: center; }
-    .coupon-name { font-weight: bold; font-size: 15px; color: #333; margin-bottom: 4px; }
-    .coupon-cost { font-size: 12px; color: #666; }
-    .btn-redeem { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: #fff; border: 1px solid #FF5E62; color: #FF5E62; padding: 4px 12px; border-radius: 20px; font-size: 12px; cursor: pointer; }
+    /* 優惠券樣式 (Refined) */
+    .coupon-grid { display: grid; grid-template-columns: 1fr; gap: 16px; padding: 0 20px; }
+    .coupon-item { 
+      background: #fff; border-radius: 14px; display: flex; overflow: hidden; 
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05); position: relative; border: 1px solid #EBE6DE;
+    }
+    .coupon-left { 
+      background: linear-gradient(135deg, var(--primary), #8A7A5B); /* 使用主色調漸層 */
+      width: 95px; color: #fff; display: flex; flex-direction: column; 
+      align-items: center; justify-content: center; text-align: center; padding: 10px; 
+      position: relative;
+    }
+    .coupon-left::after { /* 郵票孔效果 */
+      content: ""; position: absolute; right: -6px; top: 0; bottom: 0; width: 12px; 
+      background-image: radial-gradient(circle, #fff 4px, transparent 5px); 
+      background-size: 10px 14px; background-repeat: repeat-y; 
+    }
+    .coupon-val { font-size: 26px; font-weight: bold; font-family: 'Noto Serif TC'; }
+    .coupon-right { flex: 1; padding: 14px 16px; display: flex; flex-direction: column; justify-content: center; }
+    .coupon-name { font-weight: bold; font-size: 15px; color: #2C2620; margin-bottom: 6px; }
+    .coupon-cost { font-size: 12px; color: #888; }
+    .btn-redeem { 
+      position: absolute; right: 15px; top: 50%; transform: translateY(-50%); 
+      background: transparent; border: 1px solid var(--primary); color: var(--primary); 
+      padding: 5px 14px; border-radius: 20px; font-size: 12px; cursor: pointer; font-weight: bold;
+    }
     
-    .my-coupon-item { background: #fff; border: 1px dashed #FF5E62; border-radius: 8px; padding: 10px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+    .my-coupon-item { 
+      background: #fff; border: 1px dashed var(--gold); border-radius: 10px; padding: 14px; 
+      margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; 
+      box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+    }
 
     /* 會員中心樣式 */
-    .member-header-bg { background-color: var(--bg); height: 80px; }
-    .premium-card { margin: -60px 15px 15px 15px; background: linear-gradient(135deg, #2b2b2b, #1a1a1a); border-radius: 16px; padding: 20px; color: #fff; box-shadow: 0 10px 30px rgba(0,0,0,0.15); position: relative; overflow: hidden; }
-    .card-user-row { display: flex; align-items: center; margin-bottom: 25px; }
-    .card-avatar { width: 50px; height: 50px; border-radius: 50%; border: 2px solid var(--gold); margin-right: 12px; }
+    .member-header-bg { background-color: var(--bg); height: 60px; }
+    .premium-card { 
+      margin: -40px 20px 20px 20px; 
+      background: linear-gradient(135deg, #3E362E, #26211C); /* 黑金質感 */
+      border-radius: 18px; padding: 24px; color: #E0D8CC; 
+      box-shadow: 0 15px 40px rgba(44, 38, 32, 0.25); position: relative; overflow: hidden; 
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .premium-card::before { /* 紋理裝飾 */
+      content: ""; position: absolute; top: -50px; right: -50px; width: 150px; height: 150px; 
+      background: radial-gradient(circle, rgba(204, 186, 138, 0.1) 0%, transparent 70%); 
+      pointer-events: none;
+    }
+    .card-user-row { display: flex; align-items: center; margin-bottom: 28px; }
+    .card-avatar { width: 56px; height: 56px; border-radius: 50%; border: 2px solid var(--gold); margin-right: 15px; }
     .card-stats-row { display: flex; justify-content: space-between; text-align: center; }
-    .stat-num { font-size: 20px; font-weight: bold; display: block; margin-bottom: 4px; }
+    .stat-num { font-size: 22px; font-weight: bold; display: block; margin-bottom: 6px; font-family: 'Noto Serif TC'; color: var(--gold); }
+    .stat-label { font-size: 11px; opacity: 0.7; letter-spacing: 1px; }
     
     /* 服務區塊樣式 */
-    .service-section { background: #fff; margin: 0 15px 15px 15px; border-radius: 12px; padding: 20px 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.03); display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; }
-    .service-item { text-align: center; cursor: pointer; }
-    .service-icon { font-size: 24px; color: #555; margin-bottom: 5px; }
-    .service-label { font-size: 11px; color: #666; }
+    .service-section { 
+      background: #fff; margin: 0 20px 20px 20px; border-radius: 16px; padding: 24px 15px; 
+      box-shadow: 0 4px 15px rgba(0,0,0,0.03); display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; 
+      border: 1px solid #F0EDE5;
+    }
+    .service-item { text-align: center; cursor: pointer; transition: transform 0.2s; }
+    .service-item:active { transform: scale(0.95); }
+    .service-icon { font-size: 24px; color: #6B6359; margin-bottom: 8px; }
+    .service-label { font-size: 12px; color: #666; letter-spacing: 0.5px; }
 
-    .history-simple-item { background: #fff; padding: 15px; border-radius: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.02); cursor: pointer; }
-    .status-wait { background: #FFF3E0; color: #F57C00; padding:2px 6px; border-radius:4px; font-size:12px; }
-    .status-ok { background: #E8F5E9; color: #388E3C; padding:2px 6px; border-radius:4px; font-size:12px; }
-    .status-no { background: #FFEBEE; color: #D32F2F; padding:2px 6px; border-radius:4px; font-size:12px; }
+    .history-section { padding: 0 20px 100px 20px; } /* 增加底部 padding 防止被 tab bar 遮擋 */
+    .history-simple-item { 
+      background: #fff; padding: 16px; border-radius: 14px; margin-bottom: 12px; 
+      display: flex; justify-content: space-between; align-items: center; 
+      box-shadow: 0 2px 8px rgba(0,0,0,0.03); cursor: pointer; border: 1px solid #F7F4EF;
+    }
+    .status-wait { background: #FFF8E1; color: #D4A017; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: bold; }
+    .status-ok { background: #EEF5E5; color: var(--success); padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: bold; }
+    .status-no { background: #FDEEEE; color: var(--danger); padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: bold; }
 
     /* ==================== 3. 店鋪頁面 (Shop) ==================== */
     #shop-view { background: #fff; height: 100%; display: flex; flex-direction: column; position: relative; z-index: 50; }
-    .shop-banner-area { width: 100%; height: 180px; background-size: cover; background-position: center; position: relative; flex-shrink: 0; }
-    .shop-banner-overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.7)); display: flex; align-items: flex-end; padding: 15px; }
-    .shop-title-large { color: #fff; font-size: 22px; font-weight: bold; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
-    .float-back { position: absolute; top: 15px; left: 15px; width: 36px; height: 36px; background: rgba(0,0,0,0.4); backdrop-filter: blur(4px); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; z-index: 200; cursor: pointer; }
+    .shop-banner-area { width: 100%; height: 200px; background-size: cover; background-position: center; position: relative; flex-shrink: 0; }
+    .shop-banner-overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.6) 100%); display: flex; align-items: flex-end; padding: 20px; }
+    .shop-title-large { color: #fff; font-size: 24px; font-weight: bold; text-shadow: 0 2px 4px rgba(0,0,0,0.3); letter-spacing: 1px; }
+    .float-back { position: absolute; top: 15px; left: 15px; width: 38px; height: 38px; background: rgba(0,0,0,0.3); backdrop-filter: blur(6px); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; z-index: 200; cursor: pointer; border: 1px solid rgba(255,255,255,0.2); }
 
-    .shop-controls { background: #fff; padding: 10px 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); z-index: 20; flex-shrink: 0; display: flex; flex-direction: column; gap: 8px; border-bottom: 1px solid #eee; }
+    .shop-controls { background: #fff; padding: 12px 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.04); z-index: 20; flex-shrink: 0; display: flex; flex-direction: column; gap: 10px; border-bottom: 1px solid #F0EDE5; }
     .controls-top-row { display: flex; justify-content: space-between; align-items: center; }
-    .shop-detail-info { font-size: 12px; color: #666; display: flex; flex-direction: column; gap: 4px; }
-    .info-row { display: flex; align-items: center; gap: 6px; }
-    .btn-nav { background: #E8F5E9; color: var(--primary); border: 1px solid var(--primary); padding: 4px 10px; border-radius: 15px; font-size: 12px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 4px; }
-    .delivery-toggle { display: flex; background: #f0f0f0; border-radius: 20px; padding: 2px; }
-    .toggle-btn { padding: 4px 12px; border-radius: 18px; border: none; font-size: 12px; background: transparent; color: #666; }
-    .toggle-btn.active { background: var(--primary); color: #fff; font-weight: bold; }
+    .shop-detail-info { font-size: 12px; color: #888; display: flex; flex-direction: column; gap: 5px; }
+    .info-row { display: flex; align-items: center; gap: 8px; }
+    .btn-nav { background: #F7F4EF; color: var(--primary); border: 1px solid var(--primary); padding: 5px 12px; border-radius: 15px; font-size: 12px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 5px; }
+    
+    .delivery-toggle { display: flex; background: #F0EDE5; border-radius: 20px; padding: 3px; }
+    .toggle-btn { padding: 5px 16px; border-radius: 18px; border: none; font-size: 12px; background: transparent; color: #888; font-weight: 500; }
+    .toggle-btn.active { background: #fff; color: var(--primary); font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
     
     .shop-body { flex: 1; display: flex; overflow: hidden; position: relative; background: #fff; }
-    .menu-sidebar { width: 85px; background: #F5F5F5; overflow-y: auto; scrollbar-width: none; padding-bottom: 80px; }
-    .category-item { padding: 18px 5px; font-size: 13px; color: #666; text-align: center; cursor: pointer; position: relative; }
-    .category-item.active { background: #fff; color: #333; font-weight: bold; }
-    .category-item.active::before { content: ''; position: absolute; left: 0; top: 15px; bottom: 15px; width: 4px; background: var(--primary); border-radius: 0 4px 4px 0; }
-    .menu-content { flex: 1; overflow-y: auto; padding: 0 10px 80px 10px; scroll-behavior: smooth; }
-    .category-title { font-size: 13px; font-weight: bold; color: #333; margin: 15px 0 10px 0; padding-left: 5px; }
-    .food-item { display: flex; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px dashed #eee; }
+    .menu-sidebar { width: 85px; background: var(--tea-sidebar); overflow-y: auto; scrollbar-width: none; padding-bottom: 80px; }
+    .category-item { padding: 20px 5px; font-size: 13px; color: #888; text-align: center; cursor: pointer; position: relative; font-weight: 500; }
+    .category-item.active { background: #fff; color: var(--primary); font-weight: bold; }
+    .category-item.active::before { content: ''; position: absolute; left: 0; top: 18px; bottom: 18px; width: 4px; background: var(--primary); border-radius: 0 4px 4px 0; }
+    .menu-content { flex: 1; overflow-y: auto; padding: 0 15px 80px 15px; scroll-behavior: smooth; }
+    .category-title { font-size: 14px; font-weight: bold; color: #2C2620; margin: 20px 0 12px 0; padding-left: 5px; border-left: 3px solid var(--gold); line-height: 1.2; }
+    .food-item { display: flex; margin-bottom: 24px; padding-bottom: 12px; border-bottom: 1px dashed #E0D8CC; }
     .food-item:last-child { border-bottom: none; }
-    .food-img { width: 90px; height: 90px; border-radius: 8px; background-color: #eee; background-size: cover; background-position: center; flex-shrink: 0; }
-    .food-info { flex: 1; padding-left: 10px; display: flex; flex-direction: column; justify-content: space-between; }
-    .food-name { font-size: 16px; font-weight: bold; color: #333; }
-    .food-desc { font-size: 11px; color: #999; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin-top: 4px;}
+    .food-img { width: 96px; height: 96px; border-radius: 10px; background-color: #F0EDE5; background-size: cover; background-position: center; flex-shrink: 0; }
+    .food-info { flex: 1; padding-left: 14px; display: flex; flex-direction: column; justify-content: space-between; }
+    .food-name { font-size: 16px; font-weight: bold; color: #2C2620; }
+    .food-desc { font-size: 12px; color: #999; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin-top: 4px; line-height: 1.4; }
     .food-action { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 5px; }
-    .food-price { color: var(--primary); font-weight: bold; }
-    .btn-add-mini { background: var(--primary); color: #fff; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: bold; }
+    .food-price { color: var(--primary); font-weight: bold; font-family: 'Noto Serif TC'; font-size: 15px; }
+    .btn-add-mini { background: var(--primary); color: #fff; width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: bold; box-shadow: 0 2px 5px rgba(159, 140, 109, 0.4); }
 
-    .retail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 15px; width: 100%; overflow-y: auto; align-content: flex-start; padding-bottom: 80px; }
-    .retail-item { background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid #eee; display: flex; flex-direction: column; }
-    .retail-img { height: 140px; background-color: #eee; background-size: cover; background-position: center; }
-    .retail-info { padding: 10px; flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
-    .stepper-mini { display: flex; align-items: center; background: #f5f5f5; border-radius: 20px; }
-    .stepper-mini button { width: 24px; height: 24px; border: none; background: transparent; font-size: 12px; display:flex; align-items:center; justify-content:center; }
+    .retail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding: 20px; width: 100%; overflow-y: auto; align-content: flex-start; padding-bottom: 80px; }
+    .retail-item { background: #fff; border-radius: 14px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.03); border: 1px solid #EBE6DE; display: flex; flex-direction: column; }
+    .retail-img { height: 150px; background-color: #F0EDE5; background-size: cover; background-position: center; }
+    .retail-info { padding: 12px; flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
+    .stepper-mini { display: flex; align-items: center; background: #F7F4EF; border-radius: 20px; }
+    .stepper-mini button { width: 26px; height: 26px; border: none; background: transparent; font-size: 12px; display:flex; align-items:center; justify-content:center; color: var(--primary); }
 
-    .cart-bar { position: absolute; bottom: 20px; left: 15px; right: 15px; background: #333; border-radius: 50px; padding: 0; display: flex; justify-content: space-between; align-items: center; color: #fff; box-shadow: 0 5px 20px rgba(0,0,0,0.3); z-index: 100; height: 50px; cursor: pointer; }
-    .cart-left { flex: 1; display: flex; align-items: center; padding-left: 20px; height: 100%; }
-    .cart-badge { position: absolute; top: -8px; right: -8px; background: #D32F2F; color: #fff; font-size: 10px; padding: 2px 6px; border-radius: 10px; }
-    .btn-checkout { background: var(--primary); color: #fff; border: none; height: 100%; padding: 0 30px; border-radius: 0 50px 50px 0; font-weight: bold; font-size: 16px; display: flex; align-items: center; }
+    .cart-bar { position: absolute; bottom: 25px; left: 15px; right: 15px; background: #2C2620; border-radius: 50px; padding: 0; display: flex; justify-content: space-between; align-items: center; color: var(--gold); box-shadow: 0 8px 25px rgba(0,0,0,0.25); z-index: 100; height: 56px; cursor: pointer; border: 1px solid rgba(255,255,255,0.1); }
+    .cart-left { flex: 1; display: flex; align-items: center; padding-left: 24px; height: 100%; }
+    .cart-badge { position: absolute; top: -6px; right: -6px; background: var(--danger); color: #fff; font-size: 10px; padding: 3px 7px; border-radius: 10px; border: 2px solid #2C2620; }
+    .btn-checkout { background: var(--primary); color: #fff; border: none; height: 100%; padding: 0 35px; border-radius: 0 50px 50px 0; font-weight: bold; font-size: 16px; display: flex; align-items: center; letter-spacing: 1px; }
 
-    /* ==================== 4. 各種彈窗 ==================== */
-    .cart-header { display: flex; justify-content: space-between; align-items: center; padding: 15px; background: #fff; border-bottom: 1px solid #f5f5f5; border-radius: 20px 20px 0 0; }
-    .cart-stepper { display: flex; align-items: center; background: #f5f5f5; border-radius: 20px; }
-    .cart-stepper button { width: 32px; height: 32px; border: none; background: transparent; font-size: 14px; display: flex; align-items: center; justify-content: center; color: #666; }
-    .cart-stepper span { font-weight: bold; margin: 0 8px; font-size: 14px; min-width: 20px; text-align: center; }
-    .cart-list { padding: 0 15px; max-height: 50vh; overflow-y: auto; }
-    .cart-item { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid #f5f5f5; }
+    /* ==================== 4. 各種彈窗 (Elegant Style) ==================== */
+    .cart-header { display: flex; justify-content: space-between; align-items: center; padding: 18px 20px; background: #fff; border-bottom: 1px solid #F0EDE5; border-radius: 20px 20px 0 0; }
+    .cart-stepper { display: flex; align-items: center; background: #F7F4EF; border-radius: 20px; border: 1px solid #E0D8CC; }
+    .cart-stepper button { width: 30px; height: 30px; border: none; background: transparent; font-size: 12px; display: flex; align-items: center; justify-content: center; color: var(--primary); }
+    .cart-stepper span { font-weight: bold; margin: 0 8px; font-size: 14px; min-width: 20px; text-align: center; color: #4A4A4A; }
+    .cart-list { padding: 0 20px; max-height: 50vh; overflow-y: auto; }
+    .cart-item { display: flex; justify-content: space-between; align-items: center; padding: 18px 0; border-bottom: 1px solid #F7F4EF; }
     
-    .spec-header { padding: 15px; display: flex; gap: 15px; }
-    .spec-img { width: 80px; height: 80px; border-radius: 8px; background-color: #eee; background-size: cover; background-position: center; }
-    .spec-options { padding: 0 15px 15px 15px; max-height: 40vh; overflow-y: auto; }
-    .chip { padding: 6px 15px; background: #F5F5F5; border-radius: 6px; font-size: 12px; color: #333; border: 1px solid transparent; cursor: pointer; margin-right: 5px; margin-bottom: 5px; display: inline-block; }
-    .chip.selected { background: #FEF0F0; color: var(--primary); border-color: var(--primary); }
-    .spec-add-btn { background: var(--primary); color: #fff; padding: 10px 30px; border-radius: 30px; font-weight: bold; cursor: pointer; text-align: center; }
-    .stepper { display: flex; align-items: center; background: #f5f5f5; border-radius: 20px; padding: 2px 8px; }
+    .spec-header { padding: 20px; display: flex; gap: 15px; }
+    .spec-img { width: 80px; height: 80px; border-radius: 12px; background-color: #eee; background-size: cover; background-position: center; }
+    .spec-options { padding: 0 20px 20px 20px; max-height: 40vh; overflow-y: auto; }
+    .option-group { margin-bottom: 15px; }
+    .option-title { font-weight: bold; margin-bottom: 8px; color: #666; font-size: 13px; }
+    .chip { padding: 8px 16px; background: #fff; border-radius: 8px; font-size: 13px; color: #666; border: 1px solid #E0D8CC; cursor: pointer; margin-right: 8px; margin-bottom: 8px; display: inline-block; transition: all 0.2s; }
+    .chip.selected { background: #F2EFE9; color: var(--primary); border-color: var(--primary); font-weight: bold; }
+    .spec-add-btn { background: var(--primary); color: #fff; padding: 12px 30px; border-radius: 30px; font-weight: bold; cursor: pointer; text-align: center; box-shadow: 0 4px 12px rgba(159, 140, 109, 0.3); }
+    .stepper { display: flex; align-items: center; background: #F7F4EF; border-radius: 20px; padding: 4px 10px; border: 1px solid #E0D8CC; }
     
-    #order-detail-view { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: #F5F6F7; z-index: 950; overflow-y: auto; display: flex; flex-direction: column; }
-    .od-navbar { background: #fff; padding: 15px; display: flex; align-items: center; font-weight: bold; position: sticky; top: 0; z-index: 10; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-    .od-card { background: #fff; border-radius: 12px; padding: 20px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+    #order-detail-view { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--bg); z-index: 950; overflow-y: auto; display: flex; flex-direction: column; }
+    .od-navbar { background: #fff; padding: 15px; display: flex; align-items: center; font-weight: bold; position: sticky; top: 0; z-index: 10; box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
     
-    .service-option { padding: 15px; border: 2px solid #eee; border-radius: 12px; font-weight: bold; text-align: center; cursor: pointer; margin-bottom: 10px; }
-    .service-option.selected { border-color: var(--primary); color: var(--primary); background: rgba(6, 199, 85, 0.05); }
+    .service-option { padding: 15px; border: 1px solid #E0D8CC; border-radius: 12px; font-weight: bold; text-align: center; cursor: pointer; margin-bottom: 12px; background: #fff; color: #666; transition: all 0.2s; }
+    .service-option.selected { border-color: var(--primary); color: var(--primary); background: #F2EFE9; }
 
-    .modal-content-center { background: #fff; width: 80%; border-radius: 16px; padding: 20px; }
-    .form-input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 15px; box-sizing: border-box; }
+    .modal-content-center { background: #fff; width: 85%; border-radius: 20px; padding: 25px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); }
+    .form-input { width: 100%; padding: 12px; border: 1px solid #E0D8CC; border-radius: 10px; margin-bottom: 15px; box-sizing: border-box; background: #FAF9F6; outline: none; }
+    .form-input:focus { border-color: var(--primary); background: #fff; }
     
-    .msg-box { background: white; width: 80%; max-width: 320px; border-radius: 16px; padding: 25px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2); animation: popIn 0.2s ease-out; }
-    .msg-icon { font-size: 40px; margin-bottom: 15px; color: var(--primary); }
-    .msg-text { font-size: 18px; font-weight: bold; color: #333; margin-bottom: 20px; }
-    .msg-btns { display: flex; gap: 10px; justify-content: center; }
-    .msg-btn { flex: 1; padding: 12px; border-radius: 30px; font-size: 16px; font-weight: bold; border: none; cursor: pointer; }
-    .msg-btn-ok { background: var(--primary); color: white; }
-    .msg-btn-cancel { background: #eee; color: #666; }
-    @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    .msg-box { background: #fff; width: 80%; max-width: 300px; border-radius: 18px; padding: 30px 20px; text-align: center; box-shadow: 0 15px 50px rgba(0,0,0,0.15); animation: popIn 0.2s ease-out; }
+    .msg-icon { font-size: 48px; margin-bottom: 15px; color: var(--primary); opacity: 0.9; }
+    .msg-text { font-size: 17px; font-weight: bold; color: #444; margin-bottom: 25px; line-height: 1.5; }
+    .msg-btns { display: flex; gap: 12px; justify-content: center; }
+    .msg-btn { flex: 1; padding: 10px 0; border-radius: 25px; font-size: 14px; font-weight: bold; border: none; cursor: pointer; letter-spacing: 1px; }
+    .msg-btn-ok { background: var(--primary); color: #fff; }
+    .msg-btn-cancel { background: #F0EDE5; color: #888; }
+    @keyframes popIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
   </style>
 </head>
 <body>
@@ -177,15 +267,28 @@
   </div>
 
   <div id="lobby-view" class="scroll-view hidden">
-    <div class="lobby-header-bg"><div style="font-weight:bold; letter-spacing:1px; font-size:12px; opacity:0.8;">UNI-S PLATFORM</div><div style="font-size:20px; font-weight:bold; margin-top:5px; color:#fff;">探索美好生活</div></div>
-    <div class="float-member-card" onclick="switchTab('member')"><img id="home-avatar" src="" class="mini-avatar"><div class="user-greeting"><h3><span id="home-name">...</span></h3><p>點擊查看會員權益 ›</p></div><div class="quick-points"><span class="num" id="home-points">0</span><span class="label">積分</span></div></div>
-    <div class="search-bar"><i class="fas fa-search" style="color:#999; margin-right:5px;"></i><input type="text" id="search-input" placeholder="搜尋店家..." oninput="filterShops()"></div>
-    <div id="shop-list" style="padding: 10px 15px;"></div>
+    <div class="lobby-header-bg">
+        <div style="font-weight:bold; letter-spacing:2px; font-size:11px; opacity:0.7; font-family:'Noto Sans TC';">UNI-S PLATFORM</div>
+        <div style="font-size:24px; font-weight:bold; margin-top:8px; color:#fff; font-family:'Noto Serif TC'; letter-spacing:1px;">探索美好生活</div>
+    </div>
+    <div class="float-member-card" onclick="switchTab('member')">
+        <img id="home-avatar" src="" class="mini-avatar">
+        <div class="user-greeting">
+            <h3 style="margin:0;font-size:16px;color:#2C2620;font-weight:bold;"><span id="home-name">...</span></h3>
+            <p style="margin:4px 0 0 0;font-size:12px;color:#888;">點擊查看會員權益 ›</p>
+        </div>
+        <div class="quick-points"><span class="num" id="home-points">0</span><span class="label">積分</span></div>
+    </div>
+    <div class="search-bar"><i class="fas fa-search" style="color:#999; margin-right:8px;"></i><input type="text" id="search-input" placeholder="搜尋店家..." oninput="filterShops()"></div>
+    <div id="shop-list" style="padding: 0 20px;"></div>
   </div>
 
-  <div id="coupons-view" class="scroll-view hidden">
-    <div style="padding:20px 15px; font-weight:bold; font-size:18px;">領券中心</div>
-    <div id="coupons-list" class="coupon-grid">
+  <div id="coupons-view" class="scroll-view hidden" style="background:#fff;">
+    <div style="padding:20px 20px 10px 20px; display:flex; align-items:center;">
+        <div onclick="switchTab('member')" style="font-size:20px; color:#666; cursor:pointer; margin-right:15px;"><i class="fas fa-arrow-left"></i></div>
+        <div style="font-weight:bold; font-size:20px; color:#2C2620;">積分兌換中心</div>
+    </div>
+    <div id="coupons-list" class="coupon-grid" style="padding-top:10px;">
         <div style="text-align:center;color:#999;font-size:12px;">載入優惠券中...</div>
     </div>
   </div>
@@ -193,26 +296,43 @@
   <div id="member-view" class="scroll-view hidden">
     <div class="member-header-bg"></div>
     <div class="premium-card">
-      <div class="card-user-row"><img id="m-avatar" src="" class="mini-avatar" style="border:2px solid var(--gold);"><div style="flex:1;"><div id="m-name" style="font-size:18px;font-weight:bold;color:var(--gold);">...</div><div style="font-size:12px;background:linear-gradient(to right,#C5A674,#E5C690);color:#000;padding:2px 8px;border-radius:10px;display:inline-block;margin-top:4px;">普通會員</div></div><i class="fas fa-edit" onclick="openEditModal()" style="font-size:20px;color:var(--gold);opacity:0.8;cursor:pointer;"></i></div>
-      <div class="card-stats-row"><div class="stat-box"><span class="stat-num">0</span><span style="font-size:11px;color:rgba(255,255,255,0.6);">餘額</span></div><div class="stat-box" style="border-left:1px solid rgba(255,255,255,0.1); border-right:1px solid rgba(255,255,255,0.1);"><span class="stat-num" id="m-points">0</span><span style="font-size:11px;color:rgba(255,255,255,0.6);">積分</span></div><div class="stat-box"><span class="stat-num">2</span><span style="font-size:11px;color:rgba(255,255,255,0.6);">優惠券</span></div></div>
+      <div class="card-user-row">
+          <img id="m-avatar" src="" class="mini-avatar" style="border:2px solid var(--gold);">
+          <div style="flex:1;">
+              <div id="m-name" style="font-size:20px;font-weight:bold;color:var(--gold);font-family:'Noto Serif TC';">...</div>
+              <div style="font-size:11px;background:rgba(204,186,138,0.2);color:#E0D8CC;padding:3px 10px;border-radius:12px;display:inline-block;margin-top:6px;border:1px solid rgba(204,186,138,0.3);">普通會員</div>
+          </div>
+          <i class="fas fa-cog" onclick="openEditModal()" style="font-size:20px;color:rgba(255,255,255,0.6);cursor:pointer;"></i>
+      </div>
+      <div class="card-stats-row">
+          <div class="stat-box"><span class="stat-num">0</span><span class="stat-label">餘額</span></div>
+          <div class="stat-box" style="border-left:1px solid rgba(255,255,255,0.1); border-right:1px solid rgba(255,255,255,0.1);">
+              <span class="stat-num" id="m-points">0</span><span class="stat-label">積分</span>
+          </div>
+          <div class="stat-box"><span class="stat-num">2</span><span class="stat-label">優惠券</span></div>
+      </div>
     </div>
     
     <div class="service-section">
-      <div class="service-item" onclick="switchTab('coupons')"><div class="service-icon"><i class="fas fa-gift"></i></div><div class="service-label">積分兌換</div></div>
+      <!-- 更新：積分兌換按鈕 -->
+      <div class="service-item" onclick="switchTab('coupons')">
+          <div class="service-icon" style="color:var(--primary);"><i class="fas fa-coins"></i></div>
+          <div class="service-label" style="font-weight:bold; color:#4A4A4A;">積分兌換</div>
+      </div>
       <div class="service-item" onclick="showMsg('客服連線中...')"><div class="service-icon"><i class="fas fa-headset"></i></div><div class="service-label">聯繫客服</div></div>
       <div class="service-item" onclick="showMsg('常見問題頁面')"><div class="service-icon"><i class="fas fa-question-circle"></i></div><div class="service-label">常見問題</div></div>
-      <div class="service-item" onclick="showMsg('Uni-S v1.1')"><div class="service-icon"><i class="fas fa-info-circle"></i></div><div class="service-label">關於我們</div></div>
+      <div class="service-item" onclick="showMsg('Uni-S v1.2')"><div class="service-icon"><i class="fas fa-info-circle"></i></div><div class="service-label">關於我們</div></div>
     </div>
 
     <!-- 我的優惠券區塊 -->
-    <div style="padding:0 15px 20px 15px;">
-        <div style="font-weight:bold; margin-bottom:10px;">我的優惠券</div>
-        <div id="my-coupons-list" style="color:#999;font-size:12px;">載入中...</div>
+    <div style="padding:0 20px 20px 20px;">
+        <div style="font-weight:bold; margin-bottom:15px; font-size:16px; color:#2C2620;">我的優惠券</div>
+        <div id="my-coupons-list" style="color:#999;font-size:13px; text-align:center; padding:20px 0;">載入中...</div>
     </div>
 
-    <div class="history-section" style="padding:0 15px;">
-      <div style="font-weight:bold; margin-bottom:10px;">最近訂單</div>
-      <div id="history-loading" style="text-align:center; color:#999; font-size:12px;">載入中...</div>
+    <div id="history-scroll-target" class="history-section" style="padding:0 20px 100px 20px;">
+      <div style="font-weight:bold; margin-bottom:15px; font-size:16px; color:#2C2620;">最近訂單</div>
+      <div id="history-loading" style="text-align:center; color:#999; font-size:13px; padding:20px;">載入中...</div>
       <div id="history-list"></div>
     </div>
   </div>
@@ -251,51 +371,57 @@
     </div>
   </div>
 
-  <!-- 訂單詳情 等其他視圖保持不變 -->
+  <!-- 訂單詳情 -->
   <div id="order-detail-view" class="hidden">
-    <div class="od-navbar"><div style="font-size:20px;width:30px;cursor:pointer;" onclick="closeOrderDetail()"><i class="fas fa-chevron-left"></i></div><div style="flex:1;text-align:center;margin-right:30px;">訂單詳情</div></div>
-    <div class="od-content" style="padding:15px;">
+    <div class="od-navbar">
+        <div style="font-size:20px;width:30px;cursor:pointer;color:#666;" onclick="closeOrderDetail()"><i class="fas fa-chevron-left"></i></div>
+        <div style="flex:1;text-align:center;margin-right:30px;color:#2C2620;">訂單詳情</div>
+    </div>
+    <div class="od-content" style="padding:20px;">
       <div class="od-card">
-        <div class="od-shop-header" style="font-size:18px;font-weight:bold;margin-bottom:10px;"><span id="od-shop-name">...</span></div>
+        <div class="od-shop-header" style="font-size:18px;font-weight:bold;margin-bottom:12px;color:#2C2620;"><span id="od-shop-name">...</span></div>
         <div style="display:flex;justify-content:space-between;font-size:13px;color:#666;"><span>狀態</span><span id="od-status" style="font-weight:bold;">...</span></div>
       </div>
       <div class="od-card">
-        <div style="font-weight:bold;margin-bottom:10px;">餐點明細</div>
+        <div style="font-weight:bold;margin-bottom:12px;color:#4A4A4A;">餐點明細</div>
         <div id="od-items-list"></div>
-        <div style="text-align:right;margin-top:10px;font-weight:bold;color:#D32F2F;">合計 <span id="od-total-price">...</span></div>
+        <div style="text-align:right;margin-top:15px;padding-top:15px;border-top:1px dashed #eee;font-weight:bold;color:var(--danger);font-size:16px;">合計 <span id="od-total-price">...</span></div>
       </div>
       <div class="od-card">
-        <div style="font-weight:bold;margin-bottom:10px;">訂單資訊</div>
-        <div style="font-size:13px;color:#666;">編號：<span id="od-id"></span></div>
-        <div style="font-size:13px;color:#666;">時間：<span id="od-time"></span></div>
+        <div style="font-weight:bold;margin-bottom:12px;color:#4A4A4A;">訂單資訊</div>
+        <div style="font-size:13px;color:#666;margin-bottom:6px;">編號：<span id="od-id"></span></div>
+        <div style="font-size:13px;color:#666;margin-bottom:6px;">時間：<span id="od-time"></span></div>
         <div style="font-size:13px;color:#666;">電話：<span id="od-phone"></span></div>
       </div>
-      <div id="od-cancel-container" style="margin-top:20px;"></div>
+      <div id="od-cancel-container" style="margin-top:25px;"></div>
     </div>
   </div>
 
+  <!-- Cart Modal -->
   <div id="cart-modal" class="modal-overlay hidden" onclick="closeCartModal()">
     <div class="modal-sheet" style="padding:0;" onclick="event.stopPropagation()">
       <div class="cart-header">
-         <div style="font-weight:bold;font-size:16px;">購物車內容</div>
-         <div onclick="closeCartModal()" style="cursor:pointer;padding:5px;"><i class="fas fa-chevron-down"></i></div>
+         <div style="font-weight:bold;font-size:16px;color:#2C2620;">購物車內容</div>
+         <div onclick="closeCartModal()" style="cursor:pointer;padding:5px;color:#999;"><i class="fas fa-chevron-down"></i></div>
       </div>
-      <div style="background:#f9f9f9;padding:8px 15px;font-size:12px;color:#666;display:flex;justify-content:space-between;align-items:center;">
+      <div style="background:#FAF9F6;padding:10px 20px;font-size:12px;color:#888;display:flex;justify-content:space-between;align-items:center;">
           <span>已選商品</span>
-          <span onclick="clearCart()" style="cursor:pointer;color:#999;"><i class="fas fa-trash"></i> 清空</span>
+          <span onclick="clearCart()" style="cursor:pointer;color:#B85C5C;"><i class="fas fa-trash"></i> 清空</span>
       </div>
       <div id="cart-list" class="cart-list"></div>
       <div style="height:20px;"></div>
     </div>
   </div>
+
+  <!-- Spec Modal -->
   <div id="spec-modal" class="modal-overlay hidden">
     <div class="modal-sheet">
-      <div style="text-align:right;padding:10px;"><i class="fas fa-times" onclick="closeSpecModal()" style="font-size:24px;color:#999;cursor:pointer;"></i></div>
-      <div class="spec-header"><div class="spec-img" id="sp-img"></div><div><div style="font-size:18px;font-weight:bold;" id="sp-name"></div><div style="font-size:12px;color:#888;" id="sp-desc"></div></div></div>
+      <div style="text-align:right;padding:15px;"><i class="fas fa-times" onclick="closeSpecModal()" style="font-size:22px;color:#ccc;cursor:pointer;"></i></div>
+      <div class="spec-header"><div class="spec-img" id="sp-img"></div><div><div style="font-size:20px;font-weight:bold;color:#2C2620;" id="sp-name"></div><div style="font-size:13px;color:#888;margin-top:5px;" id="sp-desc"></div></div></div>
       <div id="sp-options" class="spec-options"></div>
-      <div class="spec-footer" style="padding:15px; border-top:1px solid #eee;">
+      <div class="spec-footer" style="padding:15px 20px; border-top:1px solid #F0EDE5;">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:15px;">
-           <div style="font-size:20px;font-weight:bold;color:#333;">$<span id="sp-price">0</span></div>
+           <div style="font-size:22px;font-weight:bold;color:var(--primary);font-family:'Noto Serif TC';">$<span id="sp-price">0</span></div>
            <div class="stepper"><button onclick="updateSpQty(-1)">-</button><span id="sp-qty" style="margin:0 10px;font-weight:bold;">1</span><button onclick="updateSpQty(1)">+</button></div>
         </div>
         <div class="spec-add-btn" onclick="addSpecToCart()">加入購物車</div>
@@ -303,44 +429,56 @@
     </div>
   </div>
   
-  <!-- 結帳/服務選擇 Modal (新增優惠券選單) -->
+  <!-- Checkout Modal -->
   <div id="service-modal" class="modal-overlay hidden">
     <div class="modal-sheet">
-      <div style="padding:20px;">
-        <div style="text-align:center;font-weight:bold;font-size:18px;margin-bottom:15px;">選擇服務方式</div>
+      <div style="padding:25px;">
+        <div style="text-align:center;font-weight:bold;font-size:18px;margin-bottom:20px;color:#2C2620;">選擇服務方式</div>
         <div id="service-options"></div>
         
-        <div style="margin-top:20px;">
-            <div style="font-weight:bold;margin-bottom:10px;">優惠券</div>
-            <select id="coupon-selector" style="width:100%;padding:10px;border-radius:8px;border:1px solid #ddd;background:#fff;">
+        <div style="margin-top:25px;">
+            <div style="font-weight:bold;margin-bottom:10px;color:#4A4A4A;">優惠券</div>
+            <select id="coupon-selector" style="width:100%;padding:12px;border-radius:10px;border:1px solid #E0D8CC;background:#FAF9F6;color:#4A4A4A;outline:none;">
                 <option value="">不使用優惠券</option>
             </select>
         </div>
 
-        <div style="margin-top:20px;text-align:right;">
-            <span style="font-size:14px;color:#666;">實付金額</span>
-            <span id="final-checkout-price" style="font-size:20px;font-weight:bold;color:#D32F2F;margin-left:5px;">$0</span>
+        <div style="margin-top:25px;text-align:right;">
+            <span style="font-size:14px;color:#888;">實付金額</span>
+            <span id="final-checkout-price" style="font-size:24px;font-weight:bold;color:var(--danger);margin-left:8px;font-family:'Noto Serif TC';">$0</span>
         </div>
 
-        <div class="spec-add-btn" style="text-align:center;margin-top:15px;" onclick="confirmOrder()">確認下單</div>
-        <div style="text-align:center;margin-top:15px;color:#999;cursor:pointer;" onclick="document.getElementById('service-modal').classList.add('hidden')">取消</div>
+        <div class="spec-add-btn" style="text-align:center;margin-top:20px;" onclick="confirmOrder()">確認下單</div>
+        <div style="text-align:center;margin-top:15px;color:#999;font-size:13px;cursor:pointer;" onclick="document.getElementById('service-modal').classList.add('hidden')">取消</div>
       </div>
     </div>
   </div>
+
   <div id="edit-modal" class="modal-overlay hidden">
     <div class="modal-content-center">
-      <div style="text-align:center;font-weight:bold;margin-bottom:15px;">編輯資料</div>
-      <div style="margin-bottom:10px;"><label style="font-size:12px;color:#666;">姓名</label><input type="text" id="edit-name" class="form-input"></div>
-      <div style="margin-bottom:10px;"><label style="font-size:12px;color:#666;">電話</label><input type="tel" id="edit-phone" class="form-input"></div>
-      <div style="margin-bottom:15px;"><label style="font-size:12px;color:#666;">生日</label><input type="date" id="edit-birthday" class="form-input"></div>
-      <div style="display:flex;gap:10px;"><div style="flex:1;text-align:center;padding:10px;background:#eee;border-radius:20px;" onclick="closeEditModal()">取消</div><div class="btn-save" style="flex:1;text-align:center;padding:10px;background:var(--primary);color:#fff;border-radius:20px;font-weight:bold;cursor:pointer;" onclick="saveProfile()">儲存</div></div>
+      <div style="text-align:center;font-weight:bold;margin-bottom:20px;font-size:18px;color:#2C2620;">編輯資料</div>
+      <div style="margin-bottom:12px;"><label style="font-size:12px;color:#888;margin-bottom:4px;display:block;">姓名</label><input type="text" id="edit-name" class="form-input"></div>
+      <div style="margin-bottom:12px;"><label style="font-size:12px;color:#888;margin-bottom:4px;display:block;">電話</label><input type="tel" id="edit-phone" class="form-input"></div>
+      <div style="margin-bottom:20px;"><label style="font-size:12px;color:#888;margin-bottom:4px;display:block;">生日</label><input type="date" id="edit-birthday" class="form-input"></div>
+      <div style="display:flex;gap:12px;"><div style="flex:1;text-align:center;padding:12px;background:#F0EDE5;color:#666;border-radius:25px;cursor:pointer;" onclick="closeEditModal()">取消</div><div class="btn-save" style="flex:1;text-align:center;padding:12px;background:var(--primary);color:#fff;border-radius:25px;font-weight:bold;cursor:pointer;" onclick="saveProfile()">儲存</div></div>
     </div>
   </div>
 
+  <!-- 更新後的 Tab Bar: 移除優惠券，新增歷史紀錄 -->
   <div id="tab-bar">
-    <div class="tab-item active" onclick="switchTab('lobby')"><div class="tab-icon"><i class="fas fa-home"></i></div><div>首頁</div></div>
-    <div class="tab-item" onclick="switchTab('coupons')"><div class="tab-icon"><i class="fas fa-ticket-alt"></i></div><div>優惠</div></div>
-    <div class="tab-item" onclick="switchTab('member')"><div class="tab-icon"><i class="fas fa-user"></i></div><div>我的</div></div>
+    <div class="tab-item active" onclick="switchTab('lobby')">
+        <div class="tab-icon"><i class="fas fa-home"></i></div>
+        <div>首頁</div>
+    </div>
+    <!-- 新增紀錄 Tab -->
+    <div class="tab-item" onclick="switchTab('history')">
+        <div class="tab-icon"><i class="fas fa-history"></i></div>
+        <div>紀錄</div>
+    </div>
+    <div class="tab-item" onclick="switchTab('member')">
+        <div class="tab-icon"><i class="fas fa-user"></i></div>
+        <div>我的</div>
+    </div>
   </div>
 
   <script>
@@ -353,9 +491,8 @@
     let userProfile = null; let orderCache = []; let selectedService = "";
     let currentItem = null; let currentOptions = {}; let currentQty = 1;
     let userLocation = null;
-    let myCoupons = []; // 暫存我的優惠券
+    let myCoupons = []; 
 
-    // 彈窗
     let modalCb = null;
     function showMsg(txt, cb) { 
       document.getElementById('msg-text').innerText = txt; 
@@ -402,44 +539,63 @@
       } catch (err) { showMsg(err.message); }
     }
 
-    // ========== 優惠券邏輯 (重寫部分) ==========
+    // ========== 路由邏輯更新 (switchTab) ==========
+    function switchTab(tab) {
+        // 隱藏所有視圖
+        ['lobby-view', 'coupons-view', 'member-view', 'shop-view', 'order-detail-view'].forEach(id => document.getElementById(id).classList.add('hidden'));
+        document.getElementById('tab-bar').classList.remove('hidden');
+        document.querySelectorAll('.tab-item').forEach(el => el.classList.remove('active'));
+        
+        if (tab === 'lobby') {
+            document.getElementById('lobby-view').classList.remove('hidden');
+            document.querySelectorAll('.tab-item')[0].classList.add('active');
+            fetchMemberData();
+        } else if (tab === 'history') {
+            // "紀錄" Tab：導向會員頁面並聚焦歷史區塊
+            document.getElementById('member-view').classList.remove('hidden');
+            document.querySelectorAll('.tab-item')[1].classList.add('active'); // Highlight middle tab
+            fetchMemberData();
+            loadOrderHistory();
+            loadMyCoupons();
+            // 簡單滾動到歷史區
+            setTimeout(() => {
+                document.getElementById('history-scroll-target').scrollIntoView({behavior: "smooth"});
+            }, 100);
+        } else if (tab === 'member') {
+            document.getElementById('member-view').classList.remove('hidden');
+            document.querySelectorAll('.tab-item')[2].classList.add('active');
+            fetchMemberData();
+            loadOrderHistory();
+            loadMyCoupons();
+        } else if (tab === 'coupons') {
+            // "優惠券"：現在是子頁面，不亮燈 Tab Bar (或者保持 Member 亮燈也可，這邊選擇不亮燈以示進入子層級)
+            // 隱藏 Tab Bar 讓畫面更乾淨
+            document.getElementById('tab-bar').classList.add('hidden'); 
+            document.getElementById('coupons-view').classList.remove('hidden');
+            loadCoupons();
+        }
+    }
+
+    // ========== 優惠券 ==========
     async function loadCoupons() {
         console.log("正在載入可兌換優惠券...");
         const list = document.getElementById('coupons-list');
         list.innerHTML = '<div style="text-align:center;color:#999;font-size:12px;">載入優惠券中...</div>';
         
         try {
-            // 呼叫 API
             const res = await fetch(API_URL, {
                 method: 'POST',
-                // 使用 text/plain 或 no-cors 時 POST 內容可能變成 string
-                // 但為了標準化，這裡轉為 JSON 字串
                 body: JSON.stringify({ action: "getCoupons" })
             });
-            
-            // 1. 先取得原始文字，方便 Debug HTML 錯誤頁面
             const text = await res.text();
             console.log("Raw Response:", text);
 
-            // 2. 嘗試解析 JSON
             let coupons;
-            try {
-                coupons = JSON.parse(text);
-            } catch (e) {
-                // 如果解析失敗，通常是因為回傳了 HTML 錯誤頁面
-                throw new Error("Server returned non-JSON response: " + text.substring(0, 50) + "...");
-            }
+            try { coupons = JSON.parse(text); } 
+            catch (e) { throw new Error("Server returned non-JSON response"); }
 
-            // 3. 檢查是否有邏輯錯誤 (例如 status: error)
-            if (coupons.status === 'error') {
-                throw new Error(coupons.message);
-            }
-
-            // 4. 檢查是否為陣列
-            if (!Array.isArray(coupons)) {
-                console.error("API 回傳格式錯誤，應為陣列", coupons);
-                throw new Error("資料格式錯誤");
-            }
+            if (coupons.status === 'error') throw new Error(coupons.message);
+            if (!Array.isArray(coupons)) throw new Error("資料格式錯誤");
 
             if (coupons.length === 0) {
                 list.innerHTML = '<div style="text-align:center;color:#999;font-size:12px;margin-top:20px;">目前沒有可用的優惠券</div>';
@@ -462,7 +618,7 @@
 
         } catch(e) { 
             console.error("載入優惠券失敗:", e);
-            list.innerHTML = `<div style="text-align:center;color:red;font-size:12px;margin-top:10px;">載入失敗: ${e.message}<br><span style="color:#999;font-size:10px;cursor:pointer;" onclick="loadCoupons()">點擊重試</span></div>`; 
+            list.innerHTML = `<div style="text-align:center;color:var(--danger);font-size:12px;margin-top:10px;">載入失敗: ${e.message}<br><span style="color:#999;font-size:10px;cursor:pointer;" onclick="loadCoupons()">點擊重試</span></div>`; 
         }
     }
 
@@ -470,15 +626,13 @@
         showConfirm("確定要兌換這張優惠券嗎？", async () => {
             showMsg("處理中...", null);
             try {
-                // POST 請求
                 await fetch(API_URL, {
                     method: 'POST', mode: 'no-cors',
                     body: JSON.stringify({ action: "redeemCoupon", userId: userProfile.userId, couponId: id })
                 });
-                // 因 no-cors 無法讀取回應，直接顯示成功並重整
                 setTimeout(() => {
                     showMsg("✅ 兌換請求已送出！", () => {
-                        fetchMemberData(); // 更新積分
+                        fetchMemberData();
                     });
                 }, 1500);
             } catch(e) { showMsg("錯誤：" + e.message); }
@@ -489,47 +643,46 @@
         const list = document.getElementById('my-coupons-list');
         try {
             const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "getMyCoupons", userId: userProfile.userId }) });
-            // 注意：這裡假設 getMyCoupons 也是正常的 JSON 回傳 (由 doPost 處理)
-            // 但因為是 GET 還是 POST? 原本是 POST。
-            // 這裡簡單處理，如果報錯會在 console 顯示
             const text = await res.text();
             let data;
             try { data = JSON.parse(text); } catch(e) { throw new Error("JSON Parse Error"); }
             
-            myCoupons = data; // 全域變數
+            myCoupons = data;
             if (myCoupons.length === 0) {
                 list.innerHTML = '尚無優惠券';
             } else {
                 let html = '';
                 myCoupons.forEach(c => {
-                    html += `<div class="my-coupon-item"><div><div style="font-weight:bold;">${c.name}</div><div style="font-size:11px;color:#999;">折抵 $${c.value}</div></div><div style="color:#FF5E62;font-weight:bold;">未使用</div></div>`;
+                    html += `
+                    <div class="my-coupon-item">
+                        <div>
+                            <div style="font-weight:bold;color:#2C2620;">${c.name}</div>
+                            <div style="font-size:11px;color:#999;">折抵 $${c.value}</div>
+                        </div>
+                        <div style="color:var(--primary);font-weight:bold;font-size:12px;border:1px solid var(--primary);padding:2px 8px;border-radius:10px;">未使用</div>
+                    </div>`;
                 });
                 list.innerHTML = html;
             }
         } catch(e) { list.innerHTML = '載入失敗'; }
     }
 
-    // ========== 結帳流程修改 ==========
+    // ========== 結帳 ==========
     async function preCheckout() {
       if(cart.length===0) { showMsg("購物車是空的"); return; }
-      
-      // 1. 準備服務選項
       const svcs = currentShop.services || ["自取"];
       let html = '';
       svcs.forEach((s,i) => { html += `<div class="service-option ${i===0?'selected':''}" onclick="selSvc(this,'${s}')">${s}</div>`; if(i===0) selectedService = s; });
       document.getElementById('service-options').innerHTML = html;
 
-      // 2. 準備優惠券選單
       const select = document.getElementById('coupon-selector');
       select.innerHTML = '<option value="" data-val="0">不使用優惠券</option>';
-      select.onchange = updateFinalPrice; // 綁定變更事件
+      select.onchange = updateFinalPrice; 
 
       try {
-          // 重新抓取最新優惠券
           const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "getMyCoupons", userId: userProfile.userId }) });
           const text = await res.text();
           myCoupons = JSON.parse(text);
-          
           myCoupons.forEach(c => {
               let opt = document.createElement('option');
               opt.value = c.uuid;
@@ -539,7 +692,7 @@
           });
       } catch(e) {}
 
-      updateFinalPrice(); // 初始化金額
+      updateFinalPrice();
       document.getElementById('service-modal').classList.remove('hidden');
     }
 
@@ -553,7 +706,6 @@
 
     async function confirmOrder() {
       document.getElementById('service-modal').classList.add('hidden');
-      
       const select = document.getElementById('coupon-selector');
       const couponUuid = select.value;
       const discount = parseInt(select.options[select.selectedIndex].getAttribute('data-val') || 0);
@@ -561,10 +713,7 @@
       let detail = "", total = 0;
       cart.forEach(x => { detail += `${x.name} x ${x.qty} ($${x.total})\n`; total += x.total; });
       detail += `----------------\n總金額：$${total} 元\n服務方式：${selectedService}`;
-      
-      if (discount > 0) {
-          detail += `\n優惠券折抵：-$${discount}\n實付金額：$${Math.max(0, total - discount)}`;
-      }
+      if (discount > 0) { detail += `\n優惠券折抵：-$${discount}\n實付金額：$${Math.max(0, total - discount)}`; }
 
       let phone = localStorage.getItem("uni_user_phone");
       if(!phone) { phone = prompt("請輸入您的手機號碼："); if(!phone) return; localStorage.setItem("uni_user_phone", phone); }
@@ -575,45 +724,18 @@
         await liff.sendMessages([{type:"text", text:`【Uni-S】\n我向 ${currentShop.name} 下單了：\n\n${detail}`}]);
         await fetch(API_URL, {method:'POST', mode:'no-cors', headers:{'Content-Type':'application/json'}, 
             body:JSON.stringify({
-                shopId:currentShop.id, 
-                userName:userProfile.displayName, 
-                userId:userProfile.userId, 
-                order:detail,
-                couponUuid: couponUuid // 傳送優惠券 ID
+                shopId:currentShop.id, userName:userProfile.displayName, userId:userProfile.userId, order:detail, couponUuid: couponUuid 
             })
         });
         showMsg("✅ 訂單已送出！", () => { goLobby(); });
       } catch(e) { showMsg("失敗:"+e.message); }
     }
 
-    // ... (其餘 Geolocation, Helper Functions 保持不變) ...
-    
+    // Helper Functions
     function calculateDistance(lat1, lon1, lat2, lon2) { const R = 6371; const dLat = deg2rad(lat2 - lat1); const dLon = deg2rad(lon2 - lon1); const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * Math.sin(dLon/2) * Math.sin(dLon/2); const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); return (R * c).toFixed(1); }
     function deg2rad(deg) { return deg * (Math.PI/180); }
     function initLocationService() { return new Promise((resolve) => { if (!navigator.geolocation) { resolve(); return; } const timeoutId = setTimeout(() => { resolve(); }, 5000); navigator.geolocation.getCurrentPosition((position) => { clearTimeout(timeoutId); userLocation = { lat: position.coords.latitude, lng: position.coords.longitude }; Object.values(allShops).forEach(shop => { if (shop.lat && shop.lng && !isNaN(shop.lat) && !isNaN(shop.lng)) { const dist = calculateDistance(userLocation.lat, userLocation.lng, shop.lat, shop.lng); shop.distance = parseFloat(dist); shop.distanceText = dist + " km"; } else { shop.distance = 9999; shop.distanceText = ""; } }); resolve(); }, (error) => { clearTimeout(timeoutId); resolve(); }); }); }
     function updateUI() { ['home-name','m-name'].forEach(id => document.getElementById(id).innerText = userProfile.displayName); ['home-avatar','m-avatar'].forEach(id => document.getElementById(id).src = userProfile.pictureUrl); }
-    
-    // 更新 switchTab 以呼叫新的函數名稱 loadCoupons
-    function switchTab(tab) { 
-        ['lobby-view', 'coupons-view', 'member-view', 'shop-view', 'order-detail-view'].forEach(id => document.getElementById(id).classList.add('hidden')); 
-        document.getElementById('tab-bar').classList.remove('hidden'); 
-        document.querySelectorAll('.tab-item').forEach(el => el.classList.remove('active')); 
-        if (tab === 'lobby') { 
-            document.getElementById('lobby-view').classList.remove('hidden'); 
-            document.querySelectorAll('.tab-item')[0].classList.add('active'); 
-            fetchMemberData(); 
-        } else if (tab === 'coupons') { 
-            document.getElementById('coupons-view').classList.remove('hidden'); 
-            document.querySelectorAll('.tab-item')[1].classList.add('active'); 
-            loadCoupons(); /* 改為呼叫 loadCoupons */ 
-        } else if (tab === 'member') { 
-            document.getElementById('member-view').classList.remove('hidden'); 
-            document.querySelectorAll('.tab-item')[2].classList.add('active'); 
-            fetchMemberData(); 
-            loadOrderHistory(); 
-            loadMyCoupons(); 
-        } 
-    }
     
     function openShop(id) { currentShop = allShops[id]; currentShop.id = id; cart = []; updateCartUI(); const url = new URL(window.location); url.searchParams.set('id', id); window.history.pushState({}, '', url); document.getElementById('tab-bar').classList.add('hidden'); ['lobby-view','coupons-view','member-view'].forEach(id=>document.getElementById(id).classList.add('hidden')); document.getElementById('shop-view').classList.remove('hidden'); document.getElementById('shop-name-title').innerText = currentShop.name; document.getElementById('shop-banner').style.backgroundImage = `url(${currentShop.bannerUrl})`; document.getElementById('shop-address').innerText = currentShop.address || "暫無地址資訊"; document.getElementById('shop-hours').innerText = currentShop.openHours || "營業時間未定"; if (currentShop.type === 'retail') { document.getElementById('food-sidebar').style.display = 'none'; document.getElementById('food-content').style.display = 'none'; document.getElementById('mode-retail').style.display = 'grid'; renderRetailMenu(); } else { document.getElementById('mode-retail').style.display = 'none'; document.getElementById('food-sidebar').style.display = 'block'; document.getElementById('food-content').style.display = 'block'; renderFoodMenu(); } }
     function openMap() { if (currentShop) { if (currentShop.address && currentShop.address.trim() !== "") { window.open(`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(currentShop.address)}`, '_blank'); } else if (currentShop.lat && currentShop.lng) { window.open(`https://www.google.com/maps/dir/?api=1&destination=${currentShop.lat},${currentShop.lng}`, '_blank'); } else { showMsg("無法取得商家位置資訊"); } } }
