@@ -88,8 +88,10 @@
     }
 
     .member-header-bg { background-color: var(--bg); height: 60px; }
+    
+    /* [Fixed] Updated Member Card Style: Removed negative margin */
     .premium-card { 
-      margin: -40px 20px 20px 20px; 
+      margin: 20px; /* Changed from -40px to 20px */
       background: linear-gradient(135deg, #3E362E, #26211C); 
       border-radius: 18px; padding: 24px; color: #E0D8CC; 
       box-shadow: 0 15px 40px rgba(44, 38, 32, 0.25); position: relative; overflow: hidden; 
@@ -160,7 +162,12 @@
     .toggle-btn { padding: 6px 18px; border-radius: 18px; border: none; font-size: 13px; background: transparent; color: #888; font-weight: 500; }
     .toggle-btn.active { background: #fff; color: var(--primary); font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
     
-    .shop-body { flex: 1; display: flex; overflow: hidden; position: relative; background: #fff; }
+    /* [Fixed] Added padding-bottom to fix Cart Bar visibility */
+    .shop-body { 
+      flex: 1; display: flex; overflow: hidden; position: relative; background: #fff; 
+      padding-bottom: 80px; 
+    }
+    
     .menu-sidebar { width: 90px; background: var(--tea-sidebar); overflow-y: auto; scrollbar-width: none; padding-bottom: 80px; }
     .category-item { padding: 22px 5px; font-size: 13px; color: #888; text-align: center; cursor: pointer; position: relative; font-weight: 500; letter-spacing: 1px; }
     .category-item.active { background: #fff; color: var(--primary); font-weight: bold; }
@@ -275,7 +282,8 @@
   </div>
 
   <!-- Member View -->
-  <div id="member-view" class="scroll-view hidden">
+  <!-- [Fixed] Added padding-top to compensate for removed margin -->
+  <div id="member-view" class="scroll-view hidden" style="padding-top: 70px;">
     <div class="member-header-bg"></div>
     <div class="premium-card">
       <div class="card-user-row">
