@@ -87,7 +87,8 @@
       box-shadow: 0 2px 5px rgba(0,0,0,0.02);
     }
 
-    .member-header-bg { background-color: var(--bg); height: 60px; }
+    /* [Fixed] Removed .member-header-bg height as it caused empty space */
+    .member-header-bg { display: none; }
     
     /* [Fixed] Updated Member Card Style: Removed negative margin */
     .premium-card { 
@@ -302,8 +303,8 @@
   </div>
 
   <!-- Member View -->
-  <!-- [Fixed] Added padding-top to compensate for removed margin -->
-  <div id="member-view" class="scroll-view hidden" style="padding-top: 70px;">
+  <!-- [Fixed] Removed top padding, fixed member-header-bg -->
+  <div id="member-view" class="scroll-view hidden">
     <div class="member-header-bg"></div>
     <div class="premium-card">
       <div class="card-user-row">
@@ -502,15 +503,29 @@
     let myCoupons = []; 
 
     let modalCb = null;
-    function showMsg(txt, cb) { 
+    // [Fixed] Updated showMsg to accept a showOkBtn flag
+    function showMsg(txt, cb, showOkBtn = true) { 
       document.getElementById('msg-text').innerText = txt; 
       document.getElementById('msg-btn-no').classList.add('hidden'); 
+      const yesBtn = document.getElementById('msg-btn-yes');
+      if (showOkBtn) {
+          yesBtn.classList.remove('hidden');
+      } else {
+          yesBtn.classList.add('hidden');
+      }
       document.getElementById('msg-modal-overlay').classList.remove('hidden'); 
       modalCb = cb; 
     }
+
+    // Helper to show loading state (no buttons)
+    function showLoadingMsg(txt) {
+        showMsg(txt, null, false);
+    }
+
     function showConfirm(txt, cb) {
       document.getElementById('msg-text').innerText = txt; 
       document.getElementById('msg-btn-no').classList.remove('hidden');
+      document.getElementById('msg-btn-yes').classList.remove('hidden'); // Ensure yes button is visible for confirm
       document.getElementById('msg-modal-overlay').classList.remove('hidden');
       modalCb = cb;
     }
@@ -620,7 +635,8 @@
 
     async function redeemCoupon(id) {
         showConfirm("確定要兌換這張優惠券嗎？", async () => {
-            showMsg("處理中...", null);
+            // [Fixed] Use showLoadingMsg to hide button while processing
+            showLoadingMsg("處理中...");
             try {
                 await fetch(API_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: "redeemCoupon", userId: userProfile.userId, couponId: id }) });
                 setTimeout(() => { showMsg("✅ 兌換請求已送出！", () => { fetchMemberData(); }); }, 1500);
@@ -699,7 +715,8 @@
       if(!phone) { phone = prompt("請輸入您的手機號碼："); if(!phone) return; localStorage.setItem("uni_user_phone", phone); }
       detail += `\n----------------\n📞 聯絡電話：${phone}`;
 
-      showMsg("處理中...", null);
+      // [Fixed] Use showLoadingMsg to hide button while processing
+      showLoadingMsg("處理中...");
       try {
         await liff.sendMessages([{type:"text", text:`【Uni-S】\n我向 ${currentShop.name} 下單了：\n\n${detail}`}]);
         await fetch(API_URL, {method:'POST', mode:'no-cors', headers:{'Content-Type':'application/json'}, 
