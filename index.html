@@ -6,20 +6,20 @@
   <title>Uni-S Tea 點餐</title>
   <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <!-- 引入 Google Fonts: Noto Serif TC (宋體/明體) 增加人文感 -->
+  <!-- 引入 Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
 
   <style>
-    /* ==================== 0. 全局與重置 (Morandi/Earth Tone) ==================== */
+    /* ==================== 0. 全局與重置 (Aesthetics Upgrade) ==================== */
     :root { 
-      --primary: #9F8C6D; /* Muted Terracotta/Dark Gold - 主色調 */
-      --gold: #CCB28A;    /* Softened Gold - 輔助色 */ 
-      --bg: #F7F4EF;      /* Off-white/Earthy background - 背景 */ 
-      --text: #4A4A4A;    /* Soft Dark Grey - 文字 */ 
-      --tea-sidebar: #F0EDE5; /* Lighter earthy tone - 側邊欄 */
+      --primary: #9F8C6D; /* 保持陶土金/行動色 */
+      --gold: #CCB28A;    
+      --bg: #F9F9F9;      /* 更亮的背景白，提升對比度 */ 
+      --text: #2C2620;    /* 更深的文字墨黑 */ 
+      --tea-sidebar: #F0EDE5; 
       
-      --danger: #B85C5C;  /* Muted Red */
-      --success: #7A8B69; /* Muted Green */
+      --danger: #B85C5C;  
+      --success: #7A8B69; 
     }
 
     body { 
@@ -32,7 +32,7 @@
       height: 100vh; overflow: hidden; display: flex; flex-direction: column; 
     }
     
-    h1, h2, h3, .shop-name, .coupon-val {
+    h1, h2, h3, .shop-name, .coupon-val, .spec-header .title {
       font-family: 'Noto Serif TC', serif; 
     }
 
@@ -40,13 +40,12 @@
     #loading { position: fixed; inset: 0; background: var(--bg); z-index: 2000; display: flex; justify-content: center; align-items: center; color: var(--primary); flex-direction: column; }
 
     /* 通用彈窗遮罩 */
-    .modal-overlay { position: fixed; inset: 0; background: rgba(60, 50, 40, 0.4); z-index: 1000; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
+    .modal-overlay { position: fixed; inset: 0; background: rgba(44, 38, 32, 0.6); z-index: 1000; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
     /* 底部滑出面板 */
     .modal-sheet { background: #fff; width: 100%; border-radius: 20px 20px 0 0; max-height: 85vh; overflow-y: auto; animation: slideUp 0.3s; padding-bottom: 20px; position: absolute; bottom: 0; }
     @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
 
     /* ==================== 1. 底部導航 (Tab Bar) ==================== */
-    /* [Fixed] Increased z-index to 950 to sit above fixed cart bar */
     #tab-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; height: 65px; display: flex; border-top: 1px solid #E0D8CC; z-index: 950; padding-bottom: env(safe-area-inset-bottom); flex-shrink: 0; box-shadow: 0 -2px 10px rgba(0,0,0,0.02); }
     .tab-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #999; font-size: 11px; cursor: pointer; transition: all 0.3s; }
     .tab-item.active { color: var(--primary); font-weight: bold; }
@@ -169,9 +168,10 @@
     .toggle-btn { padding: 6px 18px; border-radius: 18px; border: none; font-size: 13px; background: transparent; color: #888; font-weight: 500; }
     .toggle-btn.active { background: #fff; color: var(--primary); font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
     
+    /* [Fixed] Cart Bar Visibility & Scroll */
     .shop-body { 
       flex: 1; display: flex; overflow: hidden; position: relative; background: #fff; 
-      padding-bottom: 80px; 
+      padding-bottom: 0; /* Padding moved to content */
     }
     
     .menu-sidebar { width: 90px; background: var(--tea-sidebar); overflow-y: auto; scrollbar-width: none; padding-bottom: 80px; }
@@ -179,8 +179,12 @@
     .category-item.active { background: #fff; color: var(--primary); font-weight: bold; }
     .category-item.active::before { content: ''; position: absolute; left: 0; top: 20px; bottom: 20px; width: 4px; background: var(--primary); border-radius: 0 4px 4px 0; }
     
-    /* [Fixed] Increased padding-bottom to 180px to allow full scroll above fixed bars */
-    .menu-content { flex: 1; overflow-y: auto; padding: 0 15px 180px 15px; scroll-behavior: smooth; }
+    /* [Fixed] 菜單內容底部增加 180px padding，確保不被購物車與 Tab Bar 遮擋 */
+    .menu-content { 
+        flex: 1; overflow-y: auto; 
+        padding: 0 15px 180px 15px; 
+        scroll-behavior: smooth; 
+    }
     
     .category-title { font-size: 15px; font-weight: bold; color: #2C2620; margin: 25px 0 15px 0; padding-left: 8px; border-left: 3px solid var(--gold); line-height: 1.2; letter-spacing: 1px; }
     .food-item { display: flex; margin-bottom: 24px; padding-bottom: 12px; border-bottom: 1px dashed #E0D8CC; }
@@ -193,18 +197,19 @@
     .food-price { color: var(--primary); font-weight: bold; font-family: 'Noto Serif TC'; font-size: 16px; }
     .btn-add-mini { background: var(--primary); color: #fff; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: bold; box-shadow: 0 2px 5px rgba(159, 140, 109, 0.4); }
 
-    .retail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding: 20px; width: 100%; overflow-y: auto; align-content: flex-start; padding-bottom: 80px; }
+    .retail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding: 20px; width: 100%; overflow-y: auto; align-content: flex-start; padding-bottom: 180px; }
     .retail-item { background: #fff; border-radius: 14px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.03); border: 1px solid #EBE6DE; display: flex; flex-direction: column; }
     .retail-img { height: 150px; background-color: #F0EDE5; background-size: cover; background-position: center; }
     .retail-info { padding: 12px; flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
     .stepper-mini { display: flex; align-items: center; background: #F7F4EF; border-radius: 20px; }
     .stepper-mini button { width: 26px; height: 26px; border: none; background: transparent; font-size: 12px; display:flex; align-items:center; justify-content:center; color: var(--primary); }
 
-    /* [Fixed] Cart Bar: Positioned Fixed at bottom 65px */
+    /* [Fixed] 購物車列：固定定位，貼合 Tab Bar 上方 */
     .cart-bar { 
       position: fixed; 
-      bottom: 65px; /* Sits right on top of the 65px Tab Bar */
-      left: 15px; right: 15px; 
+      bottom: 65px; /* 65px is Tab Bar Height */
+      left: 0; right: 0; /* Full width logic with padding if needed, or keep consistent */
+      margin: 0 15px; /* Keep side margins */
       background: #2C2620; border-radius: 50px; padding: 0; 
       display: flex; justify-content: space-between; align-items: center; 
       color: var(--gold); box-shadow: 0 8px 25px rgba(0,0,0,0.25); 
@@ -224,11 +229,23 @@
     .cart-list { padding: 0 20px; max-height: 50vh; overflow-y: auto; }
     .cart-item { display: flex; justify-content: space-between; align-items: center; padding: 18px 0; border-bottom: 1px solid #F7F4EF; }
     
-    .spec-header { padding: 20px; display: flex; gap: 15px; }
+    /* [Fixed] Spec Modal Layout Refactor */
+    .spec-header { padding: 20px; display: flex; gap: 15px; border-bottom: 1px dashed #E0D8CC; }
     .spec-img { width: 80px; height: 80px; border-radius: 12px; background-color: #eee; background-size: cover; background-position: center; }
-    .spec-options { padding: 0 20px 20px 20px; max-height: 40vh; overflow-y: auto; }
-    .option-group { margin-bottom: 15px; }
-    .option-title { font-weight: bold; margin-bottom: 8px; color: #666; font-size: 13px; }
+    .spec-options { padding: 20px; max-height: 40vh; overflow-y: auto; }
+    
+    /* 客製化選項群組 */
+    .option-group { 
+        margin-bottom: 20px; 
+        padding-bottom: 15px; 
+        border-bottom: 1px dashed #E0D8CC; /* 虛線分隔 */
+    }
+    .option-group:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+    .option-title { 
+        font-weight: bold; margin-bottom: 10px; color: #2C2620; font-size: 14px; 
+        font-family: 'Noto Serif TC'; letter-spacing: 1px;
+    }
+    
     .chip { padding: 8px 16px; background: #fff; border-radius: 8px; font-size: 13px; color: #666; border: 1px solid #E0D8CC; cursor: pointer; margin-right: 8px; margin-bottom: 8px; display: inline-block; transition: all 0.2s; }
     .chip.selected { background: #F2EFE9; color: var(--primary); border-color: var(--primary); font-weight: bold; }
     .spec-add-btn { background: var(--primary); color: #fff; padding: 12px 30px; border-radius: 30px; font-weight: bold; cursor: pointer; text-align: center; box-shadow: 0 4px 12px rgba(159, 140, 109, 0.3); }
@@ -537,6 +554,7 @@
         await liff.init({ liffId: MY_LIFF_ID });
         if (!liff.isLoggedIn()) { liff.login(); return; }
         userProfile = await liff.getProfile();
+        // [Fixed] Safe DOM update
         updateUI();
 
         const res = await fetch(API_URL);
@@ -547,14 +565,14 @@
         if (allShops[TARGET_SHOP_ID]) {
             openShop(TARGET_SHOP_ID);
         } else {
-            showMsg("店家設定錯誤 (ID Not Found)");
+            showMsg("店家設定錯誤 (TARGET_SHOP_ID 無效)");
         }
         
         fetchMemberData();
       } catch (err) { showMsg(err.message); }
     }
 
-    // 修正: 僅更新 Member 頁面元素
+    // [Fixed] updateUI to prevent null errors
     function updateUI() { 
         const mName = document.getElementById('m-name');
         const mAvatar = document.getElementById('m-avatar');
