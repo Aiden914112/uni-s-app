@@ -12,11 +12,11 @@
   <style>
     /* ==================== 0. 全局與重置 (Morandi/Earth Tone) ==================== */
     :root { 
-      --primary: #9F8C6D; /* Muted Terracotta/Dark Gold - 主色調：沉穩陶土金 */
-      --gold: #CCB28A;    /* Softened Gold - 輔助色：柔和金 */ 
-      --bg: #F7F4EF;      /* Off-white/Earthy background - 背景：米白宣紙感 */ 
-      --text: #4A4A4A;    /* Soft Dark Grey - 文字：墨灰 */ 
-      --tea-sidebar: #F0EDE5; /* Lighter earthy tone - 側邊欄：淺灰褐 */
+      --primary: #9F8C6D; /* Muted Terracotta/Dark Gold - 主色調 */
+      --gold: #CCB28A;    /* Softened Gold - 輔助色 */ 
+      --bg: #F7F4EF;      /* Off-white/Earthy background - 背景 */ 
+      --text: #4A4A4A;    /* Soft Dark Grey - 文字 */ 
+      --tea-sidebar: #F0EDE5; /* Lighter earthy tone - 側邊欄 */
       
       --danger: #B85C5C;  /* Muted Red */
       --success: #7A8B69; /* Muted Green */
@@ -33,7 +33,7 @@
     }
     
     h1, h2, h3, .shop-name, .coupon-val {
-      font-family: 'Noto Serif TC', serif; /* 標題使用襯線體 */
+      font-family: 'Noto Serif TC', serif; 
     }
 
     .hidden { display: none !important; }
@@ -55,7 +55,7 @@
     /* ==================== 2. 主視圖容器 ==================== */
     .scroll-view { flex: 1; overflow-y: auto; padding-bottom: 80px; -webkit-overflow-scrolling: touch; }
 
-    /* 優惠券與會員中心樣式 (保留) */
+    /* 優惠券與會員中心樣式 */
     .coupon-grid { display: grid; grid-template-columns: 1fr; gap: 16px; padding: 0 20px; }
     .coupon-item { 
       background: #fff; border-radius: 14px; display: flex; overflow: hidden; 
@@ -135,8 +135,6 @@
 
     /* ==================== 3. 單一品牌店鋪頁面 (Main View) ==================== */
     #shop-view { background: #fff; height: 100%; display: flex; flex-direction: column; position: relative; z-index: 50; }
-    
-    /* Premium App Header Style for Banner */
     .shop-banner-area { width: 100%; height: 220px; background-size: cover; background-position: center; position: relative; flex-shrink: 0; }
     .shop-banner-overlay { 
       position: absolute; inset: 0; 
@@ -192,7 +190,6 @@
     .btn-checkout { background: var(--primary); color: #fff; border: none; height: 100%; padding: 0 35px; border-radius: 0 50px 50px 0; font-weight: bold; font-size: 16px; display: flex; align-items: center; letter-spacing: 1px; }
 
     /* ==================== 4. 各種彈窗 (Elegant Style) ==================== */
-    /* (與前一版保持一致，略) */
     .cart-header { display: flex; justify-content: space-between; align-items: center; padding: 18px 20px; background: #fff; border-bottom: 1px solid #F0EDE5; border-radius: 20px 20px 0 0; }
     .cart-stepper { display: flex; align-items: center; background: #F7F4EF; border-radius: 20px; border: 1px solid #E0D8CC; }
     .cart-stepper button { width: 30px; height: 30px; border: none; background: transparent; font-size: 12px; display: flex; align-items: center; justify-content: center; color: var(--primary); }
@@ -505,7 +502,7 @@
         allShops = await res.json();
         document.getElementById('loading').classList.add('hidden');
 
-        // 🔥 Single Brand Logic: Always open target shop
+        // 🔥 Single Brand Logic
         if (allShops[TARGET_SHOP_ID]) {
             openShop(TARGET_SHOP_ID);
         } else {
@@ -516,28 +513,46 @@
       } catch (err) { showMsg(err.message); }
     }
 
-    // ========== 路由邏輯 (Refactored for Single Brand) ==========
+    // 修正: 僅更新 Member 頁面元素
+    function updateUI() { 
+        const mName = document.getElementById('m-name');
+        const mAvatar = document.getElementById('m-avatar');
+        if (mName) mName.innerText = userProfile.displayName;
+        if (mAvatar) mAvatar.src = userProfile.pictureUrl;
+    }
+
+    // ========== 路由邏輯 ==========
     function switchTab(tab) {
-        // Hide everything first
-        ['coupons-view', 'member-view', 'shop-view', 'history-view', 'order-detail-view'].forEach(id => document.getElementById(id).classList.add('hidden'));
-        document.getElementById('tab-bar').classList.remove('hidden');
+        // 隱藏所有視圖 (確保 lobby-view 已移除)
+        ['coupons-view', 'member-view', 'shop-view', 'history-view', 'order-detail-view'].forEach(id => {
+             const el = document.getElementById(id);
+             if(el) el.classList.add('hidden');
+        });
+
+        const tabBar = document.getElementById('tab-bar');
+        if(tabBar) tabBar.classList.remove('hidden');
+
         document.querySelectorAll('.tab-item').forEach(el => el.classList.remove('active'));
         
         if (tab === 'menu') {
-            document.getElementById('shop-view').classList.remove('hidden');
+            const shopView = document.getElementById('shop-view');
+            if(shopView) shopView.classList.remove('hidden');
             document.querySelectorAll('.tab-item')[0].classList.add('active');
         } else if (tab === 'history') {
-            document.getElementById('history-view').classList.remove('hidden');
+            const histView = document.getElementById('history-view');
+            if(histView) histView.classList.remove('hidden');
             document.querySelectorAll('.tab-item')[1].classList.add('active');
             loadOrderHistory();
         } else if (tab === 'member') {
-            document.getElementById('member-view').classList.remove('hidden');
+            const memView = document.getElementById('member-view');
+            if(memView) memView.classList.remove('hidden');
             document.querySelectorAll('.tab-item')[2].classList.add('active');
             fetchMemberData();
             loadMyCoupons();
         } else if (tab === 'coupons') {
-            document.getElementById('tab-bar').classList.add('hidden'); 
-            document.getElementById('coupons-view').classList.remove('hidden');
+            if(tabBar) tabBar.classList.add('hidden'); 
+            const coupView = document.getElementById('coupons-view');
+            if(coupView) coupView.classList.remove('hidden');
             loadCoupons();
         }
     }
@@ -670,19 +685,25 @@
     // Helper Functions
     function calculateDistance(lat1, lon1, lat2, lon2) { const R = 6371; const dLat = deg2rad(lat2 - lat1); const dLon = deg2rad(lon2 - lon1); const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * Math.sin(dLon/2) * Math.sin(dLon/2); const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); return (R * c).toFixed(1); }
     function deg2rad(deg) { return deg * (Math.PI/180); }
+    // initLocationService removed from main flow but kept as helper if needed
     function initLocationService() { return new Promise((resolve) => { if (!navigator.geolocation) { resolve(); return; } const timeoutId = setTimeout(() => { resolve(); }, 5000); navigator.geolocation.getCurrentPosition((position) => { clearTimeout(timeoutId); userLocation = { lat: position.coords.latitude, lng: position.coords.longitude }; resolve(); }, (error) => { clearTimeout(timeoutId); resolve(); }); }); }
-    function updateUI() { ['home-name','m-name'].forEach(id => document.getElementById(id).innerText = userProfile.displayName); ['home-avatar','m-avatar'].forEach(id => document.getElementById(id).src = userProfile.pictureUrl); }
     
     function openShop(id) { 
         currentShop = allShops[id]; 
         currentShop.id = id; 
-        
-        // Remove hidden classes to show shop view
+        cart = []; 
+        updateCartUI(); 
+
+        // Clean up view visibility (Removed lobby-view)
+        ['coupons-view','member-view','history-view'].forEach(id => {
+            const el = document.getElementById(id);
+            if(el) el.classList.add('hidden');
+        });
+
         document.getElementById('shop-view').classList.remove('hidden');
         document.getElementById('tab-bar').classList.remove('hidden');
         document.querySelectorAll('.tab-item')[0].classList.add('active');
 
-        // Update Content
         document.getElementById('shop-name-title').innerText = currentShop.name; 
         document.getElementById('shop-banner').style.backgroundImage = `url(${currentShop.bannerUrl})`; 
         document.getElementById('shop-address').innerText = currentShop.address || "暫無地址資訊"; 
