@@ -103,7 +103,16 @@
       pointer-events: none;
     }
     .card-user-row { display: flex; align-items: center; margin-bottom: 28px; }
-    .card-avatar { width: 56px; height: 56px; border-radius: 50%; border: 2px solid var(--gold); margin-right: 15px; }
+    
+    /* [Fixed] Card Avatar: Enforce size and prevent distortion */
+    .card-avatar { 
+      width: 56px; height: 56px; 
+      border-radius: 50%; border: 2px solid var(--gold); 
+      margin-right: 15px; 
+      object-fit: cover; /* 防止圖片變形 */
+      flex-shrink: 0; /* 防止被壓縮 */
+    }
+
     .card-stats-row { display: flex; justify-content: space-between; text-align: center; }
     .stat-num { font-size: 22px; font-weight: bold; display: block; margin-bottom: 6px; font-family: 'Noto Serif TC'; color: var(--gold); }
     .stat-label { font-size: 11px; opacity: 0.7; letter-spacing: 1px; }
@@ -191,7 +200,18 @@
     .stepper-mini { display: flex; align-items: center; background: #F7F4EF; border-radius: 20px; }
     .stepper-mini button { width: 26px; height: 26px; border: none; background: transparent; font-size: 12px; display:flex; align-items:center; justify-content:center; color: var(--primary); }
 
-    .cart-bar { position: absolute; bottom: 25px; left: 15px; right: 15px; background: #2C2620; border-radius: 50px; padding: 0; display: flex; justify-content: space-between; align-items: center; color: var(--gold); box-shadow: 0 8px 25px rgba(0,0,0,0.25); z-index: 100; height: 56px; cursor: pointer; border: 1px solid rgba(255,255,255,0.1); }
+    /* [Fixed] Cart Bar Position: Lifted up to avoid being hidden by Tab Bar */
+    .cart-bar { 
+      position: absolute; 
+      bottom: 90px; /* Lifted from 25px to 90px to sit above the Tab Bar (65px) */
+      left: 15px; right: 15px; 
+      background: #2C2620; border-radius: 50px; padding: 0; 
+      display: flex; justify-content: space-between; align-items: center; 
+      color: var(--gold); box-shadow: 0 8px 25px rgba(0,0,0,0.25); 
+      z-index: 100; height: 56px; cursor: pointer; 
+      border: 1px solid rgba(255,255,255,0.1); 
+    }
+    
     .cart-left { flex: 1; display: flex; align-items: center; padding-left: 24px; height: 100%; }
     .cart-badge { position: absolute; top: -6px; right: -6px; background: var(--danger); color: #fff; font-size: 10px; padding: 3px 7px; border-radius: 10px; border: 2px solid #2C2620; }
     .btn-checkout { background: var(--primary); color: #fff; border: none; height: 100%; padding: 0 35px; border-radius: 0 50px 50px 0; font-weight: bold; font-size: 16px; display: flex; align-items: center; letter-spacing: 1px; }
@@ -287,7 +307,8 @@
     <div class="member-header-bg"></div>
     <div class="premium-card">
       <div class="card-user-row">
-          <img id="m-avatar" src="" class="mini-avatar" style="border:2px solid var(--gold);">
+          <!-- [Fixed] Use card-avatar class directly -->
+          <img id="m-avatar" src="" class="card-avatar" style="border:2px solid var(--gold);">
           <div style="flex:1;">
               <div id="m-name" style="font-size:20px;font-weight:bold;color:var(--gold);font-family:'Noto Serif TC';">...</div>
               <div style="font-size:11px;background:rgba(204,186,138,0.2);color:#E0D8CC;padding:3px 10px;border-radius:12px;display:inline-block;margin-top:6px;border:1px solid rgba(204,186,138,0.3);">普通會員</div>
