@@ -3,24 +3,23 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Uni-S 生活圈</title>
+  <title>Uni-S Tea 點餐</title>
   <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <!-- 引入 Google Fonts: Noto Serif TC (宋體/明體) 增加人文感 -->
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
 
   <style>
-    /* ==================== 0. 全局與重置 (Aesthetics Overhaul) ==================== */
+    /* ==================== 0. 全局與重置 (Morandi/Earth Tone) ==================== */
     :root { 
-      /* New Premium Palette: Earthy & Morandi Tones */
       --primary: #9F8C6D; /* Muted Terracotta/Dark Gold - 主色調：沉穩陶土金 */
       --gold: #CCB28A;    /* Softened Gold - 輔助色：柔和金 */ 
       --bg: #F7F4EF;      /* Off-white/Earthy background - 背景：米白宣紙感 */ 
       --text: #4A4A4A;    /* Soft Dark Grey - 文字：墨灰 */ 
       --tea-sidebar: #F0EDE5; /* Lighter earthy tone - 側邊欄：淺灰褐 */
       
-      --danger: #B85C5C;  /* Muted Red for warnings - 低飽和紅 */
-      --success: #7A8B69; /* Muted Green for success - 抹茶綠 */
+      --danger: #B85C5C;  /* Muted Red */
+      --success: #7A8B69; /* Muted Green */
     }
 
     body { 
@@ -34,7 +33,7 @@
     }
     
     h1, h2, h3, .shop-name, .coupon-val {
-      font-family: 'Noto Serif TC', serif; /* 標題使用襯線體，提升氣質 */
+      font-family: 'Noto Serif TC', serif; /* 標題使用襯線體 */
     }
 
     .hidden { display: none !important; }
@@ -56,51 +55,14 @@
     /* ==================== 2. 主視圖容器 ==================== */
     .scroll-view { flex: 1; overflow-y: auto; padding-bottom: 80px; -webkit-overflow-scrolling: touch; }
 
-    /* 大廳樣式 */
-    .lobby-header-bg { 
-      background: linear-gradient(135deg, #4A4036, #2C2620); /* 深咖啡色系漸層 */
-      height: 170px; border-radius: 0 0 24px 24px; padding: 25px 20px; color: var(--gold); 
-    }
-    .float-member-card { 
-      background: #fff; margin: -80px 20px 20px 20px; border-radius: 16px; padding: 18px; 
-      box-shadow: 0 10px 30px rgba(74, 64, 54, 0.08); 
-      display: flex; align-items: center; cursor: pointer; border: 1px solid #F0EDE5;
-    }
-    .mini-avatar { width: 54px; height: 54px; border-radius: 50%; margin-right: 15px; background: #E0D8CC; border: 2px solid var(--bg); }
-    .quick-points { margin-left: auto; text-align: center; border-left: 1px solid #E0D8CC; padding-left: 18px; }
-    .quick-points .num { font-size: 22px; font-weight: bold; color: var(--primary); font-family: 'Noto Serif TC'; }
-    .quick-points .label { font-size: 11px; color: #888; letter-spacing: 1px; }
-    
-    .search-bar { margin: 0 20px 20px 20px; background: #fff; padding: 12px 15px; border-radius: 12px; display: flex; align-items: center; box-shadow: 0 4px 12px rgba(0,0,0,0.03); border: 1px solid #F0EDE5; }
-    .search-bar input { border: none; flex: 1; outline: none; margin-left: 10px; font-size: 14px; background: transparent; color: var(--text); }
-    
-    /* 商家卡片 */
-    .shop-card { 
-      background: #fff; border-radius: 16px; overflow: hidden; margin-bottom: 20px; 
-      box-shadow: 0 4px 15px rgba(0,0,0,0.04); display: flex; padding: 12px; 
-      cursor: pointer; border: 1px solid #F0EDE5; transition: transform 0.2s;
-    }
-    .shop-card:active { transform: scale(0.98); }
-    .shop-thumb { width: 88px; height: 88px; border-radius: 12px; background-size: cover; background-position: center; flex-shrink: 0; filter: contrast(0.95); }
-    .shop-info { padding-left: 18px; flex: 1; display: flex; flex-direction: column; justify-content: center; }
-    .shop-name { font-size: 17px; font-weight: bold; color: #2C2620; margin-bottom: 6px; letter-spacing: 0.5px; }
-    .btn-visit { 
-      background: var(--primary); color: #fff; border: none; padding: 6px 16px; 
-      border-radius: 20px; font-size: 12px; width: fit-content; letter-spacing: 1px; 
-    }
-    
-    /* LBS 距離標籤 */
-    .dist-badge { font-size: 11px; color: var(--primary); background: #F0EDE5; padding: 3px 8px; border-radius: 6px; margin-left: 8px; display: inline-flex; align-items: center; gap: 4px; }
-    .dist-badge i { font-size: 10px; }
-
-    /* 優惠券樣式 */
+    /* 優惠券與會員中心樣式 (保留) */
     .coupon-grid { display: grid; grid-template-columns: 1fr; gap: 16px; padding: 0 20px; }
     .coupon-item { 
       background: #fff; border-radius: 14px; display: flex; overflow: hidden; 
       box-shadow: 0 4px 12px rgba(0,0,0,0.05); position: relative; border: 1px solid #EBE6DE;
     }
     .coupon-left { 
-      background: linear-gradient(135deg, var(--primary), #8A7A5B); /* 使用主色調漸層 */
+      background: linear-gradient(135deg, var(--primary), #8A7A5B); 
       width: 95px; color: #fff; display: flex; flex-direction: column; 
       align-items: center; justify-content: center; text-align: center; padding: 10px; 
       position: relative;
@@ -119,18 +81,16 @@
       background: transparent; border: 1px solid var(--primary); color: var(--primary); 
       padding: 5px 14px; border-radius: 20px; font-size: 12px; cursor: pointer; font-weight: bold;
     }
-    
     .my-coupon-item { 
       background: #fff; border: 1px dashed var(--gold); border-radius: 10px; padding: 14px; 
       margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; 
       box-shadow: 0 2px 5px rgba(0,0,0,0.02);
     }
 
-    /* 會員中心樣式 */
     .member-header-bg { background-color: var(--bg); height: 60px; }
     .premium-card { 
       margin: -40px 20px 20px 20px; 
-      background: linear-gradient(135deg, #3E362E, #26211C); /* 黑金質感 */
+      background: linear-gradient(135deg, #3E362E, #26211C); 
       border-radius: 18px; padding: 24px; color: #E0D8CC; 
       box-shadow: 0 15px 40px rgba(44, 38, 32, 0.25); position: relative; overflow: hidden; 
       border: 1px solid rgba(255,255,255,0.1);
@@ -146,7 +106,6 @@
     .stat-num { font-size: 22px; font-weight: bold; display: block; margin-bottom: 6px; font-family: 'Noto Serif TC'; color: var(--gold); }
     .stat-label { font-size: 11px; opacity: 0.7; letter-spacing: 1px; }
     
-    /* 服務區塊樣式 */
     .service-section { 
       background: #fff; margin: 0 20px 20px 20px; border-radius: 16px; padding: 24px 15px; 
       box-shadow: 0 4px 15px rgba(0,0,0,0.03); display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; 
@@ -157,16 +116,10 @@
     .service-icon { font-size: 24px; color: #6B6359; margin-bottom: 8px; }
     .service-label { font-size: 12px; color: #666; letter-spacing: 0.5px; }
 
-    /* New History Card Style (Standalone) */
+    /* History Styles */
     .history-card {
-      background: #fff;
-      border-radius: 12px;
-      padding: 20px;
-      margin-bottom: 15px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.03);
-      border: 1px solid #F0EDE5;
-      position: relative;
-      transition: transform 0.2s;
+      background: #fff; border-radius: 12px; padding: 20px; margin-bottom: 15px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.03); border: 1px solid #F0EDE5; position: relative; transition: transform 0.2s;
     }
     .history-card:active { transform: scale(0.98); }
     .hc-header { display: flex; justify-content: space-between; margin-bottom: 12px; border-bottom: 1px dashed #E0D8CC; padding-bottom: 8px; }
@@ -175,80 +128,56 @@
     .hc-body { display: flex; justify-content: space-between; align-items: center; }
     .hc-summary { font-size: 13px; color: #666; line-height: 1.5; flex: 1; padding-right: 10px; }
     .hc-price { font-size: 18px; font-weight: bold; color: var(--primary); font-family: 'Noto Serif TC'; }
-    .hc-status { 
-      display: inline-block; padding: 4px 8px; border-radius: 4px; 
-      font-size: 11px; font-weight: bold; margin-top: 5px;
-    }
-
+    .hc-status { display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; margin-top: 5px; }
     .status-wait { background: #FFF8E1; color: #D4A017; }
     .status-ok { background: #EEF5E5; color: var(--success); }
     .status-no { background: #FDEEEE; color: var(--danger); }
 
-    /* Refined Order Detail (Receipt Look) */
-    #order-detail-view { 
-      position: fixed; top: 0; left: 0; right: 0; bottom: 0; 
-      background: rgba(44, 38, 32, 0.6); backdrop-filter: blur(5px); 
-      z-index: 950; 
-      display: flex; align-items: center; justify-content: center; 
-      padding: 20px; 
-    }
-    .od-paper { 
-      background: #fff; width: 100%; max-width: 350px; border-radius: 10px; 
-      padding: 0; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.3); 
-      display: flex; flex-direction: column; max-height: 85vh;
-      position: relative;
-    }
-    /* Jagged edge effect (top decoration) */
-    .od-paper::before {
-      content: ""; display: block; height: 10px; background: var(--primary);
-    }
-    .od-header { padding: 20px; text-align: center; border-bottom: 1px solid #F0EDE5; }
-    .od-shop-name { font-size: 20px; font-weight: bold; font-family: 'Noto Serif TC'; color: #2C2620; }
-    .od-id { font-size: 11px; color: #999; margin-top: 5px; letter-spacing: 1px; }
-    .od-scroll-content { padding: 20px; overflow-y: auto; flex: 1; }
-    .od-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 14px; color: #555; }
-    .od-total-section { 
-      margin-top: 20px; padding-top: 15px; border-top: 1px dashed #2C2620; 
-      display: flex; justify-content: space-between; align-items: center;
-    }
-    .od-total-label { font-size: 14px; font-weight: bold; }
-    .od-total-val { font-size: 22px; font-weight: bold; color: var(--danger); font-family: 'Noto Serif TC'; }
-    .od-footer { padding: 15px; background: #FAF9F6; text-align: center; border-top: 1px solid #F0EDE5; }
-    .btn-close-od { width: 40px; height: 40px; border-radius: 50%; border: 1px solid #ccc; background: #fff; color: #333; font-size: 16px; cursor: pointer; margin-top: 10px; display: flex; justify-content: center; align-items: center; margin: 0 auto;}
-
-    /* ==================== 3. 店鋪頁面 (Shop) ==================== */
+    /* ==================== 3. 單一品牌店鋪頁面 (Main View) ==================== */
     #shop-view { background: #fff; height: 100%; display: flex; flex-direction: column; position: relative; z-index: 50; }
-    .shop-banner-area { width: 100%; height: 200px; background-size: cover; background-position: center; position: relative; flex-shrink: 0; }
-    .shop-banner-overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.6) 100%); display: flex; align-items: flex-end; padding: 20px; }
-    .shop-title-large { color: #fff; font-size: 24px; font-weight: bold; text-shadow: 0 2px 4px rgba(0,0,0,0.3); letter-spacing: 1px; }
-    .float-back { position: absolute; top: 15px; left: 15px; width: 38px; height: 38px; background: rgba(0,0,0,0.3); backdrop-filter: blur(6px); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; z-index: 200; cursor: pointer; border: 1px solid rgba(255,255,255,0.2); }
+    
+    /* Premium App Header Style for Banner */
+    .shop-banner-area { width: 100%; height: 220px; background-size: cover; background-position: center; position: relative; flex-shrink: 0; }
+    .shop-banner-overlay { 
+      position: absolute; inset: 0; 
+      background: linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.7) 100%); 
+      display: flex; flex-direction: column; justify-content: flex-end; padding: 25px 20px; 
+    }
+    .shop-title-large { 
+      color: #fff; font-size: 28px; font-weight: bold; 
+      text-shadow: 0 2px 10px rgba(0,0,0,0.5); letter-spacing: 2px; margin: 0;
+      font-family: 'Noto Serif TC'; 
+    }
+    .shop-subtitle {
+      color: rgba(255,255,255,0.9); font-size: 13px; margin-top: 5px; letter-spacing: 1px;
+    }
 
-    .shop-controls { background: #fff; padding: 12px 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.04); z-index: 20; flex-shrink: 0; display: flex; flex-direction: column; gap: 10px; border-bottom: 1px solid #F0EDE5; }
+    .shop-controls { background: #fff; padding: 15px 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.04); z-index: 20; flex-shrink: 0; display: flex; flex-direction: column; gap: 10px; border-bottom: 1px solid #F0EDE5; }
     .controls-top-row { display: flex; justify-content: space-between; align-items: center; }
-    .shop-detail-info { font-size: 12px; color: #888; display: flex; flex-direction: column; gap: 5px; }
+    .shop-detail-info { font-size: 12px; color: #888; display: flex; flex-direction: column; gap: 6px; }
     .info-row { display: flex; align-items: center; gap: 8px; }
     .btn-nav { background: #F7F4EF; color: var(--primary); border: 1px solid var(--primary); padding: 5px 12px; border-radius: 15px; font-size: 12px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 5px; }
     
     .delivery-toggle { display: flex; background: #F0EDE5; border-radius: 20px; padding: 3px; }
-    .toggle-btn { padding: 5px 16px; border-radius: 18px; border: none; font-size: 12px; background: transparent; color: #888; font-weight: 500; }
+    .toggle-btn { padding: 6px 18px; border-radius: 18px; border: none; font-size: 13px; background: transparent; color: #888; font-weight: 500; }
     .toggle-btn.active { background: #fff; color: var(--primary); font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
     
     .shop-body { flex: 1; display: flex; overflow: hidden; position: relative; background: #fff; }
-    .menu-sidebar { width: 85px; background: var(--tea-sidebar); overflow-y: auto; scrollbar-width: none; padding-bottom: 80px; }
-    .category-item { padding: 20px 5px; font-size: 13px; color: #888; text-align: center; cursor: pointer; position: relative; font-weight: 500; }
+    .menu-sidebar { width: 90px; background: var(--tea-sidebar); overflow-y: auto; scrollbar-width: none; padding-bottom: 80px; }
+    .category-item { padding: 22px 5px; font-size: 13px; color: #888; text-align: center; cursor: pointer; position: relative; font-weight: 500; letter-spacing: 1px; }
     .category-item.active { background: #fff; color: var(--primary); font-weight: bold; }
-    .category-item.active::before { content: ''; position: absolute; left: 0; top: 18px; bottom: 18px; width: 4px; background: var(--primary); border-radius: 0 4px 4px 0; }
+    .category-item.active::before { content: ''; position: absolute; left: 0; top: 20px; bottom: 20px; width: 4px; background: var(--primary); border-radius: 0 4px 4px 0; }
     .menu-content { flex: 1; overflow-y: auto; padding: 0 15px 80px 15px; scroll-behavior: smooth; }
-    .category-title { font-size: 14px; font-weight: bold; color: #2C2620; margin: 20px 0 12px 0; padding-left: 5px; border-left: 3px solid var(--gold); line-height: 1.2; }
+    .category-title { font-size: 15px; font-weight: bold; color: #2C2620; margin: 25px 0 15px 0; padding-left: 8px; border-left: 3px solid var(--gold); line-height: 1.2; letter-spacing: 1px; }
     .food-item { display: flex; margin-bottom: 24px; padding-bottom: 12px; border-bottom: 1px dashed #E0D8CC; }
     .food-item:last-child { border-bottom: none; }
     .food-img { width: 96px; height: 96px; border-radius: 10px; background-color: #F0EDE5; background-size: cover; background-position: center; flex-shrink: 0; }
     .food-info { flex: 1; padding-left: 14px; display: flex; flex-direction: column; justify-content: space-between; }
-    .food-name { font-size: 16px; font-weight: bold; color: #2C2620; }
+    .food-name { font-size: 16px; font-weight: bold; color: #2C2620; font-family: 'Noto Serif TC'; }
     .food-desc { font-size: 12px; color: #999; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin-top: 4px; line-height: 1.4; }
     .food-action { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 5px; }
-    .food-price { color: var(--primary); font-weight: bold; font-family: 'Noto Serif TC'; font-size: 15px; }
-    .btn-add-mini { background: var(--primary); color: #fff; width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: bold; box-shadow: 0 2px 5px rgba(159, 140, 109, 0.4); }
+    .food-price { color: var(--primary); font-weight: bold; font-family: 'Noto Serif TC'; font-size: 16px; }
+    .btn-add-mini { background: var(--primary); color: #fff; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: bold; box-shadow: 0 2px 5px rgba(159, 140, 109, 0.4); }
 
     .retail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding: 20px; width: 100%; overflow-y: auto; align-content: flex-start; padding-bottom: 80px; }
     .retail-item { background: #fff; border-radius: 14px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.03); border: 1px solid #EBE6DE; display: flex; flex-direction: column; }
@@ -263,6 +192,7 @@
     .btn-checkout { background: var(--primary); color: #fff; border: none; height: 100%; padding: 0 35px; border-radius: 0 50px 50px 0; font-weight: bold; font-size: 16px; display: flex; align-items: center; letter-spacing: 1px; }
 
     /* ==================== 4. 各種彈窗 (Elegant Style) ==================== */
+    /* (與前一版保持一致，略) */
     .cart-header { display: flex; justify-content: space-between; align-items: center; padding: 18px 20px; background: #fff; border-bottom: 1px solid #F0EDE5; border-radius: 20px 20px 0 0; }
     .cart-stepper { display: flex; align-items: center; background: #F7F4EF; border-radius: 20px; border: 1px solid #E0D8CC; }
     .cart-stepper button { width: 30px; height: 30px; border: none; background: transparent; font-size: 12px; display: flex; align-items: center; justify-content: center; color: var(--primary); }
@@ -280,6 +210,20 @@
     .spec-add-btn { background: var(--primary); color: #fff; padding: 12px 30px; border-radius: 30px; font-weight: bold; cursor: pointer; text-align: center; box-shadow: 0 4px 12px rgba(159, 140, 109, 0.3); }
     .stepper { display: flex; align-items: center; background: #F7F4EF; border-radius: 20px; padding: 4px 10px; border: 1px solid #E0D8CC; }
     
+    #order-detail-view { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(44, 38, 32, 0.6); backdrop-filter: blur(5px); z-index: 950; overflow-y: auto; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
+    .od-paper { background: #fff; width: 100%; max-width: 350px; border-radius: 10px; padding: 0; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.3); display: flex; flex-direction: column; max-height: 85vh; position: relative; }
+    .od-paper::before { content: ""; display: block; height: 10px; background: var(--primary); }
+    .od-header { padding: 20px; text-align: center; border-bottom: 1px solid #F0EDE5; }
+    .od-shop-name { font-size: 20px; font-weight: bold; font-family: 'Noto Serif TC'; color: #2C2620; }
+    .od-id { font-size: 11px; color: #999; margin-top: 5px; letter-spacing: 1px; }
+    .od-scroll-content { padding: 20px; overflow-y: auto; flex: 1; }
+    .od-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 14px; color: #555; }
+    .od-total-section { margin-top: 20px; padding-top: 15px; border-top: 1px dashed #2C2620; display: flex; justify-content: space-between; align-items: center; }
+    .od-total-label { font-size: 14px; font-weight: bold; }
+    .od-total-val { font-size: 22px; font-weight: bold; color: var(--danger); font-family: 'Noto Serif TC'; }
+    .od-footer { padding: 15px; background: #FAF9F6; text-align: center; border-top: 1px solid #F0EDE5; }
+    .btn-close-od { width: 40px; height: 40px; border-radius: 50%; border: 1px solid #ccc; background: #fff; color: #333; font-size: 16px; cursor: pointer; margin-top: 10px; display: flex; justify-content: center; align-items: center; margin: 0 auto; }
+
     .service-option { padding: 15px; border: 1px solid #E0D8CC; border-radius: 12px; font-weight: bold; text-align: center; cursor: pointer; margin-bottom: 12px; background: #fff; color: #666; transition: all 0.2s; }
     .service-option.selected { border-color: var(--primary); color: var(--primary); background: #F2EFE9; }
 
@@ -312,23 +256,7 @@
     </div>
   </div>
 
-  <div id="lobby-view" class="scroll-view hidden">
-    <div class="lobby-header-bg">
-        <div style="font-weight:bold; letter-spacing:2px; font-size:11px; opacity:0.7; font-family:'Noto Sans TC';">UNI-S PLATFORM</div>
-        <div style="font-size:24px; font-weight:bold; margin-top:8px; color:#fff; font-family:'Noto Serif TC'; letter-spacing:1px;">探索美好生活</div>
-    </div>
-    <div class="float-member-card" onclick="switchTab('member')">
-        <img id="home-avatar" src="" class="mini-avatar">
-        <div class="user-greeting">
-            <h3 style="margin:0;font-size:16px;color:#2C2620;font-weight:bold;"><span id="home-name">...</span></h3>
-            <p style="margin:4px 0 0 0;font-size:12px;color:#888;">點擊查看會員權益 ›</p>
-        </div>
-        <div class="quick-points"><span class="num" id="home-points">0</span><span class="label">積分</span></div>
-    </div>
-    <div class="search-bar"><i class="fas fa-search" style="color:#999; margin-right:8px;"></i><input type="text" id="search-input" placeholder="搜尋店家..." oninput="filterShops()"></div>
-    <div id="shop-list" style="padding: 0 20px;"></div>
-  </div>
-
+  <!-- Coupons View (Standalone) -->
   <div id="coupons-view" class="scroll-view hidden" style="background:#fff;">
     <div style="padding:20px 20px 10px 20px; display:flex; align-items:center;">
         <div onclick="switchTab('member')" style="font-size:20px; color:#666; cursor:pointer; margin-right:15px;"><i class="fas fa-arrow-left"></i></div>
@@ -339,7 +267,7 @@
     </div>
   </div>
 
-  <!-- 新增的獨立歷史紀錄頁面 -->
+  <!-- History View (Standalone) -->
   <div id="history-view" class="scroll-view hidden" style="background:#fff;">
     <div style="padding:20px 20px 10px 20px; display:flex; align-items:center;">
         <div style="font-weight:bold; font-size:20px; color:#2C2620;">歷史訂單</div>
@@ -349,6 +277,7 @@
     </div>
   </div>
 
+  <!-- Member View -->
   <div id="member-view" class="scroll-view hidden">
     <div class="member-header-bg"></div>
     <div class="premium-card">
@@ -370,29 +299,28 @@
     </div>
     
     <div class="service-section">
-      <!-- 更新：積分兌換按鈕 -->
       <div class="service-item" onclick="switchTab('coupons')">
           <div class="service-icon" style="color:var(--primary);"><i class="fas fa-coins"></i></div>
           <div class="service-label" style="font-weight:bold; color:#4A4A4A;">積分兌換</div>
       </div>
       <div class="service-item" onclick="showMsg('客服連線中...')"><div class="service-icon"><i class="fas fa-headset"></i></div><div class="service-label">聯繫客服</div></div>
       <div class="service-item" onclick="showMsg('常見問題頁面')"><div class="service-icon"><i class="fas fa-question-circle"></i></div><div class="service-label">常見問題</div></div>
-      <div class="service-item" onclick="showMsg('Uni-S v1.2')"><div class="service-icon"><i class="fas fa-info-circle"></i></div><div class="service-label">關於我們</div></div>
+      <div class="service-item" onclick="showMsg('Uni-S v1.3')"><div class="service-icon"><i class="fas fa-info-circle"></i></div><div class="service-label">關於我們</div></div>
     </div>
 
-    <!-- 我的優惠券區塊 -->
     <div style="padding:0 20px 20px 20px;">
         <div style="font-weight:bold; margin-bottom:15px; font-size:16px; color:#2C2620;">我的優惠券</div>
         <div id="my-coupons-list" style="color:#999;font-size:13px; text-align:center; padding:20px 0;">載入中...</div>
     </div>
   </div>
 
+  <!-- Shop View (Main Home) -->
   <div id="shop-view" class="hidden">
     <div id="shop-banner" class="shop-banner-area">
         <div class="shop-banner-overlay">
             <h1 class="shop-title-large" id="shop-name-title">...</h1>
+            <div class="shop-subtitle">Uni-S Tea & Life</div>
         </div>
-        <div class="float-back" onclick="goLobby()"><i class="fas fa-chevron-left"></i></div>
     </div>
     
     <div class="shop-controls">
@@ -421,7 +349,7 @@
     </div>
   </div>
 
-  <!-- Refined Order Detail (Receipt Style) -->
+  <!-- Receipt Order Detail -->
   <div id="order-detail-view" class="hidden">
     <div class="od-paper">
       <div class="od-header">
@@ -431,9 +359,7 @@
         <div style="margin-top:10px;"><span id="od-status" style="font-weight:bold;font-size:13px;padding:3px 8px;border-radius:4px;background:#eee;">...</span></div>
       </div>
       
-      <div class="od-scroll-content" id="od-items-list">
-        <!-- Items go here -->
-      </div>
+      <div class="od-scroll-content" id="od-items-list"></div>
 
       <div style="padding:20px;background:#fff;">
         <div class="od-total-section">
@@ -494,19 +420,16 @@
       <div style="padding:25px;">
         <div style="text-align:center;font-weight:bold;font-size:18px;margin-bottom:20px;color:#2C2620;">選擇服務方式</div>
         <div id="service-options"></div>
-        
         <div style="margin-top:25px;">
             <div style="font-weight:bold;margin-bottom:10px;color:#4A4A4A;">優惠券</div>
             <select id="coupon-selector" style="width:100%;padding:12px;border-radius:10px;border:1px solid #E0D8CC;background:#FAF9F6;color:#4A4A4A;outline:none;">
                 <option value="">不使用優惠券</option>
             </select>
         </div>
-
         <div style="margin-top:25px;text-align:right;">
             <span style="font-size:14px;color:#888;">實付金額</span>
             <span id="final-checkout-price" style="font-size:24px;font-weight:bold;color:var(--danger);margin-left:8px;font-family:'Noto Serif TC';">$0</span>
         </div>
-
         <div class="spec-add-btn" style="text-align:center;margin-top:20px;" onclick="confirmOrder()">確認下單</div>
         <div style="text-align:center;margin-top:15px;color:#999;font-size:13px;cursor:pointer;" onclick="document.getElementById('service-modal').classList.add('hidden')">取消</div>
       </div>
@@ -523,13 +446,12 @@
     </div>
   </div>
 
-  <!-- 更新後的 Tab Bar: 移除優惠券，新增歷史紀錄 -->
+  <!-- Updated Tab Bar -->
   <div id="tab-bar">
-    <div class="tab-item active" onclick="switchTab('lobby')">
-        <div class="tab-icon"><i class="fas fa-home"></i></div>
-        <div>首頁</div>
+    <div class="tab-item active" onclick="switchTab('menu')">
+        <div class="tab-icon"><i class="fas fa-mug-hot"></i></div>
+        <div>點餐</div>
     </div>
-    <!-- 新增紀錄 Tab -->
     <div class="tab-item" onclick="switchTab('history')">
         <div class="tab-icon"><i class="fas fa-history"></i></div>
         <div>紀錄</div>
@@ -544,6 +466,7 @@
     // ⚠️⚠️⚠️ 設定區 ⚠️⚠️⚠️
     const MY_LIFF_ID = "2008590518-p2AoVQO2"; 
     const API_URL = "https://script.google.com/macros/s/AKfycbzxUYXVSMjF8Zt7KqBo9qGvottN4zoxkM1qCu97ZqugJ7Nf6czxu0DzBY9DN1nVRtdn/exec";
+    const TARGET_SHOP_ID = "1"; // 🔥 請替換為您的目標店家 ID
 
     // 狀態
     let allShops = {}; let currentShop = null; let cart = []; 
@@ -580,40 +503,32 @@
 
         const res = await fetch(API_URL);
         allShops = await res.json();
-        
         document.getElementById('loading').classList.add('hidden');
 
-        const params = new URLSearchParams(window.location.search);
-        if (params.get('id') && allShops[params.get('id')]) {
-            openShop(params.get('id'));
-        } else if (params.get('tab') === 'member') { 
-            renderLobby(allShops); switchTab('member'); 
+        // 🔥 Single Brand Logic: Always open target shop
+        if (allShops[TARGET_SHOP_ID]) {
+            openShop(TARGET_SHOP_ID);
         } else {
-            await initLocationService();
-            renderLobby(allShops); 
-            switchTab('lobby'); 
+            showMsg("店家設定錯誤 (ID Not Found)");
         }
         
         fetchMemberData();
       } catch (err) { showMsg(err.message); }
     }
 
-    // ========== 路由邏輯更新 (switchTab) ==========
+    // ========== 路由邏輯 (Refactored for Single Brand) ==========
     function switchTab(tab) {
-        // 隱藏所有視圖
-        ['lobby-view', 'coupons-view', 'member-view', 'shop-view', 'history-view'].forEach(id => document.getElementById(id).classList.add('hidden'));
-        document.getElementById('order-detail-view').classList.add('hidden'); // 確保 modal 隱藏
-        
+        // Hide everything first
+        ['coupons-view', 'member-view', 'shop-view', 'history-view', 'order-detail-view'].forEach(id => document.getElementById(id).classList.add('hidden'));
         document.getElementById('tab-bar').classList.remove('hidden');
         document.querySelectorAll('.tab-item').forEach(el => el.classList.remove('active'));
         
-        if (tab === 'lobby') {
-            document.getElementById('lobby-view').classList.remove('hidden');
+        if (tab === 'menu') {
+            document.getElementById('shop-view').classList.remove('hidden');
             document.querySelectorAll('.tab-item')[0].classList.add('active');
-            fetchMemberData();
         } else if (tab === 'history') {
             document.getElementById('history-view').classList.remove('hidden');
-            document.querySelectorAll('.tab-item')[1].classList.add('active'); // Highlight middle tab
+            document.querySelectorAll('.tab-item')[1].classList.add('active');
             loadOrderHistory();
         } else if (tab === 'member') {
             document.getElementById('member-view').classList.remove('hidden');
@@ -621,44 +536,33 @@
             fetchMemberData();
             loadMyCoupons();
         } else if (tab === 'coupons') {
-            // "優惠券"：現在是子頁面
             document.getElementById('tab-bar').classList.add('hidden'); 
             document.getElementById('coupons-view').classList.remove('hidden');
             loadCoupons();
         }
     }
 
-    // ========== 優惠券 ==========
+    // ========== 優惠券邏輯 ==========
     async function loadCoupons() {
-        console.log("正在載入可兌換優惠券...");
         const list = document.getElementById('coupons-list');
         list.innerHTML = '<div style="text-align:center;color:#999;font-size:12px;">載入優惠券中...</div>';
-        
         try {
-            const res = await fetch(API_URL, {
-                method: 'POST',
-                body: JSON.stringify({ action: "getCoupons" })
-            });
+            const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "getCoupons" }) });
             const text = await res.text();
-            console.log("Raw Response:", text);
-
             let coupons;
-            try { coupons = JSON.parse(text); } 
-            catch (e) { throw new Error("Server returned non-JSON response"); }
+            try { coupons = JSON.parse(text); } catch (e) { throw new Error("Server Error"); }
 
             if (coupons.status === 'error') throw new Error(coupons.message);
-            if (!Array.isArray(coupons)) throw new Error("資料格式錯誤");
-
-            if (coupons.length === 0) {
+            
+            if (!Array.isArray(coupons) || coupons.length === 0) {
                 list.innerHTML = '<div style="text-align:center;color:#999;font-size:12px;margin-top:20px;">目前沒有可用的優惠券</div>';
                 return;
             }
-            
             let html = '';
             coupons.forEach(c => {
                 html += `
                 <div class="coupon-item">
-                    <div class="coupon-left"><div class="coupon-val">${c.value}</div><div style="font-size:10px;">抵用券</div></div>
+                    <div class="coupon-left"><div class="coupon-val">$${c.value}</div><div style="font-size:10px;">抵用券</div></div>
                     <div class="coupon-right">
                         <div class="coupon-name">${c.name}</div>
                         <div class="coupon-cost">需 ${c.cost} 積分</div>
@@ -667,26 +571,15 @@
                 </div>`;
             });
             list.innerHTML = html;
-
-        } catch(e) { 
-            console.error("載入優惠券失敗:", e);
-            list.innerHTML = `<div style="text-align:center;color:var(--danger);font-size:12px;margin-top:10px;">載入失敗: ${e.message}<br><span style="color:#999;font-size:10px;cursor:pointer;" onclick="loadCoupons()">點擊重試</span></div>`; 
-        }
+        } catch(e) { list.innerHTML = `<div style="text-align:center;color:var(--danger);">載入失敗</div>`; }
     }
 
     async function redeemCoupon(id) {
         showConfirm("確定要兌換這張優惠券嗎？", async () => {
             showMsg("處理中...", null);
             try {
-                await fetch(API_URL, {
-                    method: 'POST', mode: 'no-cors',
-                    body: JSON.stringify({ action: "redeemCoupon", userId: userProfile.userId, couponId: id })
-                });
-                setTimeout(() => {
-                    showMsg("✅ 兌換請求已送出！", () => {
-                        fetchMemberData();
-                    });
-                }, 1500);
+                await fetch(API_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: "redeemCoupon", userId: userProfile.userId, couponId: id }) });
+                setTimeout(() => { showMsg("✅ 兌換請求已送出！", () => { fetchMemberData(); }); }, 1500);
             } catch(e) { showMsg("錯誤：" + e.message); }
         });
     }
@@ -696,23 +589,14 @@
         try {
             const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "getMyCoupons", userId: userProfile.userId }) });
             const text = await res.text();
-            let data;
-            try { data = JSON.parse(text); } catch(e) { throw new Error("JSON Parse Error"); }
+            try { myCoupons = JSON.parse(text); } catch(e) { myCoupons = []; }
             
-            myCoupons = data;
             if (myCoupons.length === 0) {
                 list.innerHTML = '尚無優惠券';
             } else {
                 let html = '';
                 myCoupons.forEach(c => {
-                    html += `
-                    <div class="my-coupon-item">
-                        <div>
-                            <div style="font-weight:bold;color:#2C2620;">${c.name}</div>
-                            <div style="font-size:11px;color:#999;">折抵 ${c.value}</div>
-                        </div>
-                        <div style="color:var(--primary);font-weight:bold;font-size:12px;border:1px solid var(--primary);padding:2px 8px;border-radius:10px;">未使用</div>
-                    </div>`;
+                    html += `<div class="my-coupon-item"><div><div style="font-weight:bold;color:#2C2620;">${c.name}</div><div style="font-size:11px;color:#999;">折抵 $${c.value}</div></div><div style="color:var(--primary);font-weight:bold;font-size:12px;border:1px solid var(--primary);padding:2px 8px;border-radius:10px;">未使用</div></div>`;
                 });
                 list.innerHTML = html;
             }
@@ -739,7 +623,7 @@
               let opt = document.createElement('option');
               opt.value = c.uuid;
               opt.setAttribute('data-val', c.value);
-              opt.innerText = `${c.name} (折抵 ${c.value})`;
+              opt.innerText = `${c.name} (折抵 $${c.value})`;
               select.appendChild(opt);
           });
       } catch(e) {}
@@ -763,9 +647,9 @@
       const discount = parseInt(select.options[select.selectedIndex].getAttribute('data-val') || 0);
 
       let detail = "", total = 0;
-      cart.forEach(x => { detail += `${x.name} x ${x.qty} (${x.total})\n`; total += x.total; });
-      detail += `----------------\n總金額：${total} 元\n服務方式：${selectedService}`;
-      if (discount > 0) { detail += `\n優惠券折抵：-${discount}\n實付金額：${Math.max(0, total - discount)}`; }
+      cart.forEach(x => { detail += `${x.name} x ${x.qty} ($${x.total})\n`; total += x.total; });
+      detail += `----------------\n總金額：$${total} 元\n服務方式：${selectedService}`;
+      if (discount > 0) { detail += `\n優惠券折抵：-$${discount}\n實付金額：$${Math.max(0, total - discount)}`; }
 
       let phone = localStorage.getItem("uni_user_phone");
       if(!phone) { phone = prompt("請輸入您的手機號碼："); if(!phone) return; localStorage.setItem("uni_user_phone", phone); }
@@ -779,27 +663,54 @@
                 shopId:currentShop.id, userName:userProfile.displayName, userId:userProfile.userId, order:detail, couponUuid: couponUuid 
             })
         });
-        showMsg("✅ 訂單已送出！", () => { goLobby(); });
+        showMsg("✅ 訂單已送出！", () => { cart=[]; updateCartUI(); });
       } catch(e) { showMsg("失敗:"+e.message); }
     }
 
     // Helper Functions
     function calculateDistance(lat1, lon1, lat2, lon2) { const R = 6371; const dLat = deg2rad(lat2 - lat1); const dLon = deg2rad(lon2 - lon1); const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * Math.sin(dLon/2) * Math.sin(dLon/2); const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); return (R * c).toFixed(1); }
     function deg2rad(deg) { return deg * (Math.PI/180); }
-    function initLocationService() { return new Promise((resolve) => { if (!navigator.geolocation) { resolve(); return; } const timeoutId = setTimeout(() => { resolve(); }, 5000); navigator.geolocation.getCurrentPosition((position) => { clearTimeout(timeoutId); userLocation = { lat: position.coords.latitude, lng: position.coords.longitude }; Object.values(allShops).forEach(shop => { if (shop.lat && shop.lng && !isNaN(shop.lat) && !isNaN(shop.lng)) { const dist = calculateDistance(userLocation.lat, userLocation.lng, shop.lat, shop.lng); shop.distance = parseFloat(dist); shop.distanceText = dist + " km"; } else { shop.distance = 9999; shop.distanceText = ""; } }); resolve(); }, (error) => { clearTimeout(timeoutId); resolve(); }); }); }
+    function initLocationService() { return new Promise((resolve) => { if (!navigator.geolocation) { resolve(); return; } const timeoutId = setTimeout(() => { resolve(); }, 5000); navigator.geolocation.getCurrentPosition((position) => { clearTimeout(timeoutId); userLocation = { lat: position.coords.latitude, lng: position.coords.longitude }; resolve(); }, (error) => { clearTimeout(timeoutId); resolve(); }); }); }
     function updateUI() { ['home-name','m-name'].forEach(id => document.getElementById(id).innerText = userProfile.displayName); ['home-avatar','m-avatar'].forEach(id => document.getElementById(id).src = userProfile.pictureUrl); }
     
-    function openShop(id) { currentShop = allShops[id]; currentShop.id = id; cart = []; updateCartUI(); const url = new URL(window.location); url.searchParams.set('id', id); window.history.pushState({}, '', url); document.getElementById('tab-bar').classList.add('hidden'); ['lobby-view','coupons-view','member-view','history-view'].forEach(id=>document.getElementById(id).classList.add('hidden')); document.getElementById('shop-view').classList.remove('hidden'); document.getElementById('shop-name-title').innerText = currentShop.name; document.getElementById('shop-banner').style.backgroundImage = `url(${currentShop.bannerUrl})`; document.getElementById('shop-address').innerText = currentShop.address || "暫無地址資訊"; document.getElementById('shop-hours').innerText = currentShop.openHours || "營業時間未定"; if (currentShop.type === 'retail') { document.getElementById('food-sidebar').style.display = 'none'; document.getElementById('food-content').style.display = 'none'; document.getElementById('mode-retail').style.display = 'grid'; renderRetailMenu(); } else { document.getElementById('mode-retail').style.display = 'none'; document.getElementById('food-sidebar').style.display = 'block'; document.getElementById('food-content').style.display = 'block'; renderFoodMenu(); } }
+    function openShop(id) { 
+        currentShop = allShops[id]; 
+        currentShop.id = id; 
+        
+        // Remove hidden classes to show shop view
+        document.getElementById('shop-view').classList.remove('hidden');
+        document.getElementById('tab-bar').classList.remove('hidden');
+        document.querySelectorAll('.tab-item')[0].classList.add('active');
+
+        // Update Content
+        document.getElementById('shop-name-title').innerText = currentShop.name; 
+        document.getElementById('shop-banner').style.backgroundImage = `url(${currentShop.bannerUrl})`; 
+        document.getElementById('shop-address').innerText = currentShop.address || "暫無地址資訊"; 
+        document.getElementById('shop-hours').innerText = currentShop.openHours || "營業時間未定"; 
+        
+        if (currentShop.type === 'retail') { 
+            document.getElementById('food-sidebar').style.display = 'none'; 
+            document.getElementById('food-content').style.display = 'none'; 
+            document.getElementById('mode-retail').style.display = 'grid'; 
+            renderRetailMenu(); 
+        } else { 
+            document.getElementById('mode-retail').style.display = 'none'; 
+            document.getElementById('food-sidebar').style.display = 'block'; 
+            document.getElementById('food-content').style.display = 'block'; 
+            renderFoodMenu(); 
+        } 
+    }
+    
     function openMap() { if (currentShop) { if (currentShop.address && currentShop.address.trim() !== "") { window.open(`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(currentShop.address)}`, '_blank'); } else if (currentShop.lat && currentShop.lng) { window.open(`https://www.google.com/maps/dir/?api=1&destination=${currentShop.lat},${currentShop.lng}`, '_blank'); } else { showMsg("無法取得商家位置資訊"); } } }
-    function renderFoodMenu() { const catList = document.getElementById('food-sidebar'); const prodList = document.getElementById('food-content'); catList.innerHTML = ''; prodList.innerHTML = ''; let menu = Array.isArray(currentShop.menu) && currentShop.menu[0].category ? currentShop.menu : [{category:"全部", items:currentShop.menu}]; menu.forEach((cat, idx) => { catList.innerHTML += `<div class="category-item ${idx===0?'active':''}" id="cat-btn-${idx}" onclick="document.getElementById('cat-sec-${idx}').scrollIntoView({behavior:'smooth'})">${cat.category}</div>`; let itemsHtml = ''; cat.items.forEach(item => { let itemJson = JSON.stringify(item).replace(/"/g, '&quot;'); itemsHtml += `<div class="food-item" onclick="openSpecModal(${itemJson})"><div class="food-img" style="background-image:url(${item.img||currentShop.bannerUrl})"></div><div class="food-info"><div><div class="food-name">${item.name}</div><div class="food-desc">${item.desc||''}</div></div><div class="food-action"><div class="food-price">${item.price}</div><div class="btn-add-mini">+</div></div></div></div>`; }); prodList.innerHTML += `<div id="cat-sec-${idx}" class="cat-section"><div class="category-title" style="margin:15px 0 10px 0;font-weight:bold;color:#333;">${cat.category}</div>${itemsHtml}</div>`; }); prodList.onscroll = function() { const secs = document.querySelectorAll('.cat-section'); secs.forEach((sec,i) => { if(sec.offsetTop - prodList.offsetTop <= prodList.scrollTop + 50) { document.querySelectorAll('.category-item').forEach(e=>e.classList.remove('active')); document.getElementById(`cat-btn-${i}`).classList.add('active'); } }); }; }
-    function renderRetailMenu() { let html = ''; currentShop.menu.forEach((item, idx) => { let img = item.img || currentShop.bannerUrl; html += `<div class="retail-item"><div class="retail-img" style="background-image:url(${img})"></div><div class="retail-info"><div style="font-weight:bold;font-size:14px;">${item.name}</div><div class="retail-actions" style="display:flex;justify-content:space-between;align-items:center;"><span style="color:#e64a19;font-weight:bold;">${item.price}</span><div class="stepper-mini"><button onclick="updateCartRetail('${item.name}', ${item.price}, -1)">-</button><span id="r-qty-${idx}" style="font-size:13px;font-weight:bold;margin:0 5px;">0</span><button onclick="updateCartRetail('${item.name}', ${item.price}, 1)">+</button></div></div></div></div>`; }); document.getElementById('mode-retail').innerHTML = html; }
+    function renderFoodMenu() { const catList = document.getElementById('food-sidebar'); const prodList = document.getElementById('food-content'); catList.innerHTML = ''; prodList.innerHTML = ''; let menu = Array.isArray(currentShop.menu) && currentShop.menu[0].category ? currentShop.menu : [{category:"全部", items:currentShop.menu}]; menu.forEach((cat, idx) => { catList.innerHTML += `<div class="category-item ${idx===0?'active':''}" id="cat-btn-${idx}" onclick="document.getElementById('cat-sec-${idx}').scrollIntoView({behavior:'smooth'})">${cat.category}</div>`; let itemsHtml = ''; cat.items.forEach(item => { let itemJson = JSON.stringify(item).replace(/"/g, '&quot;'); itemsHtml += `<div class="food-item" onclick="openSpecModal(${itemJson})"><div class="food-img" style="background-image:url(${item.img||currentShop.bannerUrl})"></div><div class="food-info"><div><div class="food-name">${item.name}</div><div class="food-desc">${item.desc||''}</div></div><div class="food-action"><div class="food-price">$${item.price}</div><div class="btn-add-mini">+</div></div></div></div>`; }); prodList.innerHTML += `<div id="cat-sec-${idx}" class="cat-section"><div class="category-title" style="margin:15px 0 10px 0;font-weight:bold;color:#333;">${cat.category}</div>${itemsHtml}</div>`; }); prodList.onscroll = function() { const secs = document.querySelectorAll('.cat-section'); secs.forEach((sec,i) => { if(sec.offsetTop - prodList.offsetTop <= prodList.scrollTop + 50) { document.querySelectorAll('.category-item').forEach(e=>e.classList.remove('active')); document.getElementById(`cat-btn-${i}`).classList.add('active'); } }); }; }
+    function renderRetailMenu() { let html = ''; currentShop.menu.forEach((item, idx) => { let img = item.img || currentShop.bannerUrl; html += `<div class="retail-item"><div class="retail-img" style="background-image:url(${img})"></div><div class="retail-info"><div style="font-weight:bold;font-size:14px;">${item.name}</div><div class="retail-actions" style="display:flex;justify-content:space-between;align-items:center;"><span style="color:#e64a19;font-weight:bold;">$${item.price}</span><div class="stepper-mini"><button onclick="updateCartRetail('${item.name}', ${item.price}, -1)">-</button><span id="r-qty-${idx}" style="font-size:13px;font-weight:bold;margin:0 5px;">0</span><button onclick="updateCartRetail('${item.name}', ${item.price}, 1)">+</button></div></div></div></div>`; }); document.getElementById('mode-retail').innerHTML = html; }
     function openSpecModal(item) { currentItem = item; currentQty = 1; currentOptions = {}; document.getElementById('sp-name').innerText = item.name; document.getElementById('sp-desc').innerText = item.desc||''; document.getElementById('sp-price').innerText = item.price; document.getElementById('sp-img').style.backgroundImage = `url(${item.img||currentShop.bannerUrl})`; document.getElementById('sp-qty').innerText = 1; let html = ''; for (let [k, vals] of Object.entries(item.options||{})) { currentOptions[k] = vals[0]; let chips = vals.map((v,i) => `<div class="chip ${i===0?'selected':''}" onclick="selOpt(this,'${k}','${v}')">${v}</div>`).join(''); html += `<div class="option-group"><div class="option-title" style="margin-bottom:8px;font-size:13px;color:#666;">${k}</div><div class="option-chips" style="display:flex;gap:8px;flex-wrap:wrap;">${chips}</div></div>`; } document.getElementById('sp-options').innerHTML = html || '<div style="color:#999;font-size:12px;">無規格選項</div>'; document.getElementById('spec-modal').classList.remove('hidden'); }
     function selOpt(el, k, v) { el.parentNode.querySelectorAll('.chip').forEach(c=>c.classList.remove('selected')); el.classList.add('selected'); currentOptions[k] = v; }
     function updateSpQty(n) { if(currentQty+n>0) { currentQty+=n; document.getElementById('sp-qty').innerText=currentQty; document.getElementById('sp-price').innerText=currentItem.price*currentQty; } }
     function addSpecToCart() { let opts = Object.values(currentOptions).join('/'); if(opts) opts = `(${opts})`; cart.push({name: currentItem.name + " " + opts, price: currentItem.price, qty: currentQty, total: currentItem.price*currentQty}); document.getElementById('spec-modal').classList.add('hidden'); updateCartUI(); }
     function updateCartRetail(name, price, change) { let exist = cart.find(x => x.name === name); if(exist) { exist.qty += change; if(exist.qty<=0) cart = cart.filter(x=>x.name!==name); else exist.total = exist.price*exist.qty; } else if(change>0) cart.push({name:name, price:price, qty:1, total:price, opts:""}); updateCartUI(); currentShop.menu.forEach((item,idx) => { let el = document.getElementById(`r-qty-${idx}`); let inCart = cart.find(x=>x.name===item.name); if(el) el.innerText = inCart?inCart.qty:0; }); }
     function updateCartUI() { let totalQty = cart.reduce((a,b)=>a+b.qty,0); let totalPrice = cart.reduce((a,b)=>a+b.total,0); if(totalQty > 0) { document.getElementById('cart-bar').style.display = 'flex'; document.getElementById('cart-count').innerText = totalQty; document.getElementById('cart-total').innerText = totalPrice; } else { document.getElementById('cart-bar').style.display = 'none'; closeCartModal(); } }
-    function openCartModal() { if(cart.length===0) { closeCartModal(); return; } const list = document.getElementById('cart-list'); let html = ''; cart.forEach((item, idx) => { html += ` <div class="cart-item"> <div style="flex:1;"> <div style="font-size:15px;font-weight:bold;margin-bottom:4px;">${item.name}</div> <div style="font-size:12px;color:#999;">${item.price}</div> </div> <div style="display:flex;align-items:center;gap:15px;"> <div style="font-weight:bold;min-width:40px;text-align:right;">${item.total}</div> <div class="cart-stepper"> <button onclick="updateCartItemQty(${idx}, -1)"><i class="fas fa-minus"></i></button> <span>${item.qty}</span> <button onclick="updateCartItemQty(${idx}, 1)"><i class="fas fa-plus"></i></button> </div> </div> </div>`; }); list.innerHTML = html; document.getElementById('cart-modal').classList.remove('hidden'); }
+    function openCartModal() { if(cart.length===0) { closeCartModal(); return; } const list = document.getElementById('cart-list'); let html = ''; cart.forEach((item, idx) => { html += ` <div class="cart-item"> <div style="flex:1;"> <div style="font-size:15px;font-weight:bold;margin-bottom:4px;">${item.name}</div> <div style="font-size:12px;color:#999;">$${item.price}</div> </div> <div style="display:flex;align-items:center;gap:15px;"> <div style="font-weight:bold;min-width:40px;text-align:right;">$${item.total}</div> <div class="cart-stepper"> <button onclick="updateCartItemQty(${idx}, -1)"><i class="fas fa-minus"></i></button> <span>${item.qty}</span> <button onclick="updateCartItemQty(${idx}, 1)"><i class="fas fa-plus"></i></button> </div> </div> </div>`; }); list.innerHTML = html; document.getElementById('cart-modal').classList.remove('hidden'); }
     function updateCartItemQty(idx, change) { let item = cart[idx]; if(!item) return; item.qty += change; if(item.qty <= 0) { cart.splice(idx, 1); } else { item.total = item.price * item.qty; } updateCartUI(); if(cart.length > 0) { openCartModal(); } else { closeCartModal(); } }
     function closeCartModal() { document.getElementById('cart-modal').classList.add('hidden'); }
     function closeSpecModal() { document.getElementById('spec-modal').classList.add('hidden'); }
@@ -807,111 +718,56 @@
     function removeCartItem(idx) { cart.splice(idx, 1); updateCartUI(); if(cart.length > 0) openCartModal(); }
     function selSvc(el, s) { document.querySelectorAll('.service-option').forEach(e=>e.classList.remove('selected')); el.classList.add('selected'); selectedService = s; }
     
-    // Updated History Logic
     function loadOrderHistory() {
         document.getElementById('history-list-container').innerHTML = '<div style="text-align:center;color:#999;font-size:12px;">載入中...</div>';
-        
         fetch(API_URL, {method:'POST', body:JSON.stringify({action:"getHistory", userId:userProfile.userId})})
         .then(res=>res.json())
         .then(data=>{ 
             orderCache = data; 
             const container = document.getElementById('history-list-container');
-            
-            if(orderCache.length===0) { 
-                container.innerHTML = '<div style="text-align:center;color:#999;padding:40px;">尚無訂單紀錄</div>'; 
-                return; 
-            } 
-            
+            if(orderCache.length===0) { container.innerHTML = '<div style="text-align:center;color:#999;padding:40px;">尚無訂單紀錄</div>'; return; } 
             let html = ''; 
             orderCache.forEach((o, i) => { 
-                // Parse Price
                 let price = o.content.split('總金額：')[1]?.split('\n')[0].replace('元','').trim() || ''; 
-                
-                // Parse Summary (Clean up content for card view)
-                let summary = o.content.split('\n')
-                    .filter(line => !line.includes('總金額') && !line.includes('---') && !line.includes('電話') && line.trim() !== '')
-                    .slice(0, 2)
-                    .join(', ');
+                let summary = o.content.split('\n').filter(line => !line.includes('總金額') && !line.includes('---') && !line.includes('電話') && line.trim() !== '').slice(0, 2).join(', ');
                 if (summary.length > 20) summary = summary.substring(0, 20) + '...';
-
-                // Status Styling
                 let statusClass = 'status-wait';
                 if (o.status.includes('已接單')) statusClass = 'status-ok';
                 else if (o.status.includes('婉拒') || o.status.includes('取消')) statusClass = 'status-no';
-
-                html += `
-                <div class="history-card" onclick="openOrderDetail(${i})">
-                    <div class="hc-header">
-                        <div class="hc-shop">${o.shopName}</div>
-                        <div class="hc-date">${o.time}</div>
-                    </div>
-                    <div class="hc-body">
-                        <div class="hc-summary">${summary || '點擊查看詳情'}</div>
-                        <div style="text-align:right;">
-                            <div class="hc-price">${price}</div>
-                            <div class="hc-status ${statusClass}">${o.status}</div>
-                        </div>
-                    </div>
-                </div>`; 
+                html += `<div class="history-card" onclick="openOrderDetail(${i})"><div class="hc-header"><div class="hc-shop">${o.shopName}</div><div class="hc-date">${o.time}</div></div><div class="hc-body"><div class="hc-summary">${summary || '點擊查看詳情'}</div><div style="text-align:right;"><div class="hc-price">$${price}</div><div class="hc-status ${statusClass}">${o.status}</div></div></div></div>`; 
             }); 
             container.innerHTML = html; 
-        }).catch(e=>{
-            document.getElementById('history-list-container').innerHTML = '<div style="text-align:center;color:red;">載入失敗</div>';
-        }); 
+        }).catch(e=>{}); 
     }
 
     function openOrderDetail(idx) { 
         let o = orderCache[idx]; 
-        // 顯示 Modal
         document.getElementById('order-detail-view').classList.remove('hidden'); 
-        
-        // 填充資料
         document.getElementById('od-shop-name').innerText = o.shopName; 
         document.getElementById('od-status').innerText = o.status; 
         document.getElementById('od-id').innerText = o.orderId; 
         document.getElementById('od-time').innerText = o.time; 
-        
         let html = '', total = '0', phone = '--'; 
         o.content.split('\n').forEach(line => { 
-            if(line.includes('總金額')) {
-                total = line.split('：')[1].replace('元','').trim(); 
-            } else if(line.includes('電話')) {
-                phone = line.split('：')[1]; 
-            } else if(!line.includes('---') && line.trim()) {
-                // Try to split item and price if possible, otherwise just show line
-                let parts = line.split('$');
-                let name = line; 
-                let price = '';
-                if(parts.length > 1) {
-                    name = parts[0];
-                    price = '$' + parts[1];
-                }
+            if(line.includes('總金額')) { total = line.split('：')[1].replace('元','').trim(); } 
+            else if(line.includes('電話')) { phone = line.split('：')[1]; } 
+            else if(!line.includes('---') && line.trim()) { 
+                let parts = line.split('$'); 
+                let name = line; let price = ''; 
+                if(parts.length > 1) { name = parts[0]; price = '$' + parts[1]; } 
                 html += `<div class="od-row"><div>${name}</div><div>${price}</div></div>`; 
             } 
         }); 
-        
         document.getElementById('od-items-list').innerHTML = html; 
         document.getElementById('od-total-price').innerText = total; 
         document.getElementById('od-phone').innerText = phone; 
-        
-        // Cancel Button Logic
         const cancelDiv = document.getElementById('od-cancel-container');
-        if(o.status.includes('待確認')) {
-            cancelDiv.innerHTML = `<div class="spec-add-btn" style="background:#fff;color:#D32F2F;border:1px solid #D32F2F;text-align:center;box-shadow:none;" onclick="cancelOrder('${o.orderId}')">取消訂單</div>`;
-        } else {
-            cancelDiv.innerHTML = '';
-        }
+        if(o.status.includes('待確認')) { cancelDiv.innerHTML = `<div class="spec-add-btn" style="background:#fff;color:#D32F2F;border:1px solid #D32F2F;text-align:center;box-shadow:none;" onclick="cancelOrder('${o.orderId}')">取消訂單</div>`; } 
+        else { cancelDiv.innerHTML = ''; }
     }
 
-    function closeOrderDetail() { 
-        document.getElementById('order-detail-view').classList.add('hidden'); 
-        // 不再切換 Tab，保持在當前畫面 (History View)
-    }
-
+    function closeOrderDetail() { document.getElementById('order-detail-view').classList.add('hidden'); }
     function cancelOrder(oid) { showConfirm("確定取消？", async () => { await fetch(API_URL, {method:'POST', mode:'no-cors', headers:{'Content-Type':'application/json'}, body:JSON.stringify({action:"cancelOrder", orderId:oid, userId:userProfile.userId})}); setTimeout(() => { showMsg("已送出取消", () => { closeOrderDetail(); loadOrderHistory(); }); }, 1500); }); }
-    function renderLobby(shops) { let html = ''; let shopArray = Object.keys(shops).map(key => { let s = shops[key]; s.id = key; return s; }); shopArray.sort((a, b) => { if (a.distance && b.distance) { return a.distance - b.distance; } return 0; }); shopArray.forEach(s => { let distHtml = s.distanceText ? `<span class="dist-badge"><i class="fas fa-location-arrow"></i> ${s.distanceText}</span>` : ''; html += `<div class="shop-card" onclick="openShop('${s.id}')"><div class="shop-thumb" style="background-image:url(${s.bannerUrl})"></div><div class="shop-info"><div class="shop-name" style="font-weight:bold;margin-bottom:5px; display:flex; align-items:center;">${s.name} ${distHtml}</div><div class="shop-action"><button class="btn-visit">去逛逛</button></div></div></div>`; }); document.getElementById('shop-list').innerHTML = html; }
-    function filterShops() { let key = document.getElementById('search-input').value.toLowerCase(); let res = {}; Object.keys(allShops).forEach(k => { if(allShops[k].name.toLowerCase().includes(key)) res[k] = allShops[k]; }); renderLobby(res); }
-    function goLobby() { const url = new URL(window.location); url.searchParams.delete('id'); window.history.pushState({}, '', url); document.getElementById('shop-view').classList.add('hidden'); document.getElementById('tab-bar').classList.remove('hidden'); document.getElementById('lobby-view').classList.remove('hidden'); }
     function fetchMemberData() { fetch(`${API_URL}?action=getMember&userId=${userProfile.userId}`).then(res=>res.json()).then(data=>{ document.getElementById('m-points').innerText = data.points || 0; document.getElementById('home-points').innerText = data.points || 0; if(data.name && data.name!=="會員") ['home-name','m-name'].forEach(id=>document.getElementById(id).innerText=data.name); window.currentMemberData = data; }).catch(e=>{}); }
     function openEditModal() { const data = window.currentMemberData || {}; document.getElementById('edit-name').value = data.name || userProfile.displayName; document.getElementById('edit-phone').value = data.phone || localStorage.getItem("uni_user_phone") || ""; if (data.birthday) try { document.getElementById('edit-birthday').value = new Date(data.birthday).toISOString().split('T')[0]; } catch(e){} document.getElementById('edit-modal').classList.remove('hidden'); }
     function closeEditModal() { document.getElementById('edit-modal').classList.add('hidden'); }
@@ -921,4 +777,3 @@
   </script>
 </body>
 </html>
-
