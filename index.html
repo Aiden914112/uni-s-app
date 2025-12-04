@@ -188,15 +188,28 @@
     .mode-item { font-weight: bold; color: #999; cursor: pointer; transition: color 0.2s; }
     .mode-item.active { color: #000; font-size: 18px; }
     .mode-split { margin: 0 10px; color: #E0E0E0; font-size: 14px; }
-    .header-tools i { font-size: 18px; color: #333; }
+    .header-tools { display: flex; align-items: center; } 
+    /* 移除舊 icon 樣式，這裡只保留 layout */
+
+    /* 新的好友拼單按鈕樣式 */
+    .btn-friend-order {
+        display: flex; align-items: center;
+        background-color: #FFF8E1; 
+        border: 1px solid #F2E3C6;
+        border-radius: 20px;
+        padding: 5px 12px;
+        cursor: pointer;
+        transition: transform 0.1s;
+    }
+    .btn-friend-order:active { transform: scale(0.95); }
+    .btn-friend-order svg { width: 20px; height: 20px; margin-right: 6px; }
+    .btn-friend-order span { font-size: 12px; font-weight: bold; color: #8A6D3B; letter-spacing: 0.5px; }
 
     .k-shop-info { padding: 5px 15px 10px 15px; background: #fff; position: relative; flex-shrink: 0; }
     .k-shop-name-row { display: flex; align-items: center; margin-bottom: 4px; }
     .k-shop-name { font-size: 16px; font-weight: bold; color: #212121; margin-left: 5px; }
     .k-distance-row { font-size: 11px; color: #999; display: flex; align-items: center; margin-bottom: 8px; }
-    .k-friend-order { position: absolute; right: 15px; top: 0px; text-align: center; cursor: pointer; }
-    .k-friend-order i { display: block; font-size: 18px; color: var(--gold); margin-bottom: 2px; }
-    .k-friend-order span { font-size: 9px; color: #666; }
+    /* Removed old k-friend-order styles */
     .k-announcement-row { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; }
     .k-tag { border: 1px solid #E0D8CC; color: #8A6D3B; font-size: 10px; padding: 2px 6px; border-radius: 2px; white-space: nowrap; background: #FFFAF0; }
 
@@ -223,12 +236,15 @@
     .btn-select-spec { background: var(--primary); color: white; padding: 4px 10px; border-radius: 15px; font-size: 11px; font-weight: bold; cursor: pointer; }
 
     /* Construction Mode for empty tabs */
+    /* [Fixed] Added width:100% and flex:1 to ensure centering works in flex container */
     .construction-view {
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
         height: 100%;
+        width: 100%; 
+        flex: 1;
         color: #999;
         padding-bottom: 100px; /* Avoid bottom nav */
     }
@@ -328,8 +344,29 @@
             <span class="mode-item">外賣</span>
         </div>
         <div class="header-tools">
-            <i class="fas fa-search" style="margin-right: 15px;"></i>
-            <i class="fas fa-ellipsis-h"></i>
+            <!-- 已移除搜尋和省略號，改放好友拼單按鈕 -->
+            <div class="btn-friend-order" onclick="showMsg('好友拼單功能開發中')">
+                <!-- Inline SVG: Two Clinking Bubble Tea Cups -->
+                <svg viewBox="0 0 100 100" fill="none" stroke="#C9A05C" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+                    <!-- Left Cup -->
+                    <path d="M30 35 L35 75 Q38 85 48 80 L25 80 Q35 85 38 75 L43 35 Z" fill="none"/>
+                    <line x1="36" y1="35" x2="28" y2="15" /> <!-- Left Straw -->
+                    <circle cx="36" cy="65" r="2" fill="#C9A05C" stroke="none"/> <!-- Boba -->
+                    <circle cx="33" cy="70" r="2" fill="#C9A05C" stroke="none"/>
+                    
+                    <!-- Right Cup (Tilted) -->
+                    <path d="M70 35 L65 75 Q62 85 52 80 L75 80 Q65 85 62 75 L57 35 Z" fill="none"/>
+                    <line x1="64" y1="35" x2="72" y2="15" /> <!-- Right Straw -->
+                    <circle cx="64" cy="65" r="2" fill="#C9A05C" stroke="none"/> <!-- Boba -->
+                    <circle cx="67" cy="70" r="2" fill="#C9A05C" stroke="none"/>
+                    
+                    <!-- Clink Effect -->
+                    <path d="M50 25 L50 15" stroke-dasharray="2 2" stroke-width="3"/>
+                    <path d="M45 20 L40 10" stroke-dasharray="2 2" stroke-width="3"/>
+                    <path d="M55 20 L60 10" stroke-dasharray="2 2" stroke-width="3"/>
+                </svg>
+                <span>好友拼單</span>
+            </div>
         </div>
     </div>
 
@@ -340,10 +377,7 @@
             <span id="current-shop-name" class="k-shop-name">載入中...</span>
             <div id="shop-announcement-btn" onclick="openStoreDetailModal()" style="margin-left: 10px; color: #999; cursor: pointer;"><i class="fas fa-chevron-right"></i></div>
             
-            <div class="k-friend-order" onclick="showMsg('好友拼單功能開發中')">
-                <i class="fas fa-glass-cheers"></i>
-                <span>好友拼單</span>
-            </div>
+            <!-- Removed old small friend order button -->
         </div>
         <div class="k-distance-row">
             <i class="fas fa-location-arrow" style="margin-right: 5px;"></i>
