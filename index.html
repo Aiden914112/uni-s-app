@@ -46,18 +46,18 @@
     .modal-sheet { background: #fff; width: 100%; border-radius: 20px 20px 0 0; max-height: 85vh; overflow-y: auto; animation: slideUp 0.3s; padding-bottom: 20px; position: absolute; bottom: 0; }
     @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
 
-    /* ==================== 1. 底部導航 (Tab Bar) ==================== */
+    /* ==================== 1. 底部導航 (Tab Bar - 5 Columns) ==================== */
     #tab-bar { 
       position: fixed; bottom: 0; left: 0; right: 0; 
-      background: #fff; height: 65px; display: flex; 
+      background: #fff; height: 60px; display: flex; 
       border-top: 1px solid #F0F0F0; 
       z-index: 950; padding-bottom: env(safe-area-inset-bottom); flex-shrink: 0; 
-      box-shadow: 0 -5px 20px rgba(0,0,0,0.03); 
+      box-shadow: 0 -2px 10px rgba(0,0,0,0.03); 
     }
-    .tab-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #999; font-size: 11px; cursor: pointer; transition: all 0.3s; }
+    .tab-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #999; font-size: 10px; cursor: pointer; transition: all 0.2s; }
     .tab-item.active { color: var(--primary); font-weight: bold; }
-    .tab-item.active .tab-icon { transform: translateY(-2px); }
-    .tab-icon { font-size: 20px; margin-bottom: 4px; }
+    .tab-item.active .tab-icon { transform: translateY(-1px); }
+    .tab-icon { font-size: 22px; margin-bottom: 2px; }
 
     /* ==================== 2. 主視圖容器 ==================== */
     .scroll-view { 
@@ -103,7 +103,6 @@
     .member-header-bg { display: none; }
     
     /* Premium Card - CHAGEE Style (Dark & Gold) */
-    /* [Layout Fix] Removed negative margin, adjusted to standard margin */
     .premium-card { 
       margin: 20px; 
       background: linear-gradient(135deg, #2B2B2B, #1A1A1A); 
@@ -159,27 +158,19 @@
 
     /* ==================== 3. 單一品牌店鋪頁面 (Main View) ==================== */
     #shop-view { background: #fff; height: 100%; display: flex; flex-direction: column; position: relative; z-index: 50; }
-    .shop-banner-area { width: 100%; height: 240px; background-size: cover; background-position: center; position: relative; flex-shrink: 0; }
-    .shop-banner-overlay { 
-      position: absolute; inset: 0; 
-      background: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.8) 100%); 
-      display: flex; flex-direction: column; justify-content: flex-end; padding: 25px 20px; 
-    }
-    .shop-title-large { 
-      color: #fff; font-size: 30px; font-weight: bold; 
-      text-shadow: 0 2px 10px rgba(0,0,0,0.5); letter-spacing: 2px; margin: 0;
-    }
-    .shop-subtitle {
-      color: rgba(255,255,255,0.9); font-size: 13px; margin-top: 5px; letter-spacing: 2px; text-transform: uppercase;
+    
+    /* New Shop Info Bar (CHAGEE Style) */
+    .shop-info-bar {
+        padding: 12px 20px;
+        background: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 1px solid #F5F5F5;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.02);
     }
 
-    .shop-controls { background: #fff; padding: 15px 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.03); z-index: 20; flex-shrink: 0; display: flex; flex-direction: column; gap: 12px; border-bottom: 1px solid #F5F5F5; }
-    .controls-top-row { display: flex; justify-content: space-between; align-items: center; }
-    .shop-detail-info { font-size: 12px; color: #888; display: flex; flex-direction: column; gap: 6px; }
-    .info-row { display: flex; align-items: center; gap: 8px; }
-    .btn-nav { background: #fff; color: var(--primary); border: 1px solid var(--primary); padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 5px; }
-    
-    .delivery-toggle { display: flex; background: #F5F5F5; border-radius: 20px; padding: 3px; }
+    /* Toggle Switch */
     .toggle-btn { padding: 6px 20px; border-radius: 18px; border: none; font-size: 13px; background: transparent; color: #888; font-weight: 500; }
     .toggle-btn.active { background: var(--primary); color: #fff; font-weight: bold; box-shadow: 0 2px 5px rgba(179, 60, 58, 0.2); }
     
@@ -193,7 +184,7 @@
     .category-item.active { background: #fff; color: #212121; font-weight: bold; }
     .category-item.active::before { content: ''; position: absolute; left: 0; top: 25px; bottom: 25px; width: 3px; background: var(--primary); }
     
-    /* [Layout Fix] Ensure menu content scrolls fully above fixed bars */
+    /* [Fixed] Menu Content Padding */
     .menu-content { 
         flex: 1; overflow-y: auto; 
         padding: 0 15px 150px 15px; 
@@ -205,11 +196,13 @@
     .food-item:last-child { border-bottom: none; }
     .food-img { width: 96px; height: 96px; border-radius: 8px; background-color: #F5F5F5; background-size: cover; background-position: center; flex-shrink: 0; }
     .food-info { flex: 1; padding-left: 14px; display: flex; flex-direction: column; justify-content: space-between; padding-bottom: 5px;}
-    .food-name { font-size: 16px; font-weight: bold; color: #212121; }
+    .food-name { font-size: 16px; font-weight: bold; color: #212121; font-family: 'Noto Serif TC'; }
     .food-desc { font-size: 12px; color: #999; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin-top: 4px; line-height: 1.4; }
     .food-action { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 5px; }
-    .food-price { color: #212121; font-weight: bold; font-size: 16px; }
-    .btn-add-mini { background: var(--primary); color: #fff; width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; box-shadow: 0 2px 8px rgba(179, 60, 58, 0.3); }
+    .food-price { color: #212121; font-weight: bold; font-family: 'Noto Serif TC'; font-size: 16px; }
+    
+    /* "選規格" 按鈕 */
+    .btn-select-spec { background: var(--primary); color: white; padding: 6px 14px; border-radius: 4px; font-size: 13px; font-weight: bold; cursor: pointer; box-shadow: 0 2px 5px rgba(179, 60, 58, 0.2); }
 
     .retail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding: 20px; width: 100%; overflow-y: auto; align-content: flex-start; padding-bottom: 180px; }
     .retail-item { background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.03); border: 1px solid #F0F0F0; display: flex; flex-direction: column; }
@@ -218,7 +211,7 @@
     .stepper-mini { display: flex; align-items: center; background: #F7F7F7; border-radius: 20px; }
     .stepper-mini button { width: 26px; height: 26px; border: none; background: transparent; font-size: 12px; display:flex; align-items:center; justify-content:center; color: var(--primary); }
 
-    /* [Layout Fix] Cart Bar: High contrast, Fixed position */
+    /* [Fixed] Cart Bar: Positioned Fixed at bottom 65px */
     .cart-bar { 
       position: fixed; 
       bottom: 65px; /* Above Tab Bar */
@@ -234,7 +227,7 @@
     .cart-badge { position: absolute; top: -6px; right: -6px; background: var(--danger); color: #fff; font-size: 10px; padding: 3px 7px; border-radius: 10px; border: 2px solid #fff; }
     .btn-checkout { background: var(--primary); color: #fff; border: none; height: 100%; padding: 0 35px; border-radius: 0 50px 50px 0; font-weight: bold; font-size: 15px; display: flex; align-items: center; letter-spacing: 1px; }
 
-    /* ==================== 4. 各種彈窗 ==================== */
+    /* ==================== 4. 各種彈窗 (Elegant Style) ==================== */
     .cart-header { display: flex; justify-content: space-between; align-items: center; padding: 18px 20px; background: #fff; border-bottom: 1px solid #F5F5F5; border-radius: 20px 20px 0 0; }
     .cart-stepper { display: flex; align-items: center; background: #F7F7F7; border-radius: 20px; border: none; }
     .cart-stepper button { width: 30px; height: 30px; border: none; background: transparent; font-size: 12px; display: flex; align-items: center; justify-content: center; color: #212121; }
@@ -309,6 +302,28 @@
     </div>
   </div>
 
+  <!-- Store Detail Modal -->
+  <div id="store-detail-modal" class="modal-overlay hidden" onclick="document.getElementById('store-detail-modal').classList.add('hidden')">
+    <div class="modal-sheet" style="max-height: 50vh; padding: 20px;" onclick="event.stopPropagation()">
+        <div style="text-align: center; font-weight: bold; font-size: 18px; color: #212121; margin-bottom: 20px;">門店資訊</div>
+        
+        <div class="detail-row" style="margin-bottom: 15px;">
+            <div style="font-weight: bold; color:#555; font-size: 13px;">門店公告</div>
+            <p id="modal-announcement" style="font-size: 14px; color:#212121; margin: 5px 0; line-height: 1.5;">...</p>
+        </div>
+        
+        <div class="detail-row" style="margin-bottom: 15px;">
+            <div style="font-weight: bold; color:#555; font-size: 13px;">門店地址</div>
+            <p id="modal-address" style="font-size: 14px; color:#212121; margin: 5px 0; line-height: 1.5;">...</p>
+        </div>
+        
+        <div style="display:flex; justify-content: space-between; align-items: center; padding-top: 15px; border-top: 1px solid #F5F5F5;">
+            <div style="color: #666; font-size: 13px;">聯繫店長：<span id="modal-phone" style="color:#212121; font-weight:bold;">...</span></div>
+            <a id="modal-call-btn" href="#" class="btn-nav" style="padding: 8px 20px; font-size: 13px; background: var(--primary); color: white; border:none; text-decoration:none;">撥打</a>
+        </div>
+    </div>
+  </div>
+
   <!-- Coupons View (Standalone) -->
   <div id="coupons-view" class="scroll-view hidden" style="background:#fff;">
     <div style="padding:20px 20px 10px 20px; display:flex; align-items:center;">
@@ -331,13 +346,13 @@
   </div>
 
   <!-- Member View -->
-  <div id="member-view" class="scroll-view hidden" style="padding-top: 70px;">
+  <div id="member-view" class="scroll-view hidden" style="padding-top: 20px;">
     <div class="member-header-bg"></div>
     <div class="premium-card">
       <div class="card-user-row">
           <img id="m-avatar" src="" class="card-avatar" style="border:2px solid var(--gold);">
           <div style="flex:1;">
-              <div id="m-name" style="font-size:20px;font-weight:bold;color:var(--gold);">...</div>
+              <div id="m-name" style="font-size:20px;font-weight:bold;color:var(--gold);font-family:'Noto Serif TC';">...</div>
               <div style="font-size:11px;background:rgba(201, 160, 92, 0.2);color:#E0E0E0;padding:3px 10px;border-radius:12px;display:inline-block;margin-top:6px;border:1px solid rgba(201, 160, 92, 0.3);">普通會員</div>
           </div>
           <i class="fas fa-cog" onclick="openEditModal()" style="font-size:20px;color:rgba(255,255,255,0.6);cursor:pointer;"></i>
@@ -369,22 +384,29 @@
 
   <!-- Shop View (Main Home) -->
   <div id="shop-view" class="hidden">
-    <div id="shop-banner" class="shop-banner-area">
-        <div class="shop-banner-overlay">
-            <h1 class="shop-title-large" id="shop-name-title">...</h1>
-            <div class="shop-subtitle">Uni-S Tea & Life</div>
-        </div>
+    <!-- CHAGEE Style Top Bar -->
+    <div id="order-type-switch" style="display:flex; justify-content:center; background:#fff; padding:10px 0; border-bottom:1px solid #F0F0F0;">
+        <button class="toggle-btn active">堂食</button>
+        <button class="toggle-btn" style="margin-left: 10px;">外賣</button>
     </div>
-    
-    <div class="shop-controls">
-      <div class="controls-top-row">
-          <div class="delivery-toggle"><button class="toggle-btn active">自取</button><button class="toggle-btn">外送</button></div>
-          <div class="btn-nav" id="btn-navigate" onclick="openMap()"><i class="fas fa-directions"></i> 導航</div>
-      </div>
-      <div class="shop-detail-info">
-          <div class="info-row"><i class="fas fa-map-marker-alt" style="width:14px; text-align:center;"></i> <span id="shop-address">...</span></div>
-          <div class="info-row"><i class="fas fa-clock" style="width:14px; text-align:center;"></i> <span id="shop-hours">...</span></div>
-      </div>
+
+    <div class="shop-info-bar" style="padding: 12px 20px; background: #fff; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #F5F5F5;">
+        <div style="flex: 1; min-width: 0;">
+            <div class="shop-name-row" style="display: flex; align-items: center; margin-bottom: 6px;">
+                <i class="fas fa-store" style="color:var(--primary); margin-right: 6px;"></i>
+                <span id="current-shop-name" style="font-weight: bold; font-size: 18px; color: #212121; font-family: 'Noto Serif TC';">載入中...</span>
+                <div id="shop-announcement-btn" onclick="openStoreDetailModal()" style="margin-left: 10px; color: #999; cursor: pointer;"><i class="fas fa-chevron-right"></i></div>
+            </div>
+            <div class="shop-status-row" style="display:flex; align-items:center; font-size:12px; color:#888;">
+                <i class="fas fa-location-arrow" style="margin-right: 4px;"></i>
+                <span id="shop-distance">定位中...</span>
+                <span style="margin: 0 6px; color: #ddd;">|</span>
+                <span id="shop-prep-status" style="color: var(--primary); font-weight: bold;">營業中</span>
+            </div>
+        </div>
+        <div onclick="showMsg('好友拼單功能開發中')" style="font-size: 12px; color: var(--primary); font-weight: bold; cursor: pointer; flex-shrink: 0; background: #FCEEEE; padding: 6px 12px; border-radius: 20px;">
+            <i class="fas fa-users"></i> 好友拼單
+        </div>
     </div>
     
     <div class="shop-body">
@@ -455,11 +477,11 @@
   <div id="spec-modal" class="modal-overlay hidden">
     <div class="modal-sheet">
       <div style="text-align:right;padding:15px;"><i class="fas fa-times" onclick="closeSpecModal()" style="font-size:22px;color:#ccc;cursor:pointer;"></i></div>
-      <div class="spec-header"><div class="spec-img" id="sp-img"></div><div><div style="font-size:20px;font-weight:bold;color:#212121;" id="sp-name"></div><div style="font-size:13px;color:#888;margin-top:5px;" id="sp-desc"></div></div></div>
+      <div class="spec-header"><div class="spec-img" id="sp-img"></div><div><div class="title" style="font-size:20px;font-weight:bold;color:#212121;" id="sp-name"></div><div style="font-size:13px;color:#888;margin-top:5px;" id="sp-desc"></div></div></div>
       <div id="sp-options" class="spec-options"></div>
       <div class="spec-footer" style="padding:15px 20px; border-top:1px solid #F0F0F0;">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:15px;">
-           <div style="font-size:22px;font-weight:bold;color:var(--primary);">$<span id="sp-price">0</span></div>
+           <div style="font-size:22px;font-weight:bold;color:var(--primary);font-family:'Noto Serif TC';">$<span id="sp-price">0</span></div>
            <div class="stepper"><button onclick="updateSpQty(-1)">-</button><span id="sp-qty" style="margin:0 10px;font-weight:bold;">1</span><button onclick="updateSpQty(1)">+</button></div>
         </div>
         <div class="spec-add-btn" onclick="addSpecToCart()">加入購物車</div>
@@ -499,15 +521,23 @@
     </div>
   </div>
 
-  <!-- Tab Bar -->
+  <!-- Updated Tab Bar (5 Tabs Mirror) -->
   <div id="tab-bar">
     <div class="tab-item active" onclick="switchTab('menu')">
+        <div class="tab-icon"><i class="fas fa-home"></i></div>
+        <div>首頁</div>
+    </div>
+    <div class="tab-item" onclick="switchTab('menu')">
         <div class="tab-icon"><i class="fas fa-mug-hot"></i></div>
-        <div>點餐</div>
+        <div>點單</div>
+    </div>
+    <div class="tab-item" onclick="switchTab('member')">
+        <div class="tab-icon"><i class="fas fa-crown"></i></div>
+        <div>會員</div>
     </div>
     <div class="tab-item" onclick="switchTab('history')">
-        <div class="tab-icon"><i class="fas fa-history"></i></div>
-        <div>紀錄</div>
+        <div class="tab-icon"><i class="fas fa-receipt"></i></div>
+        <div>取茶</div>
     </div>
     <div class="tab-item" onclick="switchTab('member')">
         <div class="tab-icon"><i class="fas fa-user"></i></div>
@@ -537,6 +567,7 @@
       document.getElementById('msg-modal-overlay').classList.remove('hidden'); 
       modalCb = cb; 
     }
+
     function showLoadingMsg(txt) { showMsg(txt, null, false); }
     function showConfirm(txt, cb) {
       document.getElementById('msg-text').innerText = txt; 
@@ -551,7 +582,7 @@
       modalCb = null;
     }
 
-    // 2. 替換 main() (單店啟動邏輯)
+    // 1. 單店啟動邏輯
     async function main() {
       try {
         await liff.init({ liffId: MY_LIFF_ID });
@@ -564,7 +595,6 @@
         allShops = await res.json();
         document.getElementById('loading').classList.add('hidden');
 
-        // 啟動邏輯：強制進入單店
         if (allShops[TARGET_SHOP_ID]) {
             openShop(TARGET_SHOP_ID);
         } else {
@@ -575,7 +605,7 @@
       } catch (err) { showMsg(err.message); }
     }
 
-    // 1. 替換 updateUI() (修正 null 錯誤)
+    // 2. UI 更新
     function updateUI() { 
         const mName = document.getElementById('m-name');
         const mAvatar = document.getElementById('m-avatar');
@@ -583,7 +613,24 @@
         if (mAvatar) mAvatar.src = userProfile.pictureUrl;
     }
 
-    // ========== 路由邏輯 ==========
+    // 新增函數：開啟門店詳情 Modal
+    function openStoreDetailModal() {
+        if(!currentShop) return;
+        const modal = document.getElementById('store-detail-modal');
+
+        document.getElementById('modal-address').innerText = currentShop.address || "地址資訊不足";
+        
+        // 模擬/讀取電話與公告
+        const managerPhone = '18850462893'; 
+        const announcement = currentShop.announcement || `營業時間：${currentShop.openHours || '09:00 - 22:00'}，請放心下單。`;
+        document.getElementById('modal-announcement').innerText = announcement;
+        
+        document.getElementById('modal-phone').innerText = managerPhone;
+        document.getElementById('modal-call-btn').href = 'tel:' + managerPhone;
+
+        modal.classList.remove('hidden');
+    }
+
     function switchTab(tab) {
         ['coupons-view', 'member-view', 'shop-view', 'history-view', 'order-detail-view'].forEach(id => {
              const el = document.getElementById(id);
@@ -595,30 +642,35 @@
 
         document.querySelectorAll('.tab-item').forEach(el => el.classList.remove('active'));
         
+        // 5-Tab Logic
+        // Index 0: 首頁 (Menu)
+        // Index 1: 點單 (Menu)
+        // Index 2: 會員 (Member)
+        // Index 3: 取茶 (History)
+        // Index 4: 我的 (Member)
+
         if (tab === 'menu') {
-            const shopView = document.getElementById('shop-view');
-            if(shopView) shopView.classList.remove('hidden');
+            document.getElementById('shop-view').classList.remove('hidden');
             document.querySelectorAll('.tab-item')[0].classList.add('active');
+            document.querySelectorAll('.tab-item')[1].classList.add('active'); // Highlight both
         } else if (tab === 'history') {
-            const histView = document.getElementById('history-view');
-            if(histView) histView.classList.remove('hidden');
-            document.querySelectorAll('.tab-item')[1].classList.add('active');
+            document.getElementById('history-view').classList.remove('hidden');
+            document.querySelectorAll('.tab-item')[3].classList.add('active');
             loadOrderHistory();
         } else if (tab === 'member') {
-            const memView = document.getElementById('member-view');
-            if(memView) memView.classList.remove('hidden');
+            document.getElementById('member-view').classList.remove('hidden');
             document.querySelectorAll('.tab-item')[2].classList.add('active');
+            document.querySelectorAll('.tab-item')[4].classList.add('active'); // Highlight both
             fetchMemberData();
             loadMyCoupons();
         } else if (tab === 'coupons') {
             if(tabBar) tabBar.classList.add('hidden'); 
-            const coupView = document.getElementById('coupons-view');
-            if(coupView) coupView.classList.remove('hidden');
+            document.getElementById('coupons-view').classList.remove('hidden');
             loadCoupons();
         }
     }
 
-    // ========== 優惠券邏輯 ==========
+    // ... (優惠券與購物車邏輯不變) ...
     async function loadCoupons() {
         const list = document.getElementById('coupons-list');
         list.innerHTML = '<div style="text-align:center;color:#999;font-size:12px;">載入優惠券中...</div>';
@@ -627,9 +679,7 @@
             const text = await res.text();
             let coupons;
             try { coupons = JSON.parse(text); } catch (e) { throw new Error("Server Error"); }
-
             if (coupons.status === 'error') throw new Error(coupons.message);
-            
             if (!Array.isArray(coupons) || coupons.length === 0) {
                 list.innerHTML = '<div style="text-align:center;color:#999;font-size:12px;margin-top:20px;">目前沒有可用的優惠券</div>';
                 return;
@@ -649,7 +699,6 @@
             list.innerHTML = html;
         } catch(e) { list.innerHTML = `<div style="text-align:center;color:var(--danger);">載入失敗</div>`; }
     }
-
     async function redeemCoupon(id) {
         showConfirm("確定要兌換這張優惠券嗎？", async () => {
             showLoadingMsg("處理中...");
@@ -659,17 +708,13 @@
             } catch(e) { showMsg("錯誤：" + e.message); }
         });
     }
-
     async function loadMyCoupons() {
         const list = document.getElementById('my-coupons-list');
         try {
             const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "getMyCoupons", userId: userProfile.userId }) });
             const text = await res.text();
             try { myCoupons = JSON.parse(text); } catch(e) { myCoupons = []; }
-            
-            if (myCoupons.length === 0) {
-                list.innerHTML = '尚無優惠券';
-            } else {
+            if (myCoupons.length === 0) { list.innerHTML = '尚無優惠券'; } else {
                 let html = '';
                 myCoupons.forEach(c => {
                     html += `<div class="my-coupon-item"><div><div style="font-weight:bold;color:#212121;">${c.name}</div><div style="font-size:11px;color:#999;">折抵 $${c.value}</div></div><div style="color:var(--primary);font-weight:bold;font-size:12px;border:1px solid var(--primary);padding:2px 8px;border-radius:10px;">未使用</div></div>`;
@@ -678,19 +723,15 @@
             }
         } catch(e) { list.innerHTML = '載入失敗'; }
     }
-
-    // ========== 結帳 ==========
     async function preCheckout() {
       if(cart.length===0) { showMsg("購物車是空的"); return; }
       const svcs = currentShop.services || ["自取"];
       let html = '';
       svcs.forEach((s,i) => { html += `<div class="service-option ${i===0?'selected':''}" onclick="selSvc(this,'${s}')">${s}</div>`; if(i===0) selectedService = s; });
       document.getElementById('service-options').innerHTML = html;
-
       const select = document.getElementById('coupon-selector');
       select.innerHTML = '<option value="" data-val="0">不使用優惠券</option>';
       select.onchange = updateFinalPrice; 
-
       try {
           const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "getMyCoupons", userId: userProfile.userId }) });
           const text = await res.text();
@@ -703,11 +744,9 @@
               select.appendChild(opt);
           });
       } catch(e) {}
-
       updateFinalPrice();
       document.getElementById('service-modal').classList.remove('hidden');
     }
-
     function updateFinalPrice() {
         const select = document.getElementById('coupon-selector');
         const discount = parseInt(select.options[select.selectedIndex].getAttribute('data-val') || 0);
@@ -716,36 +755,33 @@
         document.getElementById('final-checkout-price').innerText = "$" + final;
     }
 
-    // 替換 confirmOrder 函數
+    // 3. 下單後導向紀錄頁面
     async function confirmOrder() {
       document.getElementById('service-modal').classList.add('hidden');
       const select = document.getElementById('coupon-selector');
       const couponUuid = select.value;
       const discount = parseInt(select.options[select.selectedIndex].getAttribute('data-val') || 0);
-
       let detail = "", total = 0;
       cart.forEach(x => { detail += `${x.name} x ${x.qty} ($${x.total})\n`; total += x.total; });
       detail += `----------------\n總金額：$${total} 元\n服務方式：${selectedService}`;
       if (discount > 0) { detail += `\n優惠券折抵：-$${discount}\n實付金額：$${Math.max(0, total - discount)}`; }
-
       let phone = localStorage.getItem("uni_user_phone");
       if(!phone) { phone = prompt("請輸入您的手機號碼："); if(!phone) return; localStorage.setItem("uni_user_phone", phone); }
       detail += `\n----------------\n📞 聯絡電話：${phone}`;
-
       showLoadingMsg("處理中...");
       try {
         await liff.sendMessages([{type:"text", text:`【Uni-S】\n我向 ${currentShop.name} 下單了：\n\n${detail}`}]);
         await fetch(API_URL, {method:'POST', mode:'no-cors', headers:{'Content-Type':'application/json'}, 
-            body:JSON.stringify({
-                shopId:currentShop.id, userName:userProfile.displayName, userId:userProfile.userId, order:detail, couponUuid: couponUuid 
-            })
+            body:JSON.stringify({ shopId:currentShop.id, userName:userProfile.displayName, userId:userProfile.userId, order:detail, couponUuid: couponUuid })
         });
-        // 🔥 修正：送出成功後，導向紀錄頁面 (CHAGEE UX)
-        showMsg("✅ 訂單已送出！", () => { cart=[]; updateCartUI(); switchTab('history'); });
+        showMsg("✅ 訂單已送出！", () => { 
+            cart=[]; 
+            updateCartUI(); 
+            switchTab('history'); // <--- 導向紀錄頁
+        });
       } catch(e) { showMsg("失敗:"+e.message); }
     }
 
-    // Helper Functions
     function calculateDistance(lat1, lon1, lat2, lon2) { const R = 6371; const dLat = deg2rad(lat2 - lat1); const dLon = deg2rad(lon2 - lon1); const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * Math.sin(dLon/2) * Math.sin(dLon/2); const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); return (R * c).toFixed(1); }
     function deg2rad(deg) { return deg * (Math.PI/180); }
     function initLocationService() { return new Promise((resolve) => { if (!navigator.geolocation) { resolve(); return; } const timeoutId = setTimeout(() => { resolve(); }, 5000); navigator.geolocation.getCurrentPosition((position) => { clearTimeout(timeoutId); userLocation = { lat: position.coords.latitude, lng: position.coords.longitude }; resolve(); }, (error) => { clearTimeout(timeoutId); resolve(); }); }); }
@@ -755,39 +791,52 @@
         currentShop.id = id; 
         cart = []; 
         updateCartUI(); 
-
-        // Clean up view visibility (Removed lobby-view)
-        ['coupons-view','member-view','history-view'].forEach(id => {
-            const el = document.getElementById(id);
-            if(el) el.classList.add('hidden');
-        });
-
+        ['coupons-view','member-view','history-view'].forEach(id => { document.getElementById(id).classList.add('hidden'); });
         document.getElementById('shop-view').classList.remove('hidden');
         document.getElementById('tab-bar').classList.remove('hidden');
         document.querySelectorAll('.tab-item')[0].classList.add('active');
 
-        document.getElementById('shop-name-title').innerText = currentShop.name; 
-        document.getElementById('shop-banner').style.backgroundImage = `url(${currentShop.bannerUrl})`; 
-        document.getElementById('shop-address').innerText = currentShop.address || "暫無地址資訊"; 
-        document.getElementById('shop-hours').innerText = currentShop.openHours || "營業時間未定"; 
+        // 初始化頂部 CHAGEE 鏡像資訊
+        document.getElementById('current-shop-name').innerText = currentShop.name;
+        // Mock Distance & Status for visual fidelity
+        document.getElementById('shop-distance').innerText = "距您 0.5 km"; 
+        document.getElementById('shop-prep-status').innerText = "前方 3 杯製作中";
         
-        if (currentShop.type === 'retail') { 
-            document.getElementById('food-sidebar').style.display = 'none'; 
-            document.getElementById('food-content').style.display = 'none'; 
-            document.getElementById('mode-retail').style.display = 'grid'; 
-            renderRetailMenu(); 
-        } else { 
-            document.getElementById('mode-retail').style.display = 'none'; 
-            document.getElementById('food-sidebar').style.display = 'block'; 
-            document.getElementById('food-content').style.display = 'block'; 
-            renderFoodMenu(); 
-        } 
+        if (currentShop.type === 'retail') { document.getElementById('food-sidebar').style.display = 'none'; document.getElementById('food-content').style.display = 'none'; document.getElementById('mode-retail').style.display = 'grid'; renderRetailMenu(); } 
+        else { document.getElementById('mode-retail').style.display = 'none'; document.getElementById('food-sidebar').style.display = 'block'; document.getElementById('food-content').style.display = 'block'; renderFoodMenu(); } 
     }
     
     function openMap() { if (currentShop) { if (currentShop.address && currentShop.address.trim() !== "") { window.open(`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(currentShop.address)}`, '_blank'); } else if (currentShop.lat && currentShop.lng) { window.open(`https://www.google.com/maps/dir/?api=1&destination=${currentShop.lat},${currentShop.lng}`, '_blank'); } else { showMsg("無法取得商家位置資訊"); } } }
-    function renderFoodMenu() { const catList = document.getElementById('food-sidebar'); const prodList = document.getElementById('food-content'); catList.innerHTML = ''; prodList.innerHTML = ''; let menu = Array.isArray(currentShop.menu) && currentShop.menu[0].category ? currentShop.menu : [{category:"全部", items:currentShop.menu}]; menu.forEach((cat, idx) => { catList.innerHTML += `<div class="category-item ${idx===0?'active':''}" id="cat-btn-${idx}" onclick="document.getElementById('cat-sec-${idx}').scrollIntoView({behavior:'smooth'})">${cat.category}</div>`; let itemsHtml = ''; cat.items.forEach(item => { let itemJson = JSON.stringify(item).replace(/"/g, '&quot;'); itemsHtml += `<div class="food-item" onclick="openSpecModal(${itemJson})"><div class="food-img" style="background-image:url(${item.img||currentShop.bannerUrl})"></div><div class="food-info"><div><div class="food-name">${item.name}</div><div class="food-desc">${item.desc||''}</div></div><div class="food-action"><div class="food-price">$${item.price}</div><div class="btn-add-mini">+</div></div></div></div>`; }); prodList.innerHTML += `<div id="cat-sec-${idx}" class="cat-section"><div class="category-title" style="margin:15px 0 10px 0;font-weight:bold;color:#333;">${cat.category}</div>${itemsHtml}</div>`; }); prodList.onscroll = function() { const secs = document.querySelectorAll('.cat-section'); secs.forEach((sec,i) => { if(sec.offsetTop - prodList.offsetTop <= prodList.scrollTop + 50) { document.querySelectorAll('.category-item').forEach(e=>e.classList.remove('active')); document.getElementById(`cat-btn-${i}`).classList.add('active'); } }); }; }
+    
+    function renderFoodMenu() { 
+        const catList = document.getElementById('food-sidebar'); 
+        const prodList = document.getElementById('food-content'); 
+        catList.innerHTML = ''; prodList.innerHTML = ''; 
+        let menu = Array.isArray(currentShop.menu) && currentShop.menu[0].category ? currentShop.menu : [{category:"全部", items:currentShop.menu}]; 
+        menu.forEach((cat, idx) => { 
+            catList.innerHTML += `<div class="category-item ${idx===0?'active':''}" id="cat-btn-${idx}" onclick="document.getElementById('cat-sec-${idx}').scrollIntoView({behavior:'smooth'})">${cat.category}</div>`; 
+            let itemsHtml = ''; 
+            cat.items.forEach(item => { 
+                let itemJson = JSON.stringify(item).replace(/"/g, '&quot;'); 
+                itemsHtml += `
+                <div class="food-item" onclick="openSpecModal(${itemJson})">
+                    <div class="food-img" style="background-image:url(${item.img||currentShop.bannerUrl})"></div>
+                    <div class="food-info">
+                        <div><div class="food-name">${item.name}</div><div class="food-desc">${item.desc||''}</div></div>
+                        <div class="food-action">
+                            <div class="food-price">$${item.price}</div>
+                            <!-- 動作按鈕替換: 選規格 -->
+                            <div class="btn-select-spec">選規格</div>
+                        </div>
+                    </div>
+                </div>`; 
+            }); 
+            prodList.innerHTML += `<div id="cat-sec-${idx}" class="cat-section"><div class="category-title">${cat.category}</div>${itemsHtml}</div>`; 
+        }); 
+        prodList.onscroll = function() { const secs = document.querySelectorAll('.cat-section'); secs.forEach((sec,i) => { if(sec.offsetTop - prodList.offsetTop <= prodList.scrollTop + 50) { document.querySelectorAll('.category-item').forEach(e=>e.classList.remove('active')); document.getElementById(`cat-btn-${i}`).classList.add('active'); } }); }; 
+    }
     function renderRetailMenu() { let html = ''; currentShop.menu.forEach((item, idx) => { let img = item.img || currentShop.bannerUrl; html += `<div class="retail-item"><div class="retail-img" style="background-image:url(${img})"></div><div class="retail-info"><div style="font-weight:bold;font-size:14px;">${item.name}</div><div class="retail-actions" style="display:flex;justify-content:space-between;align-items:center;"><span style="color:#e64a19;font-weight:bold;">$${item.price}</span><div class="stepper-mini"><button onclick="updateCartRetail('${item.name}', ${item.price}, -1)">-</button><span id="r-qty-${idx}" style="font-size:13px;font-weight:bold;margin:0 5px;">0</span><button onclick="updateCartRetail('${item.name}', ${item.price}, 1)">+</button></div></div></div></div>`; }); document.getElementById('mode-retail').innerHTML = html; }
-    function openSpecModal(item) { currentItem = item; currentQty = 1; currentOptions = {}; document.getElementById('sp-name').innerText = item.name; document.getElementById('sp-desc').innerText = item.desc||''; document.getElementById('sp-price').innerText = item.price; document.getElementById('sp-img').style.backgroundImage = `url(${item.img||currentShop.bannerUrl})`; document.getElementById('sp-qty').innerText = 1; let html = ''; for (let [k, vals] of Object.entries(item.options||{})) { currentOptions[k] = vals[0]; let chips = vals.map((v,i) => `<div class="chip ${i===0?'selected':''}" onclick="selOpt(this,'${k}','${v}')">${v}</div>`).join(''); html += `<div class="option-group"><div class="option-title" style="margin-bottom:8px;font-size:13px;color:#666;">${k}</div><div class="option-chips" style="display:flex;gap:8px;flex-wrap:wrap;">${chips}</div></div>`; } document.getElementById('sp-options').innerHTML = html || '<div style="color:#999;font-size:12px;">無規格選項</div>'; document.getElementById('spec-modal').classList.remove('hidden'); }
+    function openSpecModal(item) { currentItem = item; currentQty = 1; currentOptions = {}; document.getElementById('sp-name').innerText = item.name; document.getElementById('sp-desc').innerText = item.desc||''; document.getElementById('sp-price').innerText = item.price; document.getElementById('sp-img').style.backgroundImage = `url(${item.img||currentShop.bannerUrl})`; document.getElementById('sp-qty').innerText = 1; let html = ''; for (let [k, vals] of Object.entries(item.options||{})) { currentOptions[k] = vals[0]; let chips = vals.map((v,i) => `<div class="chip ${i===0?'selected':''}" onclick="selOpt(this,'${k}','${v}')">${v}</div>`).join(''); html += `<div class="option-group"><div class="option-title">${k}</div><div class="option-chips" style="display:flex;gap:8px;flex-wrap:wrap;">${chips}</div></div>`; } document.getElementById('sp-options').innerHTML = html || '<div style="color:#999;font-size:12px;">無規格選項</div>'; document.getElementById('spec-modal').classList.remove('hidden'); }
     function selOpt(el, k, v) { el.parentNode.querySelectorAll('.chip').forEach(c=>c.classList.remove('selected')); el.classList.add('selected'); currentOptions[k] = v; }
     function updateSpQty(n) { if(currentQty+n>0) { currentQty+=n; document.getElementById('sp-qty').innerText=currentQty; document.getElementById('sp-price').innerText=currentItem.price*currentQty; } }
     function addSpecToCart() { let opts = Object.values(currentOptions).join('/'); if(opts) opts = `(${opts})`; cart.push({name: currentItem.name + " " + opts, price: currentItem.price, qty: currentQty, total: currentItem.price*currentQty}); document.getElementById('spec-modal').classList.add('hidden'); updateCartUI(); }
