@@ -10,16 +10,16 @@
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
 
   <style>
-    /* ==================== 0. 全局與重置 (Aesthetics Upgrade) ==================== */
+    /* ==================== 0. 全局與重置 (CHAGEE Aesthetic) ==================== */
     :root { 
-      --primary: #9F8C6D; /* 保持陶土金/行動色 */
-      --gold: #CCB28A;    
-      --bg: #F9F9F9;      /* 更亮的背景白，提升對比度 */ 
-      --text: #2C2620;    /* 更深的文字墨黑 */ 
-      --tea-sidebar: #F0EDE5; 
+      --primary: #B33C3A; /* CHAGEE Cinnabar Red - 硃砂紅 */
+      --gold: #C9A05C;    /* Sharper Gold - 鉑金 */ 
+      --bg: #FFFFFF;      /* Crisp White Background - 純白背景 */ 
+      --text: #212121;    /* High Contrast Black - 深邃黑 */ 
+      --tea-sidebar: #F7F7F7; /* Very light grey for sidebar */
       
-      --danger: #B85C5C;  
-      --success: #7A8B69; 
+      --danger: #B33C3A;  /* Align danger with primary red */
+      --success: #7A8B69; /* Muted Green */
     }
 
     body { 
@@ -32,37 +32,49 @@
       height: 100vh; overflow: hidden; display: flex; flex-direction: column; 
     }
     
-    h1, h2, h3, .shop-name, .coupon-val, .spec-header .title {
-      font-family: 'Noto Serif TC', serif; 
+    h1, h2, h3, .shop-name, .coupon-val, .spec-header .title, .od-shop-name, .app-title {
+      font-family: 'Noto Serif TC', serif; /* 關鍵標題使用宋體 */
     }
 
     .hidden { display: none !important; }
     #loading { position: fixed; inset: 0; background: var(--bg); z-index: 2000; display: flex; justify-content: center; align-items: center; color: var(--primary); flex-direction: column; }
 
     /* 通用彈窗遮罩 */
-    .modal-overlay { position: fixed; inset: 0; background: rgba(44, 38, 32, 0.6); z-index: 1000; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.6); z-index: 1000; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(2px); }
     /* 底部滑出面板 */
     .modal-sheet { background: #fff; width: 100%; border-radius: 20px 20px 0 0; max-height: 85vh; overflow-y: auto; animation: slideUp 0.3s; padding-bottom: 20px; position: absolute; bottom: 0; }
     @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
 
     /* ==================== 1. 底部導航 (Tab Bar) ==================== */
-    #tab-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; height: 65px; display: flex; border-top: 1px solid #E0D8CC; z-index: 950; padding-bottom: env(safe-area-inset-bottom); flex-shrink: 0; box-shadow: 0 -2px 10px rgba(0,0,0,0.02); }
+    #tab-bar { 
+      position: fixed; bottom: 0; left: 0; right: 0; 
+      background: #fff; height: 65px; display: flex; 
+      border-top: 1px solid #F0F0F0; 
+      z-index: 950; padding-bottom: env(safe-area-inset-bottom); flex-shrink: 0; 
+      box-shadow: 0 -5px 20px rgba(0,0,0,0.03); 
+    }
     .tab-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #999; font-size: 11px; cursor: pointer; transition: all 0.3s; }
     .tab-item.active { color: var(--primary); font-weight: bold; }
     .tab-item.active .tab-icon { transform: translateY(-2px); }
     .tab-icon { font-size: 20px; margin-bottom: 4px; }
 
     /* ==================== 2. 主視圖容器 ==================== */
-    .scroll-view { flex: 1; overflow-y: auto; padding-bottom: 80px; -webkit-overflow-scrolling: touch; }
+    /* Ensure background is pure white for that crisp look */
+    .scroll-view { 
+      background-color: white; 
+      flex: 1; overflow-y: auto; 
+      padding-bottom: 80px; 
+      -webkit-overflow-scrolling: touch; 
+    }
 
     /* 優惠券與會員中心樣式 */
     .coupon-grid { display: grid; grid-template-columns: 1fr; gap: 16px; padding: 0 20px; }
     .coupon-item { 
-      background: #fff; border-radius: 14px; display: flex; overflow: hidden; 
-      box-shadow: 0 4px 12px rgba(0,0,0,0.05); position: relative; border: 1px solid #EBE6DE;
+      background: #fff; border-radius: 8px; display: flex; overflow: hidden; 
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05); position: relative; border: 1px solid #F0F0F0;
     }
     .coupon-left { 
-      background: linear-gradient(135deg, var(--primary), #8A7A5B); 
+      background: linear-gradient(135deg, var(--primary), #8E2A28); /* Deep Red Gradient */
       width: 95px; color: #fff; display: flex; flex-direction: column; 
       align-items: center; justify-content: center; text-align: center; padding: 10px; 
       position: relative;
@@ -74,7 +86,7 @@
     }
     .coupon-val { font-size: 26px; font-weight: bold; font-family: 'Noto Serif TC'; }
     .coupon-right { flex: 1; padding: 14px 16px; display: flex; flex-direction: column; justify-content: center; }
-    .coupon-name { font-weight: bold; font-size: 15px; color: #2C2620; margin-bottom: 6px; }
+    .coupon-name { font-weight: bold; font-size: 15px; color: #212121; margin-bottom: 6px; }
     .coupon-cost { font-size: 12px; color: #888; }
     .btn-redeem { 
       position: absolute; right: 15px; top: 50%; transform: translateY(-50%); 
@@ -82,24 +94,25 @@
       padding: 5px 14px; border-radius: 20px; font-size: 12px; cursor: pointer; font-weight: bold;
     }
     .my-coupon-item { 
-      background: #fff; border: 1px dashed var(--gold); border-radius: 10px; padding: 14px; 
+      background: #fff; border: 1px solid #F0F0F0; border-left: 4px solid var(--gold); 
+      border-radius: 4px; padding: 16px; 
       margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; 
-      box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.03);
     }
 
     .member-header-bg { display: none; }
     
+    /* Premium Card - CHAGEE Style (Dark & Gold) */
     .premium-card { 
-      margin: 20px; 
-      background: linear-gradient(135deg, #3E362E, #26211C); 
-      border-radius: 18px; padding: 24px; color: #E0D8CC; 
-      box-shadow: 0 15px 40px rgba(44, 38, 32, 0.25); position: relative; overflow: hidden; 
-      border: 1px solid rgba(255,255,255,0.1);
+      margin: 20px; /* Final fix: correct margin */
+      background: linear-gradient(135deg, #2B2B2B, #1A1A1A); 
+      border-radius: 12px; padding: 24px; color: #E0E0E0; 
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3); position: relative; overflow: hidden; 
     }
     .premium-card::before { 
-      content: ""; position: absolute; top: -50px; right: -50px; width: 150px; height: 150px; 
-      background: radial-gradient(circle, rgba(204, 186, 138, 0.1) 0%, transparent 70%); 
-      pointer-events: none;
+      content: ""; position: absolute; top: -40px; right: -40px; width: 120px; height: 120px; 
+      background: radial-gradient(circle, var(--gold) 0%, transparent 70%); 
+      opacity: 0.3; pointer-events: none;
     }
     .card-user-row { display: flex; align-items: center; margin-bottom: 28px; }
     
@@ -115,170 +128,165 @@
     .stat-label { font-size: 11px; opacity: 0.7; letter-spacing: 1px; }
     
     .service-section { 
-      background: #fff; margin: 0 20px 20px 20px; border-radius: 16px; padding: 24px 15px; 
-      box-shadow: 0 4px 15px rgba(0,0,0,0.03); display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; 
-      border: 1px solid #F0EDE5;
+      background: #fff; margin: 0 20px 20px 20px; border-radius: 12px; padding: 24px 10px; 
+      box-shadow: 0 4px 20px rgba(0,0,0,0.04); display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; 
+      border: 1px solid #F5F5F5;
     }
     .service-item { text-align: center; cursor: pointer; transition: transform 0.2s; }
     .service-item:active { transform: scale(0.95); }
-    .service-icon { font-size: 24px; color: #6B6359; margin-bottom: 8px; }
+    .service-icon { font-size: 24px; color: #4A4A4A; margin-bottom: 8px; }
     .service-label { font-size: 12px; color: #666; letter-spacing: 0.5px; }
 
     /* History Styles */
     .history-card {
-      background: #fff; border-radius: 12px; padding: 20px; margin-bottom: 15px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.03); border: 1px solid #F0EDE5; position: relative; transition: transform 0.2s;
+      background: #fff; border-radius: 8px; padding: 20px; margin-bottom: 15px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.03); border: 1px solid #F0F0F0; position: relative; transition: transform 0.2s;
     }
     .history-card:active { transform: scale(0.98); }
-    .hc-header { display: flex; justify-content: space-between; margin-bottom: 12px; border-bottom: 1px dashed #E0D8CC; padding-bottom: 8px; }
-    .hc-shop { font-weight: bold; font-size: 16px; color: #2C2620; font-family: 'Noto Serif TC'; }
+    .hc-header { display: flex; justify-content: space-between; margin-bottom: 12px; border-bottom: 1px solid #F5F5F5; padding-bottom: 10px; }
+    .hc-shop { font-weight: bold; font-size: 16px; color: #212121; font-family: 'Noto Serif TC'; }
     .hc-date { font-size: 12px; color: #999; }
     .hc-body { display: flex; justify-content: space-between; align-items: center; }
     .hc-summary { font-size: 13px; color: #666; line-height: 1.5; flex: 1; padding-right: 10px; }
     .hc-price { font-size: 18px; font-weight: bold; color: var(--primary); font-family: 'Noto Serif TC'; }
     .hc-status { display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; margin-top: 5px; }
     .status-wait { background: #FFF8E1; color: #D4A017; }
-    .status-ok { background: #EEF5E5; color: var(--success); }
+    .status-ok { background: #E8F5E9; color: var(--success); }
     .status-no { background: #FDEEEE; color: var(--danger); }
 
     /* ==================== 3. 單一品牌店鋪頁面 (Main View) ==================== */
     #shop-view { background: #fff; height: 100%; display: flex; flex-direction: column; position: relative; z-index: 50; }
-    .shop-banner-area { width: 100%; height: 220px; background-size: cover; background-position: center; position: relative; flex-shrink: 0; }
+    .shop-banner-area { width: 100%; height: 240px; background-size: cover; background-position: center; position: relative; flex-shrink: 0; }
     .shop-banner-overlay { 
       position: absolute; inset: 0; 
-      background: linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.7) 100%); 
+      background: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.8) 100%); 
       display: flex; flex-direction: column; justify-content: flex-end; padding: 25px 20px; 
     }
     .shop-title-large { 
-      color: #fff; font-size: 28px; font-weight: bold; 
+      color: #fff; font-size: 30px; font-weight: bold; 
       text-shadow: 0 2px 10px rgba(0,0,0,0.5); letter-spacing: 2px; margin: 0;
       font-family: 'Noto Serif TC'; 
     }
     .shop-subtitle {
-      color: rgba(255,255,255,0.9); font-size: 13px; margin-top: 5px; letter-spacing: 1px;
+      color: rgba(255,255,255,0.9); font-size: 13px; margin-top: 5px; letter-spacing: 2px; text-transform: uppercase;
     }
 
-    .shop-controls { background: #fff; padding: 15px 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.04); z-index: 20; flex-shrink: 0; display: flex; flex-direction: column; gap: 10px; border-bottom: 1px solid #F0EDE5; }
+    .shop-controls { background: #fff; padding: 15px 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.03); z-index: 20; flex-shrink: 0; display: flex; flex-direction: column; gap: 12px; border-bottom: 1px solid #F5F5F5; }
     .controls-top-row { display: flex; justify-content: space-between; align-items: center; }
     .shop-detail-info { font-size: 12px; color: #888; display: flex; flex-direction: column; gap: 6px; }
     .info-row { display: flex; align-items: center; gap: 8px; }
-    .btn-nav { background: #F7F4EF; color: var(--primary); border: 1px solid var(--primary); padding: 5px 12px; border-radius: 15px; font-size: 12px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 5px; }
+    .btn-nav { background: #fff; color: var(--primary); border: 1px solid var(--primary); padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 5px; }
     
-    .delivery-toggle { display: flex; background: #F0EDE5; border-radius: 20px; padding: 3px; }
-    .toggle-btn { padding: 6px 18px; border-radius: 18px; border: none; font-size: 13px; background: transparent; color: #888; font-weight: 500; }
-    .toggle-btn.active { background: #fff; color: var(--primary); font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+    .delivery-toggle { display: flex; background: #F5F5F5; border-radius: 20px; padding: 3px; }
+    .toggle-btn { padding: 6px 20px; border-radius: 18px; border: none; font-size: 13px; background: transparent; color: #888; font-weight: 500; }
+    .toggle-btn.active { background: var(--primary); color: #fff; font-weight: bold; box-shadow: 0 2px 5px rgba(179, 60, 58, 0.2); }
     
-    /* [Fixed] Cart Bar Visibility & Scroll */
     .shop-body { 
       flex: 1; display: flex; overflow: hidden; position: relative; background: #fff; 
-      padding-bottom: 0; /* Padding moved to content */
+      padding-bottom: 0; 
     }
     
     .menu-sidebar { width: 90px; background: var(--tea-sidebar); overflow-y: auto; scrollbar-width: none; padding-bottom: 80px; }
-    .category-item { padding: 22px 5px; font-size: 13px; color: #888; text-align: center; cursor: pointer; position: relative; font-weight: 500; letter-spacing: 1px; }
-    .category-item.active { background: #fff; color: var(--primary); font-weight: bold; }
-    .category-item.active::before { content: ''; position: absolute; left: 0; top: 20px; bottom: 20px; width: 4px; background: var(--primary); border-radius: 0 4px 4px 0; }
+    .category-item { padding: 25px 5px; font-size: 13px; color: #666; text-align: center; cursor: pointer; position: relative; font-weight: 500; letter-spacing: 1px; }
+    .category-item.active { background: #fff; color: #212121; font-weight: bold; }
+    .category-item.active::before { content: ''; position: absolute; left: 0; top: 25px; bottom: 25px; width: 3px; background: var(--primary); }
     
-    /* [Fixed] 菜單內容底部增加 180px padding，確保不被購物車與 Tab Bar 遮擋 */
+    /* [Fixed] Menu Content Padding */
     .menu-content { 
         flex: 1; overflow-y: auto; 
         padding: 0 15px 180px 15px; 
         scroll-behavior: smooth; 
     }
     
-    .category-title { font-size: 15px; font-weight: bold; color: #2C2620; margin: 25px 0 15px 0; padding-left: 8px; border-left: 3px solid var(--gold); line-height: 1.2; letter-spacing: 1px; }
-    .food-item { display: flex; margin-bottom: 24px; padding-bottom: 12px; border-bottom: 1px dashed #E0D8CC; }
-    .food-item:last-child { border-bottom: none; }
-    .food-img { width: 96px; height: 96px; border-radius: 10px; background-color: #F0EDE5; background-size: cover; background-position: center; flex-shrink: 0; }
-    .food-info { flex: 1; padding-left: 14px; display: flex; flex-direction: column; justify-content: space-between; }
-    .food-name { font-size: 16px; font-weight: bold; color: #2C2620; font-family: 'Noto Serif TC'; }
+    .category-title { font-size: 15px; font-weight: bold; color: #212121; margin: 25px 0 15px 0; padding-left: 0; letter-spacing: 1px; }
+    .food-item { display: flex; margin-bottom: 24px; padding-bottom: 0; border-bottom: none; }
+    .food-img { width: 96px; height: 96px; border-radius: 8px; background-color: #F5F5F5; background-size: cover; background-position: center; flex-shrink: 0; }
+    .food-info { flex: 1; padding-left: 14px; display: flex; flex-direction: column; justify-content: space-between; padding-bottom: 5px;}
+    .food-name { font-size: 16px; font-weight: bold; color: #212121; font-family: 'Noto Serif TC'; }
     .food-desc { font-size: 12px; color: #999; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin-top: 4px; line-height: 1.4; }
     .food-action { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 5px; }
-    .food-price { color: var(--primary); font-weight: bold; font-family: 'Noto Serif TC'; font-size: 16px; }
-    .btn-add-mini { background: var(--primary); color: #fff; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: bold; box-shadow: 0 2px 5px rgba(159, 140, 109, 0.4); }
+    .food-price { color: #212121; font-weight: bold; font-family: 'Noto Serif TC'; font-size: 16px; }
+    .btn-add-mini { background: var(--primary); color: #fff; width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; box-shadow: 0 2px 8px rgba(179, 60, 58, 0.3); }
 
     .retail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding: 20px; width: 100%; overflow-y: auto; align-content: flex-start; padding-bottom: 180px; }
-    .retail-item { background: #fff; border-radius: 14px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.03); border: 1px solid #EBE6DE; display: flex; flex-direction: column; }
-    .retail-img { height: 150px; background-color: #F0EDE5; background-size: cover; background-position: center; }
+    .retail-item { background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.03); border: 1px solid #F0F0F0; display: flex; flex-direction: column; }
+    .retail-img { height: 150px; background-color: #F5F5F5; background-size: cover; background-position: center; }
     .retail-info { padding: 12px; flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
-    .stepper-mini { display: flex; align-items: center; background: #F7F4EF; border-radius: 20px; }
+    .stepper-mini { display: flex; align-items: center; background: #F7F7F7; border-radius: 20px; }
     .stepper-mini button { width: 26px; height: 26px; border: none; background: transparent; font-size: 12px; display:flex; align-items:center; justify-content:center; color: var(--primary); }
 
-    /* [Fixed] 購物車列：固定定位，貼合 Tab Bar 上方 */
+    /* [Fixed] Cart Bar: Positioned Fixed at bottom 65px */
     .cart-bar { 
       position: fixed; 
-      bottom: 65px; /* 65px is Tab Bar Height */
-      left: 0; right: 0; /* Full width logic with padding if needed, or keep consistent */
-      margin: 0 15px; /* Keep side margins */
-      background: #2C2620; border-radius: 50px; padding: 0; 
+      bottom: 65px; /* Sits right on top of the 65px Tab Bar */
+      left: 15px; right: 15px; 
+      background: #212121; border-radius: 50px; padding: 0; 
       display: flex; justify-content: space-between; align-items: center; 
-      color: var(--gold); box-shadow: 0 8px 25px rgba(0,0,0,0.25); 
-      z-index: 900; height: 56px; cursor: pointer; 
-      border: 1px solid rgba(255,255,255,0.1); 
+      color: #fff; box-shadow: 0 5px 20px rgba(0,0,0,0.2); 
+      z-index: 900; height: 50px; cursor: pointer; 
     }
     
     .cart-left { flex: 1; display: flex; align-items: center; padding-left: 24px; height: 100%; }
-    .cart-badge { position: absolute; top: -6px; right: -6px; background: var(--danger); color: #fff; font-size: 10px; padding: 3px 7px; border-radius: 10px; border: 2px solid #2C2620; }
-    .btn-checkout { background: var(--primary); color: #fff; border: none; height: 100%; padding: 0 35px; border-radius: 0 50px 50px 0; font-weight: bold; font-size: 16px; display: flex; align-items: center; letter-spacing: 1px; }
+    .cart-badge { position: absolute; top: -6px; right: -6px; background: var(--danger); color: #fff; font-size: 10px; padding: 3px 7px; border-radius: 10px; border: 2px solid #fff; }
+    .btn-checkout { background: var(--primary); color: #fff; border: none; height: 100%; padding: 0 35px; border-radius: 0 50px 50px 0; font-weight: bold; font-size: 15px; display: flex; align-items: center; letter-spacing: 1px; }
 
     /* ==================== 4. 各種彈窗 (Elegant Style) ==================== */
-    .cart-header { display: flex; justify-content: space-between; align-items: center; padding: 18px 20px; background: #fff; border-bottom: 1px solid #F0EDE5; border-radius: 20px 20px 0 0; }
-    .cart-stepper { display: flex; align-items: center; background: #F7F4EF; border-radius: 20px; border: 1px solid #E0D8CC; }
-    .cart-stepper button { width: 30px; height: 30px; border: none; background: transparent; font-size: 12px; display: flex; align-items: center; justify-content: center; color: var(--primary); }
-    .cart-stepper span { font-weight: bold; margin: 0 8px; font-size: 14px; min-width: 20px; text-align: center; color: #4A4A4A; }
+    .cart-header { display: flex; justify-content: space-between; align-items: center; padding: 18px 20px; background: #fff; border-bottom: 1px solid #F5F5F5; border-radius: 20px 20px 0 0; }
+    .cart-stepper { display: flex; align-items: center; background: #F7F7F7; border-radius: 20px; border: none; }
+    .cart-stepper button { width: 30px; height: 30px; border: none; background: transparent; font-size: 12px; display: flex; align-items: center; justify-content: center; color: #212121; }
+    .cart-stepper span { font-weight: bold; margin: 0 8px; font-size: 14px; min-width: 20px; text-align: center; color: #212121; }
     .cart-list { padding: 0 20px; max-height: 50vh; overflow-y: auto; }
-    .cart-item { display: flex; justify-content: space-between; align-items: center; padding: 18px 0; border-bottom: 1px solid #F7F4EF; }
+    .cart-item { display: flex; justify-content: space-between; align-items: center; padding: 18px 0; border-bottom: 1px solid #F7F7F7; }
     
-    /* [Fixed] Spec Modal Layout Refactor */
-    .spec-header { padding: 20px; display: flex; gap: 15px; border-bottom: 1px dashed #E0D8CC; }
-    .spec-img { width: 80px; height: 80px; border-radius: 12px; background-color: #eee; background-size: cover; background-position: center; }
+    /* [Fixed] Spec Modal Layout Refactor - Cleaner Look */
+    .spec-header { padding: 20px; display: flex; gap: 15px; border-bottom: 1px solid #F5F5F5; }
+    .spec-img { width: 80px; height: 80px; border-radius: 8px; background-color: #eee; background-size: cover; background-position: center; }
     .spec-options { padding: 20px; max-height: 40vh; overflow-y: auto; }
     
-    /* 客製化選項群組 */
+    /* [Fixed] Removed borders for cleaner CHAGEE look */
     .option-group { 
-        margin-bottom: 20px; 
-        padding-bottom: 15px; 
-        border-bottom: 1px dashed #E0D8CC; /* 虛線分隔 */
+        margin-bottom: 10px; 
+        padding-bottom: 10px; 
+        border-bottom: none !important;
     }
-    .option-group:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
     .option-title { 
-        font-weight: bold; margin-bottom: 10px; color: #2C2620; font-size: 14px; 
+        font-weight: bold; margin-bottom: 10px; color: #212121; font-size: 14px; 
         font-family: 'Noto Serif TC'; letter-spacing: 1px;
     }
     
-    .chip { padding: 8px 16px; background: #fff; border-radius: 8px; font-size: 13px; color: #666; border: 1px solid #E0D8CC; cursor: pointer; margin-right: 8px; margin-bottom: 8px; display: inline-block; transition: all 0.2s; }
-    .chip.selected { background: #F2EFE9; color: var(--primary); border-color: var(--primary); font-weight: bold; }
-    .spec-add-btn { background: var(--primary); color: #fff; padding: 12px 30px; border-radius: 30px; font-weight: bold; cursor: pointer; text-align: center; box-shadow: 0 4px 12px rgba(159, 140, 109, 0.3); }
-    .stepper { display: flex; align-items: center; background: #F7F4EF; border-radius: 20px; padding: 4px 10px; border: 1px solid #E0D8CC; }
+    .chip { padding: 8px 18px; background: #F7F7F7; border-radius: 4px; font-size: 13px; color: #666; border: none; cursor: pointer; margin-right: 8px; margin-bottom: 8px; display: inline-block; transition: all 0.2s; }
+    .chip.selected { background: #FCEEEE; color: var(--primary); font-weight: bold; }
+    .spec-add-btn { background: var(--primary); color: #fff; padding: 12px 30px; border-radius: 4px; font-weight: bold; cursor: pointer; text-align: center; box-shadow: 0 4px 12px rgba(179, 60, 58, 0.2); }
+    .stepper { display: flex; align-items: center; background: #F7F7F7; border-radius: 4px; padding: 4px 10px; }
     
-    #order-detail-view { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(44, 38, 32, 0.6); backdrop-filter: blur(5px); z-index: 950; overflow-y: auto; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
-    .od-paper { background: #fff; width: 100%; max-width: 350px; border-radius: 10px; padding: 0; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.3); display: flex; flex-direction: column; max-height: 85vh; position: relative; }
-    .od-paper::before { content: ""; display: block; height: 10px; background: var(--primary); }
-    .od-header { padding: 20px; text-align: center; border-bottom: 1px solid #F0EDE5; }
-    .od-shop-name { font-size: 20px; font-weight: bold; font-family: 'Noto Serif TC'; color: #2C2620; }
+    #order-detail-view { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(5px); z-index: 950; overflow-y: auto; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
+    .od-paper { background: #fff; width: 100%; max-width: 350px; border-radius: 8px; padding: 0; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.5); display: flex; flex-direction: column; max-height: 85vh; position: relative; }
+    .od-paper::before { content: ""; display: block; height: 6px; background: var(--primary); }
+    .od-header { padding: 20px; text-align: center; border-bottom: 1px solid #F5F5F5; }
+    .od-shop-name { font-size: 20px; font-weight: bold; font-family: 'Noto Serif TC'; color: #212121; }
     .od-id { font-size: 11px; color: #999; margin-top: 5px; letter-spacing: 1px; }
     .od-scroll-content { padding: 20px; overflow-y: auto; flex: 1; }
     .od-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 14px; color: #555; }
-    .od-total-section { margin-top: 20px; padding-top: 15px; border-top: 1px dashed #2C2620; display: flex; justify-content: space-between; align-items: center; }
+    .od-total-section { margin-top: 20px; padding-top: 15px; border-top: 1px dashed #212121; display: flex; justify-content: space-between; align-items: center; }
     .od-total-label { font-size: 14px; font-weight: bold; }
-    .od-total-val { font-size: 22px; font-weight: bold; color: var(--danger); font-family: 'Noto Serif TC'; }
-    .od-footer { padding: 15px; background: #FAF9F6; text-align: center; border-top: 1px solid #F0EDE5; }
+    .od-total-val { font-size: 22px; font-weight: bold; color: #212121; font-family: 'Noto Serif TC'; }
+    .od-footer { padding: 15px; background: #FAFAFA; text-align: center; border-top: 1px solid #F5F5F5; }
     .btn-close-od { width: 40px; height: 40px; border-radius: 50%; border: 1px solid #ccc; background: #fff; color: #333; font-size: 16px; cursor: pointer; margin-top: 10px; display: flex; justify-content: center; align-items: center; margin: 0 auto; }
 
-    .service-option { padding: 15px; border: 1px solid #E0D8CC; border-radius: 12px; font-weight: bold; text-align: center; cursor: pointer; margin-bottom: 12px; background: #fff; color: #666; transition: all 0.2s; }
-    .service-option.selected { border-color: var(--primary); color: var(--primary); background: #F2EFE9; }
+    .service-option { padding: 15px; border: 1px solid #F0F0F0; border-radius: 8px; font-weight: bold; text-align: center; cursor: pointer; margin-bottom: 12px; background: #fff; color: #666; transition: all 0.2s; }
+    .service-option.selected { border-color: var(--primary); color: var(--primary); background: #FCEEEE; }
 
-    .modal-content-center { background: #fff; width: 85%; border-radius: 20px; padding: 25px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); }
-    .form-input { width: 100%; padding: 12px; border: 1px solid #E0D8CC; border-radius: 10px; margin-bottom: 15px; box-sizing: border-box; background: #FAF9F6; outline: none; }
+    .modal-content-center { background: #fff; width: 85%; border-radius: 12px; padding: 25px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
+    .form-input { width: 100%; padding: 12px; border: 1px solid #E0E0E0; border-radius: 4px; margin-bottom: 15px; box-sizing: border-box; background: #FAFAFA; outline: none; }
     .form-input:focus { border-color: var(--primary); background: #fff; }
     
-    .msg-box { background: #fff; width: 80%; max-width: 300px; border-radius: 18px; padding: 30px 20px; text-align: center; box-shadow: 0 15px 50px rgba(0,0,0,0.15); animation: popIn 0.2s ease-out; }
+    .msg-box { background: #fff; width: 80%; max-width: 300px; border-radius: 12px; padding: 30px 20px; text-align: center; box-shadow: 0 15px 50px rgba(0,0,0,0.3); animation: popIn 0.2s ease-out; }
     .msg-icon { font-size: 48px; margin-bottom: 15px; color: var(--primary); opacity: 0.9; }
-    .msg-text { font-size: 17px; font-weight: bold; color: #444; margin-bottom: 25px; line-height: 1.5; }
+    .msg-text { font-size: 16px; font-weight: bold; color: #212121; margin-bottom: 25px; line-height: 1.5; }
     .msg-btns { display: flex; gap: 12px; justify-content: center; }
-    .msg-btn { flex: 1; padding: 10px 0; border-radius: 25px; font-size: 14px; font-weight: bold; border: none; cursor: pointer; letter-spacing: 1px; }
+    .msg-btn { flex: 1; padding: 10px 0; border-radius: 4px; font-size: 14px; font-weight: bold; border: none; cursor: pointer; letter-spacing: 1px; }
     .msg-btn-ok { background: var(--primary); color: #fff; }
-    .msg-btn-cancel { background: #F0EDE5; color: #888; }
+    .msg-btn-cancel { background: #F5F5F5; color: #888; }
     @keyframes popIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
   </style>
 </head>
@@ -301,7 +309,7 @@
   <div id="coupons-view" class="scroll-view hidden" style="background:#fff;">
     <div style="padding:20px 20px 10px 20px; display:flex; align-items:center;">
         <div onclick="switchTab('member')" style="font-size:20px; color:#666; cursor:pointer; margin-right:15px;"><i class="fas fa-arrow-left"></i></div>
-        <div style="font-weight:bold; font-size:20px; color:#2C2620;">積分兌換中心</div>
+        <div style="font-weight:bold; font-size:20px; color:#212121;">積分兌換中心</div>
     </div>
     <div id="coupons-list" class="coupon-grid" style="padding-top:10px;">
         <div style="text-align:center;color:#999;font-size:12px;">載入優惠券中...</div>
@@ -311,7 +319,7 @@
   <!-- History View (Standalone) -->
   <div id="history-view" class="scroll-view hidden" style="background:#fff;">
     <div style="padding:20px 20px 10px 20px; display:flex; align-items:center;">
-        <div style="font-weight:bold; font-size:20px; color:#2C2620;">歷史訂單</div>
+        <div style="font-weight:bold; font-size:20px; color:#212121;">歷史訂單</div>
     </div>
     <div id="history-list-container" style="padding: 20px;">
         <div style="text-align:center;color:#999;font-size:12px;">載入中...</div>
@@ -326,7 +334,7 @@
           <img id="m-avatar" src="" class="card-avatar" style="border:2px solid var(--gold);">
           <div style="flex:1;">
               <div id="m-name" style="font-size:20px;font-weight:bold;color:var(--gold);font-family:'Noto Serif TC';">...</div>
-              <div style="font-size:11px;background:rgba(204,186,138,0.2);color:#E0D8CC;padding:3px 10px;border-radius:12px;display:inline-block;margin-top:6px;border:1px solid rgba(204,186,138,0.3);">普通會員</div>
+              <div style="font-size:11px;background:rgba(201, 160, 92, 0.2);color:#E0E0E0;padding:3px 10px;border-radius:12px;display:inline-block;margin-top:6px;border:1px solid rgba(201, 160, 92, 0.3);">普通會員</div>
           </div>
           <i class="fas fa-cog" onclick="openEditModal()" style="font-size:20px;color:rgba(255,255,255,0.6);cursor:pointer;"></i>
       </div>
@@ -342,15 +350,15 @@
     <div class="service-section">
       <div class="service-item" onclick="switchTab('coupons')">
           <div class="service-icon" style="color:var(--primary);"><i class="fas fa-coins"></i></div>
-          <div class="service-label" style="font-weight:bold; color:#4A4A4A;">積分兌換</div>
+          <div class="service-label" style="font-weight:bold; color:#212121;">積分兌換</div>
       </div>
       <div class="service-item" onclick="showMsg('客服連線中...')"><div class="service-icon"><i class="fas fa-headset"></i></div><div class="service-label">聯繫客服</div></div>
       <div class="service-item" onclick="showMsg('常見問題頁面')"><div class="service-icon"><i class="fas fa-question-circle"></i></div><div class="service-label">常見問題</div></div>
-      <div class="service-item" onclick="showMsg('Uni-S v1.3')"><div class="service-icon"><i class="fas fa-info-circle"></i></div><div class="service-label">關於我們</div></div>
+      <div class="service-item" onclick="showMsg('Uni-S v1.4')"><div class="service-icon"><i class="fas fa-info-circle"></i></div><div class="service-label">關於我們</div></div>
     </div>
 
     <div style="padding:0 20px 20px 20px;">
-        <div style="font-weight:bold; margin-bottom:15px; font-size:16px; color:#2C2620;">我的優惠券</div>
+        <div style="font-weight:bold; margin-bottom:15px; font-size:16px; color:#212121;">我的優惠券</div>
         <div id="my-coupons-list" style="color:#999;font-size:13px; text-align:center; padding:20px 0;">載入中...</div>
     </div>
   </div>
@@ -430,9 +438,9 @@
          <div style="font-weight:bold;font-size:16px;color:#2C2620;">購物車內容</div>
          <div onclick="closeCartModal()" style="cursor:pointer;padding:5px;color:#999;"><i class="fas fa-chevron-down"></i></div>
       </div>
-      <div style="background:#FAF9F6;padding:10px 20px;font-size:12px;color:#888;display:flex;justify-content:space-between;align-items:center;">
+      <div style="background:#F7F7F7;padding:10px 20px;font-size:12px;color:#888;display:flex;justify-content:space-between;align-items:center;">
           <span>已選商品</span>
-          <span onclick="clearCart()" style="cursor:pointer;color:#B85C5C;"><i class="fas fa-trash"></i> 清空</span>
+          <span onclick="clearCart()" style="cursor:pointer;color:#B33C3A;"><i class="fas fa-trash"></i> 清空</span>
       </div>
       <div id="cart-list" class="cart-list"></div>
       <div style="height:20px;"></div>
@@ -445,7 +453,7 @@
       <div style="text-align:right;padding:15px;"><i class="fas fa-times" onclick="closeSpecModal()" style="font-size:22px;color:#ccc;cursor:pointer;"></i></div>
       <div class="spec-header"><div class="spec-img" id="sp-img"></div><div><div style="font-size:20px;font-weight:bold;color:#2C2620;" id="sp-name"></div><div style="font-size:13px;color:#888;margin-top:5px;" id="sp-desc"></div></div></div>
       <div id="sp-options" class="spec-options"></div>
-      <div class="spec-footer" style="padding:15px 20px; border-top:1px solid #F0EDE5;">
+      <div class="spec-footer" style="padding:15px 20px; border-top:1px solid #F0F0F0;">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:15px;">
            <div style="font-size:22px;font-weight:bold;color:var(--primary);font-family:'Noto Serif TC';">$<span id="sp-price">0</span></div>
            <div class="stepper"><button onclick="updateSpQty(-1)">-</button><span id="sp-qty" style="margin:0 10px;font-weight:bold;">1</span><button onclick="updateSpQty(1)">+</button></div>
@@ -463,7 +471,7 @@
         <div id="service-options"></div>
         <div style="margin-top:25px;">
             <div style="font-weight:bold;margin-bottom:10px;color:#4A4A4A;">優惠券</div>
-            <select id="coupon-selector" style="width:100%;padding:12px;border-radius:10px;border:1px solid #E0D8CC;background:#FAF9F6;color:#4A4A4A;outline:none;">
+            <select id="coupon-selector" style="width:100%;padding:12px;border-radius:4px;border:1px solid #E0E0E0;background:#FAFAFA;color:#4A4A4A;outline:none;">
                 <option value="">不使用優惠券</option>
             </select>
         </div>
@@ -483,7 +491,7 @@
       <div style="margin-bottom:12px;"><label style="font-size:12px;color:#888;margin-bottom:4px;display:block;">姓名</label><input type="text" id="edit-name" class="form-input"></div>
       <div style="margin-bottom:12px;"><label style="font-size:12px;color:#888;margin-bottom:4px;display:block;">電話</label><input type="tel" id="edit-phone" class="form-input"></div>
       <div style="margin-bottom:20px;"><label style="font-size:12px;color:#888;margin-bottom:4px;display:block;">生日</label><input type="date" id="edit-birthday" class="form-input"></div>
-      <div style="display:flex;gap:12px;"><div style="flex:1;text-align:center;padding:12px;background:#F0EDE5;color:#666;border-radius:25px;cursor:pointer;" onclick="closeEditModal()">取消</div><div class="btn-save" style="flex:1;text-align:center;padding:12px;background:var(--primary);color:#fff;border-radius:25px;font-weight:bold;cursor:pointer;" onclick="saveProfile()">儲存</div></div>
+      <div style="display:flex;gap:12px;"><div style="flex:1;text-align:center;padding:12px;background:#F0EDE5;color:#666;border-radius:4px;cursor:pointer;" onclick="closeEditModal()">取消</div><div class="btn-save" style="flex:1;text-align:center;padding:12px;background:var(--primary);color:#fff;border-radius:4px;font-weight:bold;cursor:pointer;" onclick="saveProfile()">儲存</div></div>
     </div>
   </div>
 
@@ -507,7 +515,7 @@
     // ⚠️⚠️⚠️ 設定區 ⚠️⚠️⚠️
     const MY_LIFF_ID = "2008590518-p2AoVQO2"; 
     const API_URL = "https://script.google.com/macros/s/AKfycbzxUYXVSMjF8Zt7KqBo9qGvottN4zoxkM1qCu97ZqugJ7Nf6czxu0DzBY9DN1nVRtdn/exec";
-    const TARGET_SHOP_ID = "1"; // 🔥 請替換為您的目標店家 ID
+    const TARGET_SHOP_ID = "1"; 
 
     // 狀態
     let allShops = {}; let currentShop = null; let cart = []; 
@@ -517,7 +525,6 @@
     let myCoupons = []; 
 
     let modalCb = null;
-    // [Fixed] Updated showMsg to accept a showOkBtn flag
     function showMsg(txt, cb, showOkBtn = true) { 
       document.getElementById('msg-text').innerText = txt; 
       document.getElementById('msg-btn-no').classList.add('hidden'); 
@@ -531,7 +538,6 @@
       modalCb = cb; 
     }
 
-    // Helper to show loading state (no buttons)
     function showLoadingMsg(txt) {
         showMsg(txt, null, false);
     }
@@ -539,7 +545,7 @@
     function showConfirm(txt, cb) {
       document.getElementById('msg-text').innerText = txt; 
       document.getElementById('msg-btn-no').classList.remove('hidden');
-      document.getElementById('msg-btn-yes').classList.remove('hidden'); // Ensure yes button is visible for confirm
+      document.getElementById('msg-btn-yes').classList.remove('hidden'); 
       document.getElementById('msg-modal-overlay').classList.remove('hidden');
       modalCb = cb;
     }
@@ -554,25 +560,25 @@
         await liff.init({ liffId: MY_LIFF_ID });
         if (!liff.isLoggedIn()) { liff.login(); return; }
         userProfile = await liff.getProfile();
-        // [Fixed] Safe DOM update
+        
         updateUI();
 
         const res = await fetch(API_URL);
         allShops = await res.json();
         document.getElementById('loading').classList.add('hidden');
 
-        // 🔥 Single Brand Logic
+        // 🔥 Single Store Launch Logic (Verified)
         if (allShops[TARGET_SHOP_ID]) {
             openShop(TARGET_SHOP_ID);
         } else {
-            showMsg("店家設定錯誤 (TARGET_SHOP_ID 無效)");
+            showMsg("店家設定錯誤 (ID Not Found)");
         }
         
         fetchMemberData();
       } catch (err) { showMsg(err.message); }
     }
 
-    // [Fixed] updateUI to prevent null errors
+    // [Updated] Safe DOM update for Member View elements only
     function updateUI() { 
         const mName = document.getElementById('m-name');
         const mAvatar = document.getElementById('m-avatar');
@@ -582,7 +588,7 @@
 
     // ========== 路由邏輯 ==========
     function switchTab(tab) {
-        // 隱藏所有視圖 (確保 lobby-view 已移除)
+        // Ensure Lobby view is removed from logic
         ['coupons-view', 'member-view', 'shop-view', 'history-view', 'order-detail-view'].forEach(id => {
              const el = document.getElementById(id);
              if(el) el.classList.add('hidden');
@@ -650,7 +656,6 @@
 
     async function redeemCoupon(id) {
         showConfirm("確定要兌換這張優惠券嗎？", async () => {
-            // [Fixed] Use showLoadingMsg to hide button while processing
             showLoadingMsg("處理中...");
             try {
                 await fetch(API_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: "redeemCoupon", userId: userProfile.userId, couponId: id }) });
@@ -730,7 +735,6 @@
       if(!phone) { phone = prompt("請輸入您的手機號碼："); if(!phone) return; localStorage.setItem("uni_user_phone", phone); }
       detail += `\n----------------\n📞 聯絡電話：${phone}`;
 
-      // [Fixed] Use showLoadingMsg to hide button while processing
       showLoadingMsg("處理中...");
       try {
         await liff.sendMessages([{type:"text", text:`【Uni-S】\n我向 ${currentShop.name} 下單了：\n\n${detail}`}]);
@@ -746,7 +750,7 @@
     // Helper Functions
     function calculateDistance(lat1, lon1, lat2, lon2) { const R = 6371; const dLat = deg2rad(lat2 - lat1); const dLon = deg2rad(lon2 - lon1); const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * Math.sin(dLon/2) * Math.sin(dLon/2); const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); return (R * c).toFixed(1); }
     function deg2rad(deg) { return deg * (Math.PI/180); }
-    // initLocationService removed from main flow but kept as helper if needed
+    // initLocationService kept as helper
     function initLocationService() { return new Promise((resolve) => { if (!navigator.geolocation) { resolve(); return; } const timeoutId = setTimeout(() => { resolve(); }, 5000); navigator.geolocation.getCurrentPosition((position) => { clearTimeout(timeoutId); userLocation = { lat: position.coords.latitude, lng: position.coords.longitude }; resolve(); }, (error) => { clearTimeout(timeoutId); resolve(); }); }); }
     
     function openShop(id) { 
