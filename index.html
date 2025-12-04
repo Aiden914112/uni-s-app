@@ -69,7 +69,7 @@
     /* 簡單頁面樣式 (Home & Member Zone & Construction) */
     .placeholder-page {
         display: flex; flex-direction: column; align-items: center; justify-content: center;
-        height: 80%; text-align: center; padding: 40px;
+        height: 100%; text-align: center; padding: 40px; box-sizing: border-box;
     }
     .ip-image {
         width: 120px; height: 120px; object-fit: contain; margin-bottom: 20px;
@@ -312,6 +312,7 @@
   <!-- 1. 首頁 (Home) - Simple Placeholder -->
   <div id="home-view" class="scroll-view hidden">
     <div class="placeholder-page">
+        <!-- Replace with your cute IP image URL -->
         <img src="https://cdn-icons-png.flaticon.com/512/1865/1865269.png" alt="Cute IP" class="ip-image">
         <div class="placeholder-text">發展初期，給予建議</div>
     </div>
@@ -362,20 +363,22 @@
     <!-- Top Category Tabs -->
     <div class="k-top-tabs">
         <div class="k-tab-item active" onclick="switchCategoryTab('classic', this)">經典菜單</div>
-        <div class="k-tab-item" onclick="switchCategoryTab('construction', this)">區域套餐</div>
-        <div class="k-tab-item" onclick="switchCategoryTab('construction', this)">現萃專區</div>
-        <div class="k-tab-item" onclick="switchCategoryTab('construction', this)">零售周邊</div>
+        <div class="k-tab-item" onclick="switchCategoryTab('research_a', this)">區域套餐</div>
+        <div class="k-tab-item" onclick="switchCategoryTab('research_b', this)">現萃專區</div>
+        <div class="k-tab-item" onclick="switchCategoryTab('retail', this)">零售周邊</div>
     </div>
     
     <!-- Content Area -->
     <div class="shop-body">
       <div class="menu-sidebar" id="food-sidebar"></div>
       <div class="menu-content" id="food-content"></div>
+      <div id="mode-retail" class="retail-grid hidden" style="display:none;"></div>
       
       <!-- Construction Mode (Initially hidden) -->
       <div id="mode-construction" class="construction-view hidden">
-          <div class="construction-icon"></div>
-          <div>研發中</div>
+          <!-- Use FontAwesome for construction/dev icon -->
+          <i class="fas fa-hard-hat" style="font-size: 60px; color: #E0E0E0; margin-bottom: 20px;"></i>
+          <div class="placeholder-text">研發中</div>
       </div>
     </div>
     
@@ -536,7 +539,7 @@
     </div>
   </div>
 
-  <!-- Updated Tab Bar (New Order) -->
+  <!-- Updated Tab Bar (Corrected Order: Home, Order, Collection, Member Zone, My) -->
   <div id="tab-bar">
     <div class="tab-item active" onclick="switchTab('home')">
         <div class="tab-icon"><i class="fas fa-home"></i></div>
@@ -644,25 +647,55 @@
         if (currentShop.bannerUrl) {
             document.getElementById('shop-banner').style.backgroundImage = `url(${currentShop.bannerUrl})`;
         }
+        // Pre-render Menu to avoid empty state
         renderFoodMenu();
     }
 
+    // [Fixed] Updated Helper to render Placeholder for 'Construction' tabs
+    function renderPlaceholder(containerId, message) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        // Use FontAwesome construction icon
+        container.innerHTML = `
+            <div class="placeholder-page" style="height:100%;">
+                <i class="fas fa-hard-hat fa-3x" style="color:#C9A05C; margin-bottom: 20px; opacity:0.6;"></i>
+                <div class="placeholder-text">${message}</div>
+            </div>
+        `;
+    }
+
+    // [Fixed] Updated Switch Category Tab Logic
     function switchCategoryTab(type, el) {
         document.querySelectorAll('.k-tab-item').forEach(e => e.classList.remove('active'));
         el.classList.add('active');
         
         const foodSidebar = document.getElementById('food-sidebar');
         const foodContent = document.getElementById('food-content');
+        const modeRetail = document.getElementById('mode-retail');
         const modeConstruction = document.getElementById('mode-construction');
 
-        if (type === 'construction') {
-            foodSidebar.style.display = 'none';
-            foodContent.style.display = 'none';
-            modeConstruction.style.display = 'flex';
-        } else {
-            modeConstruction.style.display = 'none';
+        // Reset Visibility
+        foodSidebar.style.display = 'none';
+        foodContent.style.display = 'none';
+        modeRetail.style.display = 'none';
+        modeConstruction.style.display = 'none';
+
+        if (type === 'classic') {
             foodSidebar.style.display = 'block';
             foodContent.style.display = 'block';
+            renderFoodMenu(); // Ensure render
+        } else if (type === 'retail') {
+            modeRetail.style.display = 'grid';
+            modeRetail.classList.remove('hidden');
+            renderRetailMenu();
+        } else if (type === 'research_a') {
+            modeConstruction.style.display = 'flex';
+            modeConstruction.classList.remove('hidden');
+            renderPlaceholder('mode-construction', '區域套餐 研發中');
+        } else if (type === 'research_b') {
+            modeConstruction.style.display = 'flex';
+            modeConstruction.classList.remove('hidden');
+            renderPlaceholder('mode-construction', '現萃專區 研發中');
         }
     }
 
@@ -684,6 +717,9 @@
         } else if (tab === 'menu') {
             document.getElementById('shop-view').classList.remove('hidden');
             document.querySelectorAll('.tab-item')[1].classList.add('active');
+            // Default to Classic Menu
+            const firstTab = document.querySelector('.k-top-tabs .k-tab-item:nth-child(1)');
+            if(firstTab) switchCategoryTab('classic', firstTab);
             updateCartUI();
         } else if (tab === 'history') {
             document.getElementById('history-view').classList.remove('hidden');
@@ -705,8 +741,111 @@
     }
 
     async function loadCoupons() {
-        // ... (Unchanged logic) ...
+        const list = document.getElementById('coupons-list');
+        list.innerHTML = '<div style="text-align:center;color:#999;font-size:12px;">載入優惠券中...</div>';
+        try {
+            const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "getCoupons" }) });
+            const text = await res.text();
+            let coupons; try { coupons = JSON.parse(text); } catch (e) { throw new Error("Server Error"); }
+            if (coupons.status === 'error') throw new Error(coupons.message);
+            if (!Array.isArray(coupons) || coupons.length === 0) { list.innerHTML = '<div style="text-align:center;color:#999;font-size:12px;margin-top:20px;">目前沒有可用的優惠券</div>'; return; }
+            let html = '';
+            coupons.forEach(c => {
+                html += `<div class="coupon-item"><div class="coupon-left"><div class="coupon-val">$${c.value}</div><div style="font-size:10px;">抵用券</div></div><div class="coupon-right"><div class="coupon-name">${c.name}</div><div class="coupon-cost">需 ${c.cost} 積分</div><div class="btn-redeem" onclick="redeemCoupon('${c.id}')">立即兌換</div></div></div>`;
+            });
+            list.innerHTML = html;
+        } catch(e) { list.innerHTML = `<div style="text-align:center;color:var(--danger);">載入失敗</div>`; }
     }
+
+    async function redeemCoupon(id) {
+        showConfirm("確定要兌換這張優惠券嗎？", async () => {
+            showLoadingMsg("處理中...");
+            try {
+                await fetch(API_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: "redeemCoupon", userId: userProfile.userId, couponId: id }) });
+                setTimeout(() => { showMsg("✅ 兌換請求已送出！", () => { fetchMemberData(); }); }, 1500);
+            } catch(e) { showMsg("錯誤：" + e.message); }
+        });
+    }
+
+    async function loadMyCoupons() {
+        const list = document.getElementById('my-coupons-list');
+        try {
+            const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "getMyCoupons", userId: userProfile.userId }) });
+            const text = await res.text();
+            try { myCoupons = JSON.parse(text); } catch(e) { myCoupons = []; }
+            if (myCoupons.length === 0) { list.innerHTML = '尚無優惠券'; } else {
+                let html = '';
+                myCoupons.forEach(c => {
+                    html += `<div class="my-coupon-item"><div><div style="font-weight:bold;color:#212121;">${c.name}</div><div style="font-size:11px;color:#999;">折抵 $${c.value}</div></div><div style="color:var(--primary);font-weight:bold;font-size:12px;border:1px solid var(--primary);padding:2px 8px;border-radius:10px;">未使用</div></div>`;
+                });
+                list.innerHTML = html;
+            }
+        } catch(e) { list.innerHTML = '載入失敗'; }
+    }
+
+    async function preCheckout() {
+      if(cart.length===0) { showMsg("購物車是空的"); return; }
+      const svcs = currentShop.services || ["自取"];
+      let html = '';
+      svcs.forEach((s,i) => { html += `<div class="service-option ${i===0?'selected':''}" onclick="selSvc(this,'${s}')">${s}</div>`; if(i===0) selectedService = s; });
+      document.getElementById('service-options').innerHTML = html;
+      const select = document.getElementById('coupon-selector');
+      select.innerHTML = '<option value="" data-val="0">不使用優惠券</option>';
+      select.onchange = updateFinalPrice; 
+      try {
+          const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "getMyCoupons", userId: userProfile.userId }) });
+          const text = await res.text();
+          myCoupons = JSON.parse(text);
+          myCoupons.forEach(c => {
+              let opt = document.createElement('option');
+              opt.value = c.uuid;
+              opt.setAttribute('data-val', c.value);
+              opt.innerText = `${c.name} (折抵 $${c.value})`;
+              select.appendChild(opt);
+          });
+      } catch(e) {}
+      updateFinalPrice();
+      document.getElementById('service-modal').classList.remove('hidden');
+    }
+
+    function updateFinalPrice() {
+        const select = document.getElementById('coupon-selector');
+        const discount = parseInt(select.options[select.selectedIndex].getAttribute('data-val') || 0);
+        const cartTotal = parseInt(document.getElementById('cart-total').innerText);
+        const final = Math.max(0, cartTotal - discount);
+        document.getElementById('final-checkout-price').innerText = "$" + final;
+    }
+
+    async function confirmOrder() {
+      document.getElementById('service-modal').classList.add('hidden');
+      const select = document.getElementById('coupon-selector');
+      const couponUuid = select.value;
+      const discount = parseInt(select.options[select.selectedIndex].getAttribute('data-val') || 0);
+      let detail = "", total = 0;
+      cart.forEach(x => { detail += `${x.name} x ${x.qty} ($${x.total})\n`; total += x.total; });
+      detail += `----------------\n總金額：$${total} 元\n服務方式：${selectedService}`;
+      if (discount > 0) { detail += `\n優惠券折抵：-$${discount}\n實付金額：$${Math.max(0, total - discount)}`; }
+      let phone = localStorage.getItem("uni_user_phone");
+      if(!phone) { phone = prompt("請輸入您的手機號碼："); if(!phone) return; localStorage.setItem("uni_user_phone", phone); }
+      detail += `\n----------------\n📞 聯絡電話：${phone}`;
+      showLoadingMsg("處理中...");
+      try {
+        await liff.sendMessages([{type:"text", text:`【Uni-S】\n我向 ${currentShop.name} 下單了：\n\n${detail}`}]);
+        await fetch(API_URL, {method:'POST', mode:'no-cors', headers:{'Content-Type':'application/json'}, 
+            body:JSON.stringify({ shopId:currentShop.id, userName:userProfile.displayName, userId:userProfile.userId, order:detail, couponUuid: couponUuid })
+        });
+        showMsg("✅ 訂單已送出！", () => { 
+            cart=[]; 
+            updateCartUI(); 
+            switchTab('history'); 
+        });
+      } catch(e) { showMsg("失敗:"+e.message); }
+    }
+    
+    function calculateDistance(lat1, lon1, lat2, lon2) { const R = 6371; const dLat = deg2rad(lat2 - lat1); const dLon = deg2rad(lon2 - lon1); const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * Math.sin(dLon/2) * Math.sin(dLon/2); const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); return (R * c).toFixed(1); }
+    function deg2rad(deg) { return deg * (Math.PI/180); }
+    function initLocationService() { return new Promise((resolve) => { if (!navigator.geolocation) { resolve(); return; } const timeoutId = setTimeout(() => { resolve(); }, 5000); navigator.geolocation.getCurrentPosition((position) => { clearTimeout(timeoutId); userLocation = { lat: position.coords.latitude, lng: position.coords.longitude }; resolve(); }, (error) => { clearTimeout(timeoutId); resolve(); }); }); }
+    function openMap() { if (currentShop) { if (currentShop.address && currentShop.address.trim() !== "") { window.open(`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(currentShop.address)}`, '_blank'); } else if (currentShop.lat && currentShop.lng) { window.open(`https://www.google.com/maps/dir/?api=1&destination=${currentShop.lat},${currentShop.lng}`, '_blank'); } else { showMsg("無法取得商家位置資訊"); } } }
     
     // [FIXED] Robust Food Menu Renderer
     function renderFoodMenu() { 
@@ -714,7 +853,6 @@
         const prodList = document.getElementById('food-content'); 
         catList.innerHTML = ''; prodList.innerHTML = ''; 
         
-        // Data Safe Check
         let menu = [];
         if (currentShop.menu && Array.isArray(currentShop.menu)) {
              if (currentShop.menu.length > 0 && currentShop.menu[0].category) {
@@ -757,9 +895,8 @@
             }); 
         }; 
     }
-
-    // ... (Rest of functions: openSpecModal, updateCartUI, etc. remain the same) ...
-    // Just ensure they are present in the final file
+    
+    function renderRetailMenu() { let html = ''; currentShop.menu.forEach((item, idx) => { let img = item.img || currentShop.bannerUrl; html += `<div class="retail-item"><div class="retail-img" style="background-image:url(${img})"></div><div class="retail-info"><div style="font-weight:bold;font-size:14px;">${item.name}</div><div class="retail-actions" style="display:flex;justify-content:space-between;align-items:center;"><span style="color:#e64a19;font-weight:bold;">$${item.price}</span><div class="stepper-mini"><button onclick="updateCartRetail('${item.name}', ${item.price}, -1)">-</button><span id="r-qty-${idx}" style="font-size:13px;font-weight:bold;margin:0 5px;">0</span><button onclick="updateCartRetail('${item.name}', ${item.price}, 1)">+</button></div></div></div></div>`; }); document.getElementById('mode-retail').innerHTML = html; }
     function openSpecModal(item) { currentItem = item; currentQty = 1; currentOptions = {}; document.getElementById('sp-name').innerText = item.name; document.getElementById('sp-desc').innerText = item.desc||''; document.getElementById('sp-price').innerText = item.price; document.getElementById('sp-img').style.backgroundImage = `url(${item.img||currentShop.bannerUrl})`; document.getElementById('sp-qty').innerText = 1; let html = ''; for (let [k, vals] of Object.entries(item.options||{})) { currentOptions[k] = vals[0]; let chips = vals.map((v,i) => `<div class="chip ${i===0?'selected':''}" onclick="selOpt(this,'${k}','${v}')">${v}</div>`).join(''); html += `<div class="option-group"><div class="option-title">${k}</div><div class="option-chips" style="display:flex;gap:8px;flex-wrap:wrap;">${chips}</div></div>`; } document.getElementById('sp-options').innerHTML = html || '<div style="color:#999;font-size:12px;">無規格選項</div>'; document.getElementById('spec-modal').classList.remove('hidden'); }
     function selOpt(el, k, v) { el.parentNode.querySelectorAll('.chip').forEach(c=>c.classList.remove('selected')); el.classList.add('selected'); currentOptions[k] = v; }
     function updateSpQty(n) { if(currentQty+n>0) { currentQty+=n; document.getElementById('sp-qty').innerText=currentQty; document.getElementById('sp-price').innerText=currentItem.price*currentQty; } }
@@ -773,75 +910,14 @@
     function clearCart() { cart = []; updateCartUI(); }
     function removeCartItem(idx) { cart.splice(idx, 1); updateCartUI(); if(cart.length > 0) openCartModal(); }
     function selSvc(el, s) { document.querySelectorAll('.service-option').forEach(e=>e.classList.remove('selected')); el.classList.add('selected'); selectedService = s; }
-    
-    function loadOrderHistory() {
-        document.getElementById('history-list-container').innerHTML = '<div style="text-align:center;color:#999;font-size:12px;">載入中...</div>';
-        fetch(API_URL, {method:'POST', body:JSON.stringify({action:"getHistory", userId:userProfile.userId})})
-        .then(res=>res.json())
-        .then(data=>{ 
-            orderCache = data; 
-            const container = document.getElementById('history-list-container');
-            if(orderCache.length===0) { container.innerHTML = '<div style="text-align:center;color:#999;padding:40px;">尚無訂單紀錄</div>'; return; } 
-            let html = ''; 
-            orderCache.forEach((o, i) => { 
-                let price = o.content.split('總金額：')[1]?.split('\n')[0].replace('元','').trim() || ''; 
-                let summary = o.content.split('\n').filter(line => !line.includes('總金額') && !line.includes('---') && !line.includes('電話') && line.trim() !== '').slice(0, 2).join(', ');
-                if (summary.length > 20) summary = summary.substring(0, 20) + '...';
-                let statusClass = 'status-wait';
-                if (o.status.includes('已接單')) statusClass = 'status-ok';
-                else if (o.status.includes('婉拒') || o.status.includes('取消')) statusClass = 'status-no';
-                html += `<div class="history-card" onclick="openOrderDetail(${i})"><div class="hc-header"><div class="hc-shop">${o.shopName}</div><div class="hc-date">${o.time}</div></div><div class="hc-body"><div class="hc-summary">${summary || '點擊查看詳情'}</div><div style="text-align:right;"><div class="hc-price">$${price}</div><div class="hc-status ${statusClass}">${o.status}</div></div></div></div>`; 
-            }); 
-            container.innerHTML = html; 
-        }).catch(e=>{}); 
-    }
-
-    function openOrderDetail(idx) { 
-        let o = orderCache[idx]; 
-        document.getElementById('order-detail-view').classList.remove('hidden'); 
-        document.getElementById('od-shop-name').innerText = o.shopName; 
-        document.getElementById('od-status').innerText = o.status; 
-        document.getElementById('od-id').innerText = o.orderId; 
-        document.getElementById('od-time').innerText = o.time; 
-        let html = '', total = '0', phone = '--'; 
-        o.content.split('\n').forEach(line => { 
-            if(line.includes('總金額')) { total = line.split('：')[1].replace('元','').trim(); } 
-            else if(line.includes('電話')) { phone = line.split('：')[1]; } 
-            else if(!line.includes('---') && line.trim()) { 
-                let parts = line.split('$'); 
-                let name = line; let price = ''; 
-                if(parts.length > 1) { name = parts[0]; price = '$' + parts[1]; } 
-                html += `<div class="od-row"><div>${name}</div><div>${price}</div></div>`; 
-            } 
-        }); 
-        document.getElementById('od-items-list').innerHTML = html; 
-        document.getElementById('od-total-price').innerText = total; 
-        document.getElementById('od-phone').innerText = phone; 
-        const cancelDiv = document.getElementById('od-cancel-container');
-        if(o.status.includes('待確認')) { cancelDiv.innerHTML = `<div class="spec-add-btn" style="background:#fff;color:#D32F2F;border:1px solid #D32F2F;text-align:center;box-shadow:none;" onclick="cancelOrder('${o.orderId}')">取消訂單</div>`; } 
-        else { cancelDiv.innerHTML = ''; }
-    }
-
+    function loadOrderHistory() { document.getElementById('history-list-container').innerHTML = '<div style="text-align:center;color:#999;font-size:12px;">載入中...</div>'; fetch(API_URL, {method:'POST', body:JSON.stringify({action:"getHistory", userId:userProfile.userId})}).then(res=>res.json()).then(data=>{ orderCache = data; const container = document.getElementById('history-list-container'); if(orderCache.length===0) { container.innerHTML = '<div style="text-align:center;color:#999;padding:40px;">尚無訂單紀錄</div>'; return; } let html = ''; orderCache.forEach((o, i) => { let price = o.content.split('總金額：')[1]?.split('\n')[0].replace('元','').trim() || ''; let summary = o.content.split('\n').filter(line => !line.includes('總金額') && !line.includes('---') && !line.includes('電話') && line.trim() !== '').slice(0, 2).join(', '); if (summary.length > 20) summary = summary.substring(0, 20) + '...'; let statusClass = 'status-wait'; if (o.status.includes('已接單')) statusClass = 'status-ok'; else if (o.status.includes('婉拒') || o.status.includes('取消')) statusClass = 'status-no'; html += `<div class="history-card" onclick="openOrderDetail(${i})"><div class="hc-header"><div class="hc-shop">${o.shopName}</div><div class="hc-date">${o.time}</div></div><div class="hc-body"><div class="hc-summary">${summary || '點擊查看詳情'}</div><div style="text-align:right;"><div class="hc-price">$${price}</div><div class="hc-status ${statusClass}">${o.status}</div></div></div></div>`; }); container.innerHTML = html; }).catch(e=>{}); }
+    function openOrderDetail(idx) { let o = orderCache[idx]; document.getElementById('order-detail-view').classList.remove('hidden'); document.getElementById('od-shop-name').innerText = o.shopName; document.getElementById('od-status').innerText = o.status; document.getElementById('od-id').innerText = o.orderId; document.getElementById('od-time').innerText = o.time; let html = '', total = '0', phone = '--'; o.content.split('\n').forEach(line => { if(line.includes('總金額')) { total = line.split('：')[1].replace('元','').trim(); } else if(line.includes('電話')) { phone = line.split('：')[1]; } else if(!line.includes('---') && line.trim()) { let parts = line.split('$'); let name = line; let price = ''; if(parts.length > 1) { name = parts[0]; price = '$' + parts[1]; } html += `<div class="od-row"><div>${name}</div><div>${price}</div></div>`; } }); document.getElementById('od-items-list').innerHTML = html; document.getElementById('od-total-price').innerText = total; document.getElementById('od-phone').innerText = phone; const cancelDiv = document.getElementById('od-cancel-container'); if(o.status.includes('待確認')) { cancelDiv.innerHTML = `<div class="spec-add-btn" style="background:#fff;color:#D32F2F;border:1px solid #D32F2F;text-align:center;box-shadow:none;" onclick="cancelOrder('${o.orderId}')">取消訂單</div>`; } else { cancelDiv.innerHTML = ''; } }
     function closeOrderDetail() { document.getElementById('order-detail-view').classList.add('hidden'); }
     function cancelOrder(oid) { showConfirm("確定取消？", async () => { await fetch(API_URL, {method:'POST', mode:'no-cors', headers:{'Content-Type':'application/json'}, body:JSON.stringify({action:"cancelOrder", orderId:oid, userId:userProfile.userId})}); setTimeout(() => { showMsg("已送出取消", () => { closeOrderDetail(); loadOrderHistory(); }); }, 1500); }); }
     function fetchMemberData() { fetch(`${API_URL}?action=getMember&userId=${userProfile.userId}`).then(res=>res.json()).then(data=>{ document.getElementById('m-points').innerText = data.points || 0; if(data.name && data.name!=="會員") ['home-name','m-name'].forEach(id=>{ const el = document.getElementById(id); if(el) el.innerText=data.name; }); window.currentMemberData = data; }).catch(e=>{}); }
     function openEditModal() { const data = window.currentMemberData || {}; document.getElementById('edit-name').value = data.name || userProfile.displayName; document.getElementById('edit-phone').value = data.phone || localStorage.getItem("uni_user_phone") || ""; if (data.birthday) try { document.getElementById('edit-birthday').value = new Date(data.birthday).toISOString().split('T')[0]; } catch(e){} document.getElementById('edit-modal').classList.remove('hidden'); }
     function closeEditModal() { document.getElementById('edit-modal').classList.add('hidden'); }
     function saveProfile() { const name = document.getElementById('edit-name').value; const phone = document.getElementById('edit-phone').value; const birthday = document.getElementById('edit-birthday').value; if (!name || !phone) { showMsg("姓名與電話為必填"); return; } const btn = document.querySelector('.btn-save'); btn.innerText = "儲存中..."; fetch(API_URL, { method: 'POST', mode: 'no-cors', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ action: "updateProfile", userId: userProfile.userId, name: name, phone: phone, birthday: birthday }) }).then(()=>{ showMsg("資料更新成功！", () => { localStorage.setItem("uni_user_phone", phone); closeEditModal(); fetchMemberData(); }); }).catch(e=>{ showMsg("更新失敗"); }).finally(()=>{ btn.innerText = "儲存"; }); }
-    function calculateDistance(lat1, lon1, lat2, lon2) { const R = 6371; const dLat = deg2rad(lat2 - lat1); const dLon = deg2rad(lon2 - lon1); const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * Math.sin(dLon/2) * Math.sin(dLon/2); const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); return (R * c).toFixed(1); }
-    function deg2rad(deg) { return deg * (Math.PI/180); }
-    function initLocationService() { return new Promise((resolve) => { if (!navigator.geolocation) { resolve(); return; } const timeoutId = setTimeout(() => { resolve(); }, 5000); navigator.geolocation.getCurrentPosition((position) => { clearTimeout(timeoutId); userLocation = { lat: position.coords.latitude, lng: position.coords.longitude }; resolve(); }, (error) => { clearTimeout(timeoutId); resolve(); }); }); }
-    function openMap() { if (currentShop) { if (currentShop.address && currentShop.address.trim() !== "") { window.open(`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(currentShop.address)}`, '_blank'); } else if (currentShop.lat && currentShop.lng) { window.open(`https://www.google.com/maps/dir/?api=1&destination=${currentShop.lat},${currentShop.lng}`, '_blank'); } else { showMsg("無法取得商家位置資訊"); } } }
-
-    async function redeemCoupon(id) {
-        showConfirm("確定要兌換這張優惠券嗎？", async () => {
-            showLoadingMsg("處理中...");
-            try {
-                await fetch(API_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: "redeemCoupon", userId: userProfile.userId, couponId: id }) });
-                setTimeout(() => { showMsg("✅ 兌換請求已送出！", () => { fetchMemberData(); }); }, 1500);
-            } catch(e) { showMsg("錯誤：" + e.message); }
-        });
-    }
 
     main();
   </script>
