@@ -6,20 +6,20 @@
   <title>Uni-S Tea 點餐</title>
   <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <!-- 引入 Google Fonts -->
+  <!-- 引入 Google Fonts: Noto Serif TC (宋體) 與 Noto Sans TC (黑體) -->
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
 
   <style>
-    /* ==================== 0. 全局與重置 (CHAGEE Aesthetic) ==================== */
+    /* ==================== 0. 全局與重置 (CHAGEE Standard) ==================== */
     :root { 
-      --primary: #B33C3A; /* CHAGEE Cinnabar Red - 硃砂紅 */
-      --gold: #C9A05C;    /* Sharper Gold - 鉑金 */ 
-      --bg: #FFFFFF;      /* Crisp White Background - 純白背景 */ 
-      --text: #212121;    /* High Contrast Black - 深邃黑 */ 
-      --tea-sidebar: #F7F7F7; /* Very light grey for sidebar */
-      
-      --danger: #B33C3A;  /* Align danger with primary red */
+      --primary: #B33C3A; /* 品牌朱砂紅 (Action/Brand) - CHAGEE Red */
+      --gold: #C9A05C;    /* 精煉金 (Accent/Membership) */ 
+      --bg: #FFFFFF;      /* Crisp White Background (Menu/Layout) */ 
+      --text: #212121;    /* High Contrast Black */ 
+      --tea-sidebar: #F7F7F7; /* Sidebar Background */
+      --danger: #B33C3A;  /* Align danger with primary */
       --success: #7A8B69; /* Muted Green */
+      --light-bg: #FAFAFA; /* For light modal background */
     }
 
     body { 
@@ -32,8 +32,9 @@
       height: 100vh; overflow: hidden; display: flex; flex-direction: column; 
     }
     
-    h1, h2, h3, .shop-name, .coupon-val, .spec-header .title, .od-shop-name, .app-title {
-      font-family: 'Noto Serif TC', serif; /* 關鍵標題使用宋體 */
+    /* 標題與價格字體使用宋體，提升東方茶飲質感 */
+    h1, h2, h3, .shop-name, .coupon-val, .stat-num, .oc-id, .spec-header .title, .food-price, .hc-price, .od-shop-name {
+      font-family: 'Noto Serif TC', serif; 
     }
 
     .hidden { display: none !important; }
@@ -59,7 +60,6 @@
     .tab-icon { font-size: 20px; margin-bottom: 4px; }
 
     /* ==================== 2. 主視圖容器 ==================== */
-    /* Ensure background is pure white for that crisp look */
     .scroll-view { 
       background-color: white; 
       flex: 1; overflow-y: auto; 
@@ -67,7 +67,7 @@
       -webkit-overflow-scrolling: touch; 
     }
 
-    /* 優惠券與會員中心樣式 */
+    /* 優惠券樣式 */
     .coupon-grid { display: grid; grid-template-columns: 1fr; gap: 16px; padding: 0 20px; }
     .coupon-item { 
       background: #fff; border-radius: 8px; display: flex; overflow: hidden; 
@@ -84,7 +84,7 @@
       background-image: radial-gradient(circle, #fff 4px, transparent 5px); 
       background-size: 10px 14px; background-repeat: repeat-y; 
     }
-    .coupon-val { font-size: 26px; font-weight: bold; font-family: 'Noto Serif TC'; }
+    .coupon-val { font-size: 26px; font-weight: bold; }
     .coupon-right { flex: 1; padding: 14px 16px; display: flex; flex-direction: column; justify-content: center; }
     .coupon-name { font-weight: bold; font-size: 15px; color: #212121; margin-bottom: 6px; }
     .coupon-cost { font-size: 12px; color: #888; }
@@ -103,8 +103,9 @@
     .member-header-bg { display: none; }
     
     /* Premium Card - CHAGEE Style (Dark & Gold) */
+    /* [Layout Fix] Removed negative margin, adjusted to standard margin */
     .premium-card { 
-      margin: 20px; /* Final fix: correct margin */
+      margin: 20px; 
       background: linear-gradient(135deg, #2B2B2B, #1A1A1A); 
       border-radius: 12px; padding: 24px; color: #E0E0E0; 
       box-shadow: 0 10px 30px rgba(0,0,0,0.3); position: relative; overflow: hidden; 
@@ -124,7 +125,7 @@
     }
 
     .card-stats-row { display: flex; justify-content: space-between; text-align: center; }
-    .stat-num { font-size: 22px; font-weight: bold; display: block; margin-bottom: 6px; font-family: 'Noto Serif TC'; color: var(--gold); }
+    .stat-num { font-size: 22px; font-weight: bold; display: block; margin-bottom: 6px; color: var(--gold); }
     .stat-label { font-size: 11px; opacity: 0.7; letter-spacing: 1px; }
     
     .service-section { 
@@ -135,6 +136,8 @@
     .service-item { text-align: center; cursor: pointer; transition: transform 0.2s; }
     .service-item:active { transform: scale(0.95); }
     .service-icon { font-size: 24px; color: #4A4A4A; margin-bottom: 8px; }
+    /* [Aesthetic Fix] Ensure Coupon button uses primary color */
+    .service-item[onclick="switchTab('coupons')"] .service-icon { color: var(--primary) !important; }
     .service-label { font-size: 12px; color: #666; letter-spacing: 0.5px; }
 
     /* History Styles */
@@ -144,11 +147,11 @@
     }
     .history-card:active { transform: scale(0.98); }
     .hc-header { display: flex; justify-content: space-between; margin-bottom: 12px; border-bottom: 1px solid #F5F5F5; padding-bottom: 10px; }
-    .hc-shop { font-weight: bold; font-size: 16px; color: #212121; font-family: 'Noto Serif TC'; }
+    .hc-shop { font-weight: bold; font-size: 16px; color: #212121; }
     .hc-date { font-size: 12px; color: #999; }
     .hc-body { display: flex; justify-content: space-between; align-items: center; }
     .hc-summary { font-size: 13px; color: #666; line-height: 1.5; flex: 1; padding-right: 10px; }
-    .hc-price { font-size: 18px; font-weight: bold; color: var(--primary); font-family: 'Noto Serif TC'; }
+    .hc-price { font-size: 18px; font-weight: bold; color: var(--primary); }
     .hc-status { display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; margin-top: 5px; }
     .status-wait { background: #FFF8E1; color: #D4A017; }
     .status-ok { background: #E8F5E9; color: var(--success); }
@@ -165,7 +168,6 @@
     .shop-title-large { 
       color: #fff; font-size: 30px; font-weight: bold; 
       text-shadow: 0 2px 10px rgba(0,0,0,0.5); letter-spacing: 2px; margin: 0;
-      font-family: 'Noto Serif TC'; 
     }
     .shop-subtitle {
       color: rgba(255,255,255,0.9); font-size: 13px; margin-top: 5px; letter-spacing: 2px; text-transform: uppercase;
@@ -191,21 +193,22 @@
     .category-item.active { background: #fff; color: #212121; font-weight: bold; }
     .category-item.active::before { content: ''; position: absolute; left: 0; top: 25px; bottom: 25px; width: 3px; background: var(--primary); }
     
-    /* [Fixed] Menu Content Padding */
+    /* [Layout Fix] Ensure menu content scrolls fully above fixed bars */
     .menu-content { 
         flex: 1; overflow-y: auto; 
-        padding: 0 15px 180px 15px; 
+        padding: 0 15px 150px 15px; 
         scroll-behavior: smooth; 
     }
     
     .category-title { font-size: 15px; font-weight: bold; color: #212121; margin: 25px 0 15px 0; padding-left: 0; letter-spacing: 1px; }
     .food-item { display: flex; margin-bottom: 24px; padding-bottom: 0; border-bottom: none; }
+    .food-item:last-child { border-bottom: none; }
     .food-img { width: 96px; height: 96px; border-radius: 8px; background-color: #F5F5F5; background-size: cover; background-position: center; flex-shrink: 0; }
     .food-info { flex: 1; padding-left: 14px; display: flex; flex-direction: column; justify-content: space-between; padding-bottom: 5px;}
-    .food-name { font-size: 16px; font-weight: bold; color: #212121; font-family: 'Noto Serif TC'; }
+    .food-name { font-size: 16px; font-weight: bold; color: #212121; }
     .food-desc { font-size: 12px; color: #999; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin-top: 4px; line-height: 1.4; }
     .food-action { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 5px; }
-    .food-price { color: #212121; font-weight: bold; font-family: 'Noto Serif TC'; font-size: 16px; }
+    .food-price { color: #212121; font-weight: bold; font-size: 16px; }
     .btn-add-mini { background: var(--primary); color: #fff; width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; box-shadow: 0 2px 8px rgba(179, 60, 58, 0.3); }
 
     .retail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding: 20px; width: 100%; overflow-y: auto; align-content: flex-start; padding-bottom: 180px; }
@@ -215,12 +218,13 @@
     .stepper-mini { display: flex; align-items: center; background: #F7F7F7; border-radius: 20px; }
     .stepper-mini button { width: 26px; height: 26px; border: none; background: transparent; font-size: 12px; display:flex; align-items:center; justify-content:center; color: var(--primary); }
 
-    /* [Fixed] Cart Bar: Positioned Fixed at bottom 65px */
+    /* [Layout Fix] Cart Bar: High contrast, Fixed position */
     .cart-bar { 
       position: fixed; 
-      bottom: 65px; /* Sits right on top of the 65px Tab Bar */
+      bottom: 65px; /* Above Tab Bar */
       left: 15px; right: 15px; 
-      background: #212121; border-radius: 50px; padding: 0; 
+      background: #212121; /* Black background */
+      border-radius: 50px; padding: 0; 
       display: flex; justify-content: space-between; align-items: center; 
       color: #fff; box-shadow: 0 5px 20px rgba(0,0,0,0.2); 
       z-index: 900; height: 50px; cursor: pointer; 
@@ -230,7 +234,7 @@
     .cart-badge { position: absolute; top: -6px; right: -6px; background: var(--danger); color: #fff; font-size: 10px; padding: 3px 7px; border-radius: 10px; border: 2px solid #fff; }
     .btn-checkout { background: var(--primary); color: #fff; border: none; height: 100%; padding: 0 35px; border-radius: 0 50px 50px 0; font-weight: bold; font-size: 15px; display: flex; align-items: center; letter-spacing: 1px; }
 
-    /* ==================== 4. 各種彈窗 (Elegant Style) ==================== */
+    /* ==================== 4. 各種彈窗 ==================== */
     .cart-header { display: flex; justify-content: space-between; align-items: center; padding: 18px 20px; background: #fff; border-bottom: 1px solid #F5F5F5; border-radius: 20px 20px 0 0; }
     .cart-stepper { display: flex; align-items: center; background: #F7F7F7; border-radius: 20px; border: none; }
     .cart-stepper button { width: 30px; height: 30px; border: none; background: transparent; font-size: 12px; display: flex; align-items: center; justify-content: center; color: #212121; }
@@ -238,12 +242,12 @@
     .cart-list { padding: 0 20px; max-height: 50vh; overflow-y: auto; }
     .cart-item { display: flex; justify-content: space-between; align-items: center; padding: 18px 0; border-bottom: 1px solid #F7F7F7; }
     
-    /* [Fixed] Spec Modal Layout Refactor - Cleaner Look */
+    /* [Aesthetics Fix] Spec Modal Layout Refactor - Cleaner Look */
     .spec-header { padding: 20px; display: flex; gap: 15px; border-bottom: 1px solid #F5F5F5; }
     .spec-img { width: 80px; height: 80px; border-radius: 8px; background-color: #eee; background-size: cover; background-position: center; }
     .spec-options { padding: 20px; max-height: 40vh; overflow-y: auto; }
     
-    /* [Fixed] Removed borders for cleaner CHAGEE look */
+    /* Removed borders for cleaner look */
     .option-group { 
         margin-bottom: 10px; 
         padding-bottom: 10px; 
@@ -251,11 +255,11 @@
     }
     .option-title { 
         font-weight: bold; margin-bottom: 10px; color: #212121; font-size: 14px; 
-        font-family: 'Noto Serif TC'; letter-spacing: 1px;
+        letter-spacing: 1px;
     }
     
     .chip { padding: 8px 18px; background: #F7F7F7; border-radius: 4px; font-size: 13px; color: #666; border: none; cursor: pointer; margin-right: 8px; margin-bottom: 8px; display: inline-block; transition: all 0.2s; }
-    .chip.selected { background: #FCEEEE; color: var(--primary); font-weight: bold; }
+    .chip.selected { background: var(--primary); color: #fff; font-weight: bold; }
     .spec-add-btn { background: var(--primary); color: #fff; padding: 12px 30px; border-radius: 4px; font-weight: bold; cursor: pointer; text-align: center; box-shadow: 0 4px 12px rgba(179, 60, 58, 0.2); }
     .stepper { display: flex; align-items: center; background: #F7F7F7; border-radius: 4px; padding: 4px 10px; }
     
@@ -263,13 +267,13 @@
     .od-paper { background: #fff; width: 100%; max-width: 350px; border-radius: 8px; padding: 0; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.5); display: flex; flex-direction: column; max-height: 85vh; position: relative; }
     .od-paper::before { content: ""; display: block; height: 6px; background: var(--primary); }
     .od-header { padding: 20px; text-align: center; border-bottom: 1px solid #F5F5F5; }
-    .od-shop-name { font-size: 20px; font-weight: bold; font-family: 'Noto Serif TC'; color: #212121; }
+    .od-shop-name { font-size: 20px; font-weight: bold; color: #212121; }
     .od-id { font-size: 11px; color: #999; margin-top: 5px; letter-spacing: 1px; }
     .od-scroll-content { padding: 20px; overflow-y: auto; flex: 1; }
     .od-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 14px; color: #555; }
     .od-total-section { margin-top: 20px; padding-top: 15px; border-top: 1px dashed #212121; display: flex; justify-content: space-between; align-items: center; }
     .od-total-label { font-size: 14px; font-weight: bold; }
-    .od-total-val { font-size: 22px; font-weight: bold; color: #212121; font-family: 'Noto Serif TC'; }
+    .od-total-val { font-size: 22px; font-weight: bold; color: #212121; }
     .od-footer { padding: 15px; background: #FAFAFA; text-align: center; border-top: 1px solid #F5F5F5; }
     .btn-close-od { width: 40px; height: 40px; border-radius: 50%; border: 1px solid #ccc; background: #fff; color: #333; font-size: 16px; cursor: pointer; margin-top: 10px; display: flex; justify-content: center; align-items: center; margin: 0 auto; }
 
@@ -333,7 +337,7 @@
       <div class="card-user-row">
           <img id="m-avatar" src="" class="card-avatar" style="border:2px solid var(--gold);">
           <div style="flex:1;">
-              <div id="m-name" style="font-size:20px;font-weight:bold;color:var(--gold);font-family:'Noto Serif TC';">...</div>
+              <div id="m-name" style="font-size:20px;font-weight:bold;color:var(--gold);">...</div>
               <div style="font-size:11px;background:rgba(201, 160, 92, 0.2);color:#E0E0E0;padding:3px 10px;border-radius:12px;display:inline-block;margin-top:6px;border:1px solid rgba(201, 160, 92, 0.3);">普通會員</div>
           </div>
           <i class="fas fa-cog" onclick="openEditModal()" style="font-size:20px;color:rgba(255,255,255,0.6);cursor:pointer;"></i>
@@ -354,7 +358,7 @@
       </div>
       <div class="service-item" onclick="showMsg('客服連線中...')"><div class="service-icon"><i class="fas fa-headset"></i></div><div class="service-label">聯繫客服</div></div>
       <div class="service-item" onclick="showMsg('常見問題頁面')"><div class="service-icon"><i class="fas fa-question-circle"></i></div><div class="service-label">常見問題</div></div>
-      <div class="service-item" onclick="showMsg('Uni-S v1.4')"><div class="service-icon"><i class="fas fa-info-circle"></i></div><div class="service-label">關於我們</div></div>
+      <div class="service-item" onclick="showMsg('Uni-S v1.5')"><div class="service-icon"><i class="fas fa-info-circle"></i></div><div class="service-label">關於我們</div></div>
     </div>
 
     <div style="padding:0 20px 20px 20px;">
@@ -435,10 +439,10 @@
   <div id="cart-modal" class="modal-overlay hidden" onclick="closeCartModal()">
     <div class="modal-sheet" style="padding:0;" onclick="event.stopPropagation()">
       <div class="cart-header">
-         <div style="font-weight:bold;font-size:16px;color:#2C2620;">購物車內容</div>
+         <div style="font-weight:bold;font-size:16px;color:#212121;">購物車內容</div>
          <div onclick="closeCartModal()" style="cursor:pointer;padding:5px;color:#999;"><i class="fas fa-chevron-down"></i></div>
       </div>
-      <div style="background:#F7F7F7;padding:10px 20px;font-size:12px;color:#888;display:flex;justify-content:space-between;align-items:center;">
+      <div style="background:#FAFAFA;padding:10px 20px;font-size:12px;color:#888;display:flex;justify-content:space-between;align-items:center;">
           <span>已選商品</span>
           <span onclick="clearCart()" style="cursor:pointer;color:#B33C3A;"><i class="fas fa-trash"></i> 清空</span>
       </div>
@@ -451,11 +455,11 @@
   <div id="spec-modal" class="modal-overlay hidden">
     <div class="modal-sheet">
       <div style="text-align:right;padding:15px;"><i class="fas fa-times" onclick="closeSpecModal()" style="font-size:22px;color:#ccc;cursor:pointer;"></i></div>
-      <div class="spec-header"><div class="spec-img" id="sp-img"></div><div><div style="font-size:20px;font-weight:bold;color:#2C2620;" id="sp-name"></div><div style="font-size:13px;color:#888;margin-top:5px;" id="sp-desc"></div></div></div>
+      <div class="spec-header"><div class="spec-img" id="sp-img"></div><div><div style="font-size:20px;font-weight:bold;color:#212121;" id="sp-name"></div><div style="font-size:13px;color:#888;margin-top:5px;" id="sp-desc"></div></div></div>
       <div id="sp-options" class="spec-options"></div>
       <div class="spec-footer" style="padding:15px 20px; border-top:1px solid #F0F0F0;">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:15px;">
-           <div style="font-size:22px;font-weight:bold;color:var(--primary);font-family:'Noto Serif TC';">$<span id="sp-price">0</span></div>
+           <div style="font-size:22px;font-weight:bold;color:var(--primary);">$<span id="sp-price">0</span></div>
            <div class="stepper"><button onclick="updateSpQty(-1)">-</button><span id="sp-qty" style="margin:0 10px;font-weight:bold;">1</span><button onclick="updateSpQty(1)">+</button></div>
         </div>
         <div class="spec-add-btn" onclick="addSpecToCart()">加入購物車</div>
@@ -467,7 +471,7 @@
   <div id="service-modal" class="modal-overlay hidden">
     <div class="modal-sheet">
       <div style="padding:25px;">
-        <div style="text-align:center;font-weight:bold;font-size:18px;margin-bottom:20px;color:#2C2620;">選擇服務方式</div>
+        <div style="text-align:center;font-weight:bold;font-size:18px;margin-bottom:20px;color:#212121;">選擇服務方式</div>
         <div id="service-options"></div>
         <div style="margin-top:25px;">
             <div style="font-weight:bold;margin-bottom:10px;color:#4A4A4A;">優惠券</div>
@@ -487,7 +491,7 @@
 
   <div id="edit-modal" class="modal-overlay hidden">
     <div class="modal-content-center">
-      <div style="text-align:center;font-weight:bold;margin-bottom:20px;font-size:18px;color:#2C2620;">編輯資料</div>
+      <div style="text-align:center;font-weight:bold;margin-bottom:20px;font-size:18px;color:#212121;">編輯資料</div>
       <div style="margin-bottom:12px;"><label style="font-size:12px;color:#888;margin-bottom:4px;display:block;">姓名</label><input type="text" id="edit-name" class="form-input"></div>
       <div style="margin-bottom:12px;"><label style="font-size:12px;color:#888;margin-bottom:4px;display:block;">電話</label><input type="tel" id="edit-phone" class="form-input"></div>
       <div style="margin-bottom:20px;"><label style="font-size:12px;color:#888;margin-bottom:4px;display:block;">生日</label><input type="date" id="edit-birthday" class="form-input"></div>
@@ -495,7 +499,7 @@
     </div>
   </div>
 
-  <!-- Updated Tab Bar -->
+  <!-- Tab Bar -->
   <div id="tab-bar">
     <div class="tab-item active" onclick="switchTab('menu')">
         <div class="tab-icon"><i class="fas fa-mug-hot"></i></div>
@@ -529,19 +533,11 @@
       document.getElementById('msg-text').innerText = txt; 
       document.getElementById('msg-btn-no').classList.add('hidden'); 
       const yesBtn = document.getElementById('msg-btn-yes');
-      if (showOkBtn) {
-          yesBtn.classList.remove('hidden');
-      } else {
-          yesBtn.classList.add('hidden');
-      }
+      if (showOkBtn) { yesBtn.classList.remove('hidden'); } else { yesBtn.classList.add('hidden'); }
       document.getElementById('msg-modal-overlay').classList.remove('hidden'); 
       modalCb = cb; 
     }
-
-    function showLoadingMsg(txt) {
-        showMsg(txt, null, false);
-    }
-
+    function showLoadingMsg(txt) { showMsg(txt, null, false); }
     function showConfirm(txt, cb) {
       document.getElementById('msg-text').innerText = txt; 
       document.getElementById('msg-btn-no').classList.remove('hidden');
@@ -555,6 +551,7 @@
       modalCb = null;
     }
 
+    // 2. 替換 main() (單店啟動邏輯)
     async function main() {
       try {
         await liff.init({ liffId: MY_LIFF_ID });
@@ -567,18 +564,18 @@
         allShops = await res.json();
         document.getElementById('loading').classList.add('hidden');
 
-        // 🔥 Single Store Launch Logic (Verified)
+        // 啟動邏輯：強制進入單店
         if (allShops[TARGET_SHOP_ID]) {
             openShop(TARGET_SHOP_ID);
         } else {
-            showMsg("店家設定錯誤 (ID Not Found)");
+            showMsg("店家設定錯誤 (TARGET_SHOP_ID 無效)");
         }
         
         fetchMemberData();
       } catch (err) { showMsg(err.message); }
     }
 
-    // [Updated] Safe DOM update for Member View elements only
+    // 1. 替換 updateUI() (修正 null 錯誤)
     function updateUI() { 
         const mName = document.getElementById('m-name');
         const mAvatar = document.getElementById('m-avatar');
@@ -588,7 +585,6 @@
 
     // ========== 路由邏輯 ==========
     function switchTab(tab) {
-        // Ensure Lobby view is removed from logic
         ['coupons-view', 'member-view', 'shop-view', 'history-view', 'order-detail-view'].forEach(id => {
              const el = document.getElementById(id);
              if(el) el.classList.add('hidden');
@@ -676,7 +672,7 @@
             } else {
                 let html = '';
                 myCoupons.forEach(c => {
-                    html += `<div class="my-coupon-item"><div><div style="font-weight:bold;color:#2C2620;">${c.name}</div><div style="font-size:11px;color:#999;">折抵 $${c.value}</div></div><div style="color:var(--primary);font-weight:bold;font-size:12px;border:1px solid var(--primary);padding:2px 8px;border-radius:10px;">未使用</div></div>`;
+                    html += `<div class="my-coupon-item"><div><div style="font-weight:bold;color:#212121;">${c.name}</div><div style="font-size:11px;color:#999;">折抵 $${c.value}</div></div><div style="color:var(--primary);font-weight:bold;font-size:12px;border:1px solid var(--primary);padding:2px 8px;border-radius:10px;">未使用</div></div>`;
                 });
                 list.innerHTML = html;
             }
@@ -720,6 +716,7 @@
         document.getElementById('final-checkout-price').innerText = "$" + final;
     }
 
+    // 替換 confirmOrder 函數
     async function confirmOrder() {
       document.getElementById('service-modal').classList.add('hidden');
       const select = document.getElementById('coupon-selector');
@@ -743,14 +740,14 @@
                 shopId:currentShop.id, userName:userProfile.displayName, userId:userProfile.userId, order:detail, couponUuid: couponUuid 
             })
         });
-        showMsg("✅ 訂單已送出！", () => { cart=[]; updateCartUI(); });
+        // 🔥 修正：送出成功後，導向紀錄頁面 (CHAGEE UX)
+        showMsg("✅ 訂單已送出！", () => { cart=[]; updateCartUI(); switchTab('history'); });
       } catch(e) { showMsg("失敗:"+e.message); }
     }
 
     // Helper Functions
     function calculateDistance(lat1, lon1, lat2, lon2) { const R = 6371; const dLat = deg2rad(lat2 - lat1); const dLon = deg2rad(lon2 - lon1); const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * Math.sin(dLon/2) * Math.sin(dLon/2); const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); return (R * c).toFixed(1); }
     function deg2rad(deg) { return deg * (Math.PI/180); }
-    // initLocationService kept as helper
     function initLocationService() { return new Promise((resolve) => { if (!navigator.geolocation) { resolve(); return; } const timeoutId = setTimeout(() => { resolve(); }, 5000); navigator.geolocation.getCurrentPosition((position) => { clearTimeout(timeoutId); userLocation = { lat: position.coords.latitude, lng: position.coords.longitude }; resolve(); }, (error) => { clearTimeout(timeoutId); resolve(); }); }); }
     
     function openShop(id) { 
