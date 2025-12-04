@@ -372,11 +372,12 @@
     <div class="shop-body">
       <div class="menu-sidebar" id="food-sidebar"></div>
       <div class="menu-content" id="food-content"></div>
+      
+      <!-- Retail will now use placeholder style dynamically -->
       <div id="mode-retail" class="retail-grid hidden" style="display:none;"></div>
       
-      <!-- Construction Mode (Initially hidden) -->
+      <!-- Construction Mode -->
       <div id="mode-construction" class="construction-view hidden">
-          <!-- Use FontAwesome for construction/dev icon -->
           <i class="fas fa-hard-hat" style="font-size: 60px; color: #E0E0E0; margin-bottom: 20px;"></i>
           <div class="placeholder-text">研發中</div>
       </div>
@@ -539,7 +540,7 @@
     </div>
   </div>
 
-  <!-- Updated Tab Bar (Corrected Order: Home, Order, Collection, Member Zone, My) -->
+  <!-- Tab Bar -->
   <div id="tab-bar">
     <div class="tab-item active" onclick="switchTab('home')">
         <div class="tab-icon"><i class="fas fa-home"></i></div>
@@ -609,20 +610,19 @@
         document.getElementById('loading').classList.add('hidden');
 
         if (allShops[TARGET_SHOP_ID]) {
-            currentShop = allShops[TARGET_SHOP_ID];
-            currentShop.id = TARGET_SHOP_ID;
             openShopDataOnly(TARGET_SHOP_ID); 
         } else {
             showMsg("店家設定錯誤 (ID Not Found)");
         }
         
-        // Start at Home Tab
         switchTab('home');
         
         await initLocationService();
+        // [Fixed] Update distance AFTER location service returns
         if(userLocation && currentShop && currentShop.lat) {
             const dist = calculateDistance(userLocation.lat, userLocation.lng, currentShop.lat, currentShop.lng);
-            document.getElementById('shop-distance').innerText = `距您 ${dist} km`;
+            const distEl = document.getElementById('shop-distance');
+            if(distEl) distEl.innerText = `距您 ${dist} km`;
         }
         fetchMemberData();
       } catch (err) { showMsg(err.message); }
@@ -639,23 +639,21 @@
         currentShop = allShops[id]; 
         currentShop.id = id; 
         
+        // [Fixed] Ensure correct spelling 'getElementById'
         document.getElementById('current-shop-name').innerText = currentShop.name;
-        document.getElementById('shop-address').innerText = currentShop.address || "";
+        // document.getElementById('shop-address').innerText = currentShop.address || ""; 
         document.getElementById('modal-address').innerText = currentShop.address || "";
         document.getElementById('modal-announcement').innerText = currentShop.openHours || "營業時間：09:00-22:00";
         document.getElementById('modal-phone').innerText = "188****6289"; 
         if (currentShop.bannerUrl) {
             document.getElementById('shop-banner').style.backgroundImage = `url(${currentShop.bannerUrl})`;
         }
-        // Pre-render Menu to avoid empty state
         renderFoodMenu();
     }
 
-    // [Fixed] Updated Helper to render Placeholder for 'Construction' tabs
     function renderPlaceholder(containerId, message) {
         const container = document.getElementById(containerId);
         if (!container) return;
-        // Use FontAwesome construction icon
         container.innerHTML = `
             <div class="placeholder-page" style="height:100%;">
                 <i class="fas fa-hard-hat fa-3x" style="color:#C9A05C; margin-bottom: 20px; opacity:0.6;"></i>
@@ -664,7 +662,6 @@
         `;
     }
 
-    // [Fixed] Updated Switch Category Tab Logic
     function switchCategoryTab(type, el) {
         document.querySelectorAll('.k-tab-item').forEach(e => e.classList.remove('active'));
         el.classList.add('active');
@@ -674,7 +671,7 @@
         const modeRetail = document.getElementById('mode-retail');
         const modeConstruction = document.getElementById('mode-construction');
 
-        // Reset Visibility
+        // Reset All
         foodSidebar.style.display = 'none';
         foodContent.style.display = 'none';
         modeRetail.style.display = 'none';
@@ -683,11 +680,12 @@
         if (type === 'classic') {
             foodSidebar.style.display = 'block';
             foodContent.style.display = 'block';
-            renderFoodMenu(); // Ensure render
+            renderFoodMenu(); // [Fixed] Force Render Classic Menu
         } else if (type === 'retail') {
-            modeRetail.style.display = 'grid';
-            modeRetail.classList.remove('hidden');
-            renderRetailMenu();
+            // [Fixed] Retail as Construction Mode
+            modeRetail.style.display = 'flex';
+            modeRetail.className = 'construction-view'; // Use shared centered flex style
+            renderPlaceholder('mode-retail', '零售周邊 研發中');
         } else if (type === 'research_a') {
             modeConstruction.style.display = 'flex';
             modeConstruction.classList.remove('hidden');
@@ -847,7 +845,6 @@
     function initLocationService() { return new Promise((resolve) => { if (!navigator.geolocation) { resolve(); return; } const timeoutId = setTimeout(() => { resolve(); }, 5000); navigator.geolocation.getCurrentPosition((position) => { clearTimeout(timeoutId); userLocation = { lat: position.coords.latitude, lng: position.coords.longitude }; resolve(); }, (error) => { clearTimeout(timeoutId); resolve(); }); }); }
     function openMap() { if (currentShop) { if (currentShop.address && currentShop.address.trim() !== "") { window.open(`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(currentShop.address)}`, '_blank'); } else if (currentShop.lat && currentShop.lng) { window.open(`https://www.google.com/maps/dir/?api=1&destination=${currentShop.lat},${currentShop.lng}`, '_blank'); } else { showMsg("無法取得商家位置資訊"); } } }
     
-    // [FIXED] Robust Food Menu Renderer
     function renderFoodMenu() { 
         const catList = document.getElementById('food-sidebar'); 
         const prodList = document.getElementById('food-content'); 
@@ -896,7 +893,6 @@
         }; 
     }
     
-    function renderRetailMenu() { let html = ''; currentShop.menu.forEach((item, idx) => { let img = item.img || currentShop.bannerUrl; html += `<div class="retail-item"><div class="retail-img" style="background-image:url(${img})"></div><div class="retail-info"><div style="font-weight:bold;font-size:14px;">${item.name}</div><div class="retail-actions" style="display:flex;justify-content:space-between;align-items:center;"><span style="color:#e64a19;font-weight:bold;">$${item.price}</span><div class="stepper-mini"><button onclick="updateCartRetail('${item.name}', ${item.price}, -1)">-</button><span id="r-qty-${idx}" style="font-size:13px;font-weight:bold;margin:0 5px;">0</span><button onclick="updateCartRetail('${item.name}', ${item.price}, 1)">+</button></div></div></div></div>`; }); document.getElementById('mode-retail').innerHTML = html; }
     function openSpecModal(item) { currentItem = item; currentQty = 1; currentOptions = {}; document.getElementById('sp-name').innerText = item.name; document.getElementById('sp-desc').innerText = item.desc||''; document.getElementById('sp-price').innerText = item.price; document.getElementById('sp-img').style.backgroundImage = `url(${item.img||currentShop.bannerUrl})`; document.getElementById('sp-qty').innerText = 1; let html = ''; for (let [k, vals] of Object.entries(item.options||{})) { currentOptions[k] = vals[0]; let chips = vals.map((v,i) => `<div class="chip ${i===0?'selected':''}" onclick="selOpt(this,'${k}','${v}')">${v}</div>`).join(''); html += `<div class="option-group"><div class="option-title">${k}</div><div class="option-chips" style="display:flex;gap:8px;flex-wrap:wrap;">${chips}</div></div>`; } document.getElementById('sp-options').innerHTML = html || '<div style="color:#999;font-size:12px;">無規格選項</div>'; document.getElementById('spec-modal').classList.remove('hidden'); }
     function selOpt(el, k, v) { el.parentNode.querySelectorAll('.chip').forEach(c=>c.classList.remove('selected')); el.classList.add('selected'); currentOptions[k] = v; }
     function updateSpQty(n) { if(currentQty+n>0) { currentQty+=n; document.getElementById('sp-qty').innerText=currentQty; document.getElementById('sp-price').innerText=currentItem.price*currentQty; } }
