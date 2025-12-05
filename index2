@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Momo O2O Dispatch System</title>
+    
+    <!-- Tailwind CSS (Global CDN) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Vue.js 3 (Global CDN) -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    
+    <!-- LINE LIFF SDK -->
+    <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+
+    <style>
+        /* 針對 LINE 瀏覽器的優化 */
+        body { -webkit-tap-highlight-color: transparent; }
+        .loader {
+            border-top-color: #3498db;
+            -webkit-animation: spinner 1.5s linear infinite;
+            animation: spinner 1.5s linear infinite;
+        }
+        @keyframes spinner {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800 font-sans">
+
+    <div id="app" class="min-h-screen flex flex-col relative">
+        
+        <!-- Header -->
+        <header class="bg-pink-600 text-white p-4 shadow-md sticky top-0 z-50">
+            <h1 class="text-lg font-bold">Momo O2O 派單系統</h1>
+            <p class="text-xs opacity-80" v-if="liffProfile">Hi, {{ liffProfile.displayName }}</p>
+        </header>
+
+        <!-- Main Content -->
+        <main class="flex-grow p-4 space-y-4">
+            
+            <!-- Loading State -->
+            <div v-if="isLoading" class="flex justify-center items-center py-10">
+                <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12"></div>
+            </div>
+
+            <!-- Error Message -->
+            <div v-if="errorMessage" class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow" role="alert">
+                <p class="font-bold">錯誤</p>
+                <p>{{ errorMessage }}</p>
+            </div>
+
+            <!-- Order List -->
+            <div v-if="!isLoading" class="space-y-4">
+                <div v-if="Object.keys(orders).length === 0" class="text-center text-gray-500 py-10">
+                    目前無待派訂單
+                </div>
+
+                <div v-for="(order, id) in orders" :key="id" class="bg-white rounded-lg shadow p-4 border-l-4 border-pink-500">
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="bg-pink-100 text-pink-800 text-xs font-semibold px-2.5 py-0.5 rounded">
+                            {{ id }}
+                        </span>
+                        <span class="text-sm text-gray-500">{{ formatDate(order.createdAt) }}</span>
+                    </div>
+                    <h3 class="font-bold text-lg mb-1">{{ order.customerName }}</h3>
+                    <p class="text-sm text-gray-600 mb-3">{{ order.address }}</p>
+                    
+                    <div class="flex space-x-2 mt-3">
+                        <button 
+                            @click="dispatchOrder(id)" 
+                            class="flex-1 bg-pink-600 hover:bg-pink-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-pink-500 transition duration-150">
+                            接單派送
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- Footer -->
+        <footer class="bg-gray-800 text-white text-center p-3 text-xs">
+            System v1.0.0
+        </footer>
+
+    </div>
+
+    <script>
+        const { createApp, ref, onMounted } = Vue;
+
+        createApp({
+            setup() {
+                // 狀態管理
+                const orders = ref({});
+                const isLoading = ref(false);
+                const errorMessage = ref('');
+                const liffProfile = ref(null);
+
+                // GAS API URL (部署後填入)
+                const GAS_API_URL = 'YOUR_GAS_DEPLOYMENT_URL';
+
+                // 初始化 LIFF
+                const initLiff = async () => {
+                    try {
+                        // 請替換為您的 LIFF ID
+                        await liff.init({ liffId: "YOUR_LIFF_ID" });
+                        if (liff.isLoggedIn()) {
+                            liffProfile.value = await liff.getProfile();
+                        } else {
+                            liff.login();
+                        }
+                    } catch (err) {
+                        console.error('LIFF Init Failed', err);
+                        errorMessage.value = "LIFF 初始化失敗，請在 LINE 內開啟";
+                    }
+                };
+
+                // 獲取訂單列表 (呼叫 GAS Backend)
+                const fetchOrders = async () => {
+                    isLoading.value = true;
+                    errorMessage.value = '';
+                    
+                    try {
+                        // 由於 GAS doPost 需要 CORS 處理，通常前端使用 fetch 直接打會遇到問題
+                        // 在真實 LINE LIFF + GAS 架構中，通常有兩種解法：
+                        // 1. 使用 GAS 輸出的 iframe 或 HTML
+                        // 2. 使用 fetch 搭配 text/plain 繞過複雜請求，並在 GAS 端處理
+                        // 這裡演示標準 fetch post
+                        const response = await fetch(GAS_API_URL, {
+                            method: 'POST',
+                            mode: 'no-cors', // GAS 的特性，通常設為 no-cors，但無法讀取回傳值
+                            // 若需讀取回傳值，建議使用 redirect: 'follow' 配合 ContentService
+                            headers: {
+                                'Content-Type': 'text/plain;charset=utf-8',
+                            },
+                            body: JSON.stringify({ action: 'GET_PENDING_ORDERS' })
+                        });
+                        
+                        // 備註：在 no-cors 模式下無法直接讀取 JSON
+                        // 實際專案建議：直接讀取 Firebase RDB (前端 SDK) 以獲得即時性
+                        // 這裡為了架構一致性演示 API 呼叫，若改用 Firebase SDK 會更順暢
+                        
+                        // 模擬數據 (因為 no-cors 拿不到資料)
+                        // orders.value = ... 
+                        
+                    } catch (err) {
+                        errorMessage.value = err.message;
+                    } finally {
+                        isLoading.value = false;
+                    }
+                };
+
+                // 派單動作
+                const dispatchOrder = async (orderId) => {
+                    if(!confirm('確認接單？')) return;
+                    
+                    isLoading.value = true;
+                    try {
+                         // 呼叫 GAS API
+                         const payload = {
+                            action: 'DISPATCH_ORDER',
+                            data: {
+                                orderId: orderId,
+                                driverId: liffProfile.value ? liffProfile.value.userId : 'GUEST'
+                            }
+                        };
+                        
+                        await fetch(GAS_API_URL, {
+                            method: 'POST',
+                            body: JSON.stringify(payload)
+                        });
+                        
+                        // 樂觀更新 UI
+                        delete orders.value[orderId];
+                        alert('派單成功！');
+
+                    } catch (err) {
+                        alert('派單失敗: ' + err.message);
+                    } finally {
+                        isLoading.value = false;
+                    }
+                };
+                
+                // 輔助函式
+                const formatDate = (isoString) => {
+                    if(!isoString) return '';
+                    return new Date(isoString).toLocaleString('zh-TW');
+                };
+
+                onMounted(() => {
+                    // 1. 初始化 LIFF
+                    // initLiff(); 
+                    
+                    // 2. 暫時模擬一些數據方便開發測試
+                    orders.value = {
+                        'ORD-001': { customerName: '陳小姐', address: '台北市信義區忠孝東路五段', createdAt: new Date().toISOString() },
+                        'ORD-002': { customerName: '林先生', address: '新北市板橋區縣民大道', createdAt: new Date().toISOString() }
+                    };
+                });
+
+                return {
+                    orders,
+                    isLoading,
+                    errorMessage,
+                    liffProfile,
+                    dispatchOrder,
+                    formatDate
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>
